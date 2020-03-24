@@ -19,8 +19,6 @@ public class Tokenizer {
 
     public void tokenize() {
         for (String s : this.rules) {
-            // reached end
-            if (s == null) break;
 
             // handle Punctuation
             if (s.startsWith("[")) {
