@@ -79,11 +79,9 @@ public class Tokenizer {
 
     @Override
     public String toString() {
-        return "Tokenizer{" +
-                "\n ===regularExpressions===\n" + regularExpressions.keySet() + "\n" + regularExpressions.values() +
+        return  "\n ===regularExpressions===\n" + regularExpressions.keySet() + "\n" + regularExpressions.values() +
                 "\n regularDefinitions===\n" + regularDefinitions.keySet() + "\n" + regularDefinitions.values() +
                 "\n ===keyWords===\n" + keyWords +
-                "\n ===punctuation===\n" + punctuation +
-                "\n}";
+                "\n ===punctuation===\n" + punctuation;
     }
 }
