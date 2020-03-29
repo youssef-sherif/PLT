@@ -1,34 +1,26 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
+        RulesTokenizer rulesTokenizer = new RulesTokenizer("lexical_rules.txt");
+        rulesTokenizer.tokenize();
 
-        BufferedReader reader;
-        List<String> rules = new ArrayList<>();
-        try {
-            reader = new BufferedReader(new FileReader(
-                    new File("lexical_rules.txt")
-            ));
-            String line = reader.readLine();
-            while (line != null) {
-                rules.add(line);
-                // read next line
-                line = reader.readLine();
-            }
-            reader.close();
+        List<NFA> NFAList = new ArrayList<>();
 
-            Tokenizer tokenizer = new Tokenizer(rules);
-            tokenizer.tokenize();
-            System.out.println(tokenizer.toString());
+        System.out.println(rulesTokenizer.getRegularDefinitionsNames());
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        rulesTokenizer.getRegularExpressions().forEach((key, value) -> {
+            RegularExpressionTokenizer regularExpressionTokenizer = new RegularExpressionTokenizer(
+                    key, value,
+                    rulesTokenizer.getRegularDefinitionsNames());
+
+            regularExpressionTokenizer.tokenizeRegEx();
+
+        });
+
+
+//        NFA combinedNfa = NFA.combineNFAs(NFAList);
     }
 }
