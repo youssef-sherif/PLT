@@ -1,19 +1,40 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 public class Tokenizer {
 
     private final List<String> rules;
-    private Map<String, List<String>> regularExpressions;
-    private Map<String, List<String>> regularDefinitions;
+    private Map<String, String> regularExpressions;
+    private Map<String, String> regularDefinitions;
     private List<String> keyWords;
     private List<String> punctuation;
 
-    public Tokenizer(List<String> rules) {
-        this.rules = rules;
+    public Tokenizer(String fileName) {
+        BufferedReader reader;
+        this.rules = new ArrayList<>();
         this.regularExpressions = new HashMap<>();
         this.regularDefinitions = new HashMap<>();
         this.keyWords = new ArrayList<>();
         this.punctuation = new ArrayList<>();
+
+        try {
+            reader = new BufferedReader(new FileReader(
+                    new File(fileName)
+            ));
+            String line = reader.readLine();
+            while (line != null) {
+                rules.add(line);
+                // read next line
+                line = reader.readLine();
+            }
+            reader.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -37,33 +58,23 @@ public class Tokenizer {
 
                 // handle colon tokens
                 if (colonTokens[0].split(" ").length == 1) {
-                    List<String> tokens = new ArrayList<>();
                     String ruleName = colonTokens[0];
-
-                    for (int i = 1; i < colonTokens.length; i++) {
-                        tokens.add(colonTokens[i]);
-                    }
-                    regularExpressions.put(ruleName, tokens);
+                    regularExpressions.put(ruleName.trim(), colonTokens[1]);
                 }
                 // handle equal tokens
                 else if (equalTokens[0].split(" ").length == 1) {
-                    List<String> tokens = new ArrayList<>();
                     String ruleName = equalTokens[0];
-
-                    for (int i = 1; i < equalTokens.length; i++) {
-                        tokens.add(equalTokens[i]);
-                    }
-                    regularDefinitions.put(ruleName, tokens);
+                    regularDefinitions.put(ruleName.trim(), equalTokens[1]);
                 }
             }
         }
     }
 
-    public Map<String, List<String>> getRegularExpressions() {
+    public Map<String, String> getRegularExpressions() {
         return regularExpressions;
     }
 
-    public Map<String, List<String>> getRegularDefinitions() {
+    public Map<String, String> getRegularDefinitions() {
         return regularDefinitions;
     }
 
@@ -73,6 +84,14 @@ public class Tokenizer {
 
     public List<String> getPunctuation() {
         return punctuation;
+    }
+
+    public Set<String> getRegularDefinitionsNames() {
+        return regularDefinitions.keySet();
+    }
+
+    public String getRegularExpressionByKey(String key) {
+        return regularExpressions.get(key);
     }
 
     @Override
