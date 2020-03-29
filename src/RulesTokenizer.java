@@ -4,7 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-public class Tokenizer {
+public class RulesTokenizer {
 
     private final List<String> rules;
     private Map<String, String> regularExpressions;
@@ -12,7 +12,7 @@ public class Tokenizer {
     private List<String> keyWords;
     private List<String> punctuation;
 
-    public Tokenizer(String fileName) {
+    public RulesTokenizer(String fileName) {
         BufferedReader reader;
         this.rules = new ArrayList<>();
         this.regularExpressions = new HashMap<>();
@@ -88,10 +88,6 @@ public class Tokenizer {
 
     public Set<String> getRegularDefinitionsNames() {
         return regularDefinitions.keySet();
-    }
-
-    public String getRegularExpressionByKey(String key) {
-        return regularExpressions.get(key);
     }
 
     @Override
