@@ -132,15 +132,19 @@ class RegularExpressionTokenizer {
                         if (andEd.length > 1) {
                             System.out.println("AND " + Arrays.toString(andEd));
                         } else {
-                            Part part = noop(andEd[0]);
-                            System.out.println(x + " " + part.toString());
+                            System.out.println(x + " " + Arrays.toString(andEd));
+//                            Part part = noop(andEd[0]);
+//                            if (!part.getExpressions()[0].isEmpty())
+//                                System.out.println(x + " " + part.toString());
                         }
                     }
                 }
                 // Part does not contain ORs.
                 else {
-                    Part part = noop(operationExpressions[0]);
-                    System.out.println(x + " " + part.toString());
+                    System.out.println(x + " " + Arrays.toString(operationExpressions));
+//                    Part part = noop(operationExpressions[0]);
+//                    if (!part.getExpressions()[0].isEmpty())
+//                        System.out.println(x + " " + part.toString());
                 }
             }
         }
@@ -151,19 +155,19 @@ class RegularExpressionTokenizer {
     private Part noop(String expression) {
 
         if (expression.endsWith(String.valueOf(PLUS)) && !expression.startsWith("\\")) {
-            expression = expression.substring(0, expression.length()-1);
-            if (regularDefinitionsNames.contains(expression)) {
+            String expression1 = expression.substring(0, expression.length()-1);
+            if (regularDefinitionsNames.contains(expression1)) {
                 return new Part("DEF " + PLUS, new String[]{expression});
             } else {
-                return new Part(String.valueOf(PLUS), new String[]{expression});
+                return new Part("NOOP " + String.valueOf(PLUS), new String[]{expression});
             }
         }
         else if (expression.endsWith(String.valueOf(ASTERISK)) && !expression.startsWith("\\")) {
-            expression = expression.substring(0, expression.length()-1);
-            if (regularDefinitionsNames.contains(expression)) {
+            String expression1 = expression.substring(0, expression.length()-1);
+            if (regularDefinitionsNames.contains(expression1)) {
                 return new Part("DEF " + ASTERISK, new String[]{expression});
             } else {
-                return new Part(String.valueOf(ASTERISK), new String[]{expression});
+                return new Part("NOOP " + String.valueOf(ASTERISK), new String[]{expression});
             }
         }
         else if (regularDefinitionsNames.contains(expression)) {
@@ -174,12 +178,12 @@ class RegularExpressionTokenizer {
     }
 
     private Part asterisk(Part expression) {
-        expression.setOperationType(expression.getOperationType() + " *");
+        expression.setOperationType(expression.getOperationType() + " " + ASTERISK);
         return expression;
     }
 
     private Part plus(Part expression) {
-        expression.setOperationType(expression.getOperationType() + " +");
+        expression.setOperationType(expression.getOperationType() + " " + PLUS);
         return expression;
     }
 
