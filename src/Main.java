@@ -1,6 +1,6 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class Main {
 
@@ -8,21 +8,27 @@ public class Main {
         RulesTokenizer rulesTokenizer = new RulesTokenizer("lexical_rules.txt");
         rulesTokenizer.tokenize();
 
-        List<NFA> NFAList = new ArrayList<>();
+        List<NFA> nfaList = new ArrayList<>();
 
-        System.out.println(rulesTokenizer.getRegularDefinitionsNames());
+        for (Map.Entry<String, String> entry : rulesTokenizer.getRegularExpressions().entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            RegularExpressionTokenizer regularExpressionTokenizer = new RegularExpressionTokenizer(key,
+                    rulesTokenizer.getRegularDefinitionsNames(),
+                    rulesTokenizer.getKeyWords(),
+                    rulesTokenizer.getPunctuation()
+            );
 
-        rulesTokenizer.getRegularExpressions().forEach((key, value) -> {
-            RegularExpressionTokenizer regularExpressionTokenizer = new RegularExpressionTokenizer(
-                    key,
-                    value,
-                    rulesTokenizer.getRegularDefinitionsNames());
+            nfaList.add(
+                    regularExpressionTokenizer.toNFA(
+                            regularExpressionTokenizer.tokenizeParts(
+                                    regularExpressionTokenizer.tokenizeParenthesis(value)
+                            )
+                    )
+            );
+        }
 
-            regularExpressionTokenizer.tokenize();
 
-        });
-
-
-//        NFA combinedNfa = NFA.combineNFAs(NFAList);
+        NFA combinedNfa = NFA.combineNFAs(nfaList);
     }
 }

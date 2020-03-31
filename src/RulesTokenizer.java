@@ -9,16 +9,16 @@ public class RulesTokenizer {
     private final List<String> rules;
     private Map<String, String> regularExpressions;
     private Map<String, String> regularDefinitions;
-    private List<String> keyWords;
-    private List<String> punctuation;
+    private Set<String> keyWords;
+    private Set<String> punctuation;
 
     public RulesTokenizer(String fileName) {
         BufferedReader reader;
         this.rules = new ArrayList<>();
         this.regularExpressions = new HashMap<>();
         this.regularDefinitions = new HashMap<>();
-        this.keyWords = new ArrayList<>();
-        this.punctuation = new ArrayList<>();
+        this.keyWords = new HashSet<>();
+        this.punctuation = new HashSet<>();
 
         try {
             reader = new BufferedReader(new FileReader(
@@ -44,12 +44,12 @@ public class RulesTokenizer {
             // handle Punctuation
             if (s.startsWith("[")) {
                 String punctuation = s.substring(1, s.length()-1);
-                this.punctuation = Arrays.asList(punctuation.split(" "));
+                Collections.addAll(this.punctuation, punctuation.split(" "));
             }
             // handle Keywords
             else if (s.startsWith("{")) {
                 String keyWords = s.substring(1, s.length()-1);
-                this.keyWords = Arrays.asList(keyWords.split(" "));
+                Collections.addAll(this.keyWords, keyWords.split(" "));
             }
 
             else {
@@ -78,11 +78,11 @@ public class RulesTokenizer {
         return regularDefinitions;
     }
 
-    public List<String> getKeyWords() {
+    public Set<String> getKeyWords() {
         return keyWords;
     }
 
-    public List<String> getPunctuation() {
+    public Set<String> getPunctuation() {
         return punctuation;
     }
 
