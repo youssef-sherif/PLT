@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -13,10 +14,11 @@ public class Main {
 
         rulesTokenizer.getRegularExpressions().forEach((key, value) -> {
             RegularExpressionTokenizer regularExpressionTokenizer = new RegularExpressionTokenizer(
-                    key, value,
+                    key,
+                    value,
                     rulesTokenizer.getRegularDefinitionsNames());
 
-            regularExpressionTokenizer.tokenizeRegEx();
+            regularExpressionTokenizer.tokenize();
 
         });
 

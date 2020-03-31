@@ -1,16 +1,19 @@
 import java.util.*;
 
-class RegularExpression {
+class RegularExpressionTokenizer {
 
     private final String key;
     private final String regEx;
+
     private static Set<String> regularDefinitionsNames;
+    private static final Character ASTERISK = '*';
+    private static final Character PLUS = '+';
 
 
-    public RegularExpression(String key, String regExInput, Set<String> regularDefinitionsNames) {
+    public RegularExpressionTokenizer(String key, String regExInput, Set<String> regularDefinitionsNames) {
         this.key = key;
-        this.regEx = regExInput;
-        this.regularDefinitionsNames = regularDefinitionsNames;
+        this.regEx = regExInput + " |";
+        RegularExpressionTokenizer.regularDefinitionsNames = regularDefinitionsNames;
     }
 
     public List<String[]> tokenize() {
@@ -33,6 +36,7 @@ class RegularExpression {
                 // remove '('
                 currRegEx = currRegEx.substring(1);
 
+                // TODO: use stack to handle parenthesis within other parenthesis
                 while (!currRegEx.contains(")")) {
                     bracketBuffer.append(" ").append(currRegEx);
                     currRegEx = iterator.next();
@@ -45,27 +49,26 @@ class RegularExpression {
                 String bracketGroup = bracketBuffer.toString();
                 // Check if the bracket ends in '*' or '+'
                 if (currRegEx.length() > currRegEx.indexOf(")") + 1) {
-                    if (currRegEx.charAt(currRegEx.indexOf(")") + 1) == '*') {
+                    if (currRegEx.charAt(currRegEx.indexOf(")") + 1) == ASTERISK) {
                         // repeat OR / AND tokenization inside bracket
                         bracketTokens.add(asterisk(
                                         group(bracketGroup)
                                 ));
                         toReturn.addAll(bracketTokens);
-                    } else if (currRegEx.charAt(currRegEx.indexOf(")") + 1) == '+') {
-                        // repeat OR / AND tokenization inside bracket
+                    } else if (currRegEx.charAt(currRegEx.indexOf(")") + 1) == PLUS) {
                         bracketTokens.add(plus(
                                         group(bracketGroup)
                                 ));
                         toReturn.addAll(bracketTokens);
                     }
                 } else {
-                    // repeat OR / AND tokenization inside bracket
                     bracketTokens.add(
                             group(bracketGroup)
                     );
                     toReturn.addAll(bracketTokens);
                 }
             } else {
+                // NOOP because we are not sure what it is
                 toReturn.add(
                         noop(currRegEx)
                 );
@@ -79,62 +82,86 @@ class RegularExpression {
     private List<String[]> tokenizeORs(List<String[]> tokens) {
 
         List<String[]> toReturn = new ArrayList<>();
+        List<Operation> buffer = new ArrayList<>();
 
         for (String[] curr : tokens) {
             String currOp = curr[0];
             String currExp = curr[1];
 
-            System.out.println(currExp);
             String[] ORedExpressions = currExp.split("\\|");
 
-            if (ORedExpressions.length > 0) {
-                toReturn.add(or(currOp, ORedExpressions));
+            // fill buffer until we reach split. That means we should OR all ANDS together.
+            if (ORedExpressions.length == 0) {
+                toReturn.add(tokenizeAnds(buffer));
+                buffer = new ArrayList<>();
+            } else {
+                buffer.add(new Operation(currOp, ORedExpressions));
             }
         }
 
         return toReturn;
     }
 
-    public static String[] asterisk(String[] expression) {
+    // TODO: this function should be recursive
+    private  String[] tokenizeAnds(List<Operation> expressions) {
+        // expressions with the same random number are ANDed together
+        double x = Math.random();
+        for (Operation e : expressions) {
+            String[] operationExpressions = e.getExpressions();
+            String operationType = e.getOperationType();
+            System.out.println(x + " " + operationType + " " + Arrays.toString(operationExpressions));
+            if (operationExpressions.length > 1) {
+                System.out.println("OR " +  Arrays.toString(operationExpressions));
+                for (String exp :  operationExpressions) {
+                    String[] andEd = exp.trim().split(" ");
+                    if (andEd.length > 1) {
+                        System.out.println("AND " + Arrays.toString(andEd));
+                    } else {
+                        System.out.println(Arrays.toString(noop(andEd[0])));
+                    }
+                }
+            } else {
+                System.out.println(Arrays.toString(noop(operationExpressions[0])));
+            }
+        }
+
+        return new String[]{};
+    }
+
+    private String[] noop(String expression) {
+        if (expression.endsWith(String.valueOf(PLUS)) && !expression.startsWith("\\")) {
+            expression = expression.substring(0, expression.length()-1);
+            if (regularDefinitionsNames.contains(expression)) {
+                return new String[]{"DEF " + PLUS, expression};
+            } else {
+                return new String[]{String.valueOf(PLUS), expression};
+            }
+        } else if (expression.endsWith(String.valueOf(ASTERISK)) && !expression.startsWith("\\")) {
+            expression = expression.substring(0, expression.length()-1);
+            if (regularDefinitionsNames.contains(expression)) {
+                return new String[]{"DEF " + ASTERISK, expression};
+            } else {
+                return new String[]{String.valueOf(ASTERISK), expression};
+            }
+        }
+
+        return new String[]{"NOOP", expression};
+    }
+
+    private String[] asterisk(String[] expression) {
         expression[0] += " *";
         return expression;
     }
 
-    public static String[] plus(String[] expression) {
+    private String[] plus(String[] expression) {
         expression[0] += " +";
         return expression;
     }
 
-    public static String[] group(String expression) {
+    private String[] group(String expression) {
         return new String[]{"GROUP", expression};
     }
 
-    public static String[] noop(String expression) {
-        if (expression.endsWith("+")) {
-            expression = expression.substring(0, expression.length()-1);
-            if (regularDefinitionsNames.contains(expression)) {
-                return new String[]{"DEF +", expression};
-            } else {
-                return new String[]{"+", expression};
-            }
-        }
-        else if (expression.endsWith("*")) {
-            expression = expression.substring(0, expression.length()-1);
-            if (regularDefinitionsNames.contains(expression)) {
-                return new String[]{"DEF *", expression};
-            } else {
-                return new String[]{"*", expression};
-            }
-        }
-        return new String[]{"NOOP", expression};
-    }
-
-    public static String[] or(String currOp, String[] oRedExpressions) {
-        List<String> orFormat = new ArrayList<>();
-        orFormat.add(currOp);
-        orFormat.addAll(Arrays.asList(oRedExpressions));
-        return orFormat.toArray(new String[0]);
-    }
 
     /*
     TODO: create NFA State according to Thompson's construction
