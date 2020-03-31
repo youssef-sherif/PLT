@@ -1,122 +1,139 @@
 import java.util.*;
 
-public class RegularExpressionTokenizer {
+class RegularExpression {
 
     private final String key;
-    private final String[] regEx;
-    private final Set<String> regularDefinitionsNames;
+    private final String regEx;
+    private static Set<String> regularDefinitionsNames;
 
-    private static final Character ASTERISK = '*';
-    private static final Character PLUS = '+';
 
-    public RegularExpressionTokenizer(String key, String regExInput, Set<String> regularDefinitionsNames) {
+    public RegularExpression(String key, String regExInput, Set<String> regularDefinitionsNames) {
         this.key = key;
-        this.regEx = regExInput.split(" ");
+        this.regEx = regExInput;
         this.regularDefinitionsNames = regularDefinitionsNames;
     }
 
-    public void tokenizeRegEx() {
+    public List<String[]> tokenize() {
 
         System.out.println("===" + key + "===");
+
+        String[] regEx = this.regEx.split(" ");
+
         ListIterator<String> iterator = Arrays.asList(regEx).listIterator();
+        List<String[]> toReturn = new ArrayList<>();
 
         while (iterator.hasNext()) {
-            String regEx = iterator.next();
-
-            StringBuilder bracketBuffer = new StringBuilder();
+            String currRegEx = iterator.next();
 
             // if '(' found extract all the pattern inside '(' and ')' into a buffer
-            if (regEx.startsWith("(")) {
-                // remove '('
-                regEx = regEx.substring(1);
+            if (currRegEx.startsWith("(")) {
+                // buffer that we append to all regEx within '(' and ')'
+                StringBuilder bracketBuffer = new StringBuilder();
 
-                while (!regEx.contains(")")) {
-                    bracketBuffer.append(" ").append(regEx);
-                    regEx = iterator.next();
+                // remove '('
+                currRegEx = currRegEx.substring(1);
+
+                while (!currRegEx.contains(")")) {
+                    bracketBuffer.append(" ").append(currRegEx);
+                    currRegEx = iterator.next();
                 }
                 // remove ')'
-                String regExInsideBracket = regEx.substring(0, regEx.indexOf(")"));
+                String regExInsideBracket = currRegEx.substring(0, currRegEx.indexOf(")"));
                 bracketBuffer.append(" ").append(regExInsideBracket);
-                System.out.println(bracketBuffer.toString());
 
+                List<String[]> bracketTokens = new ArrayList<>();
+                String bracketGroup = bracketBuffer.toString();
                 // Check if the bracket ends in '*' or '+'
-                if (regEx.length() > regEx.indexOf(")")+1) {
-                    if (regEx.charAt(regEx.indexOf(")") + 1) == '*') {
-                        System.out.println("Bracket ends in '*'");
+                if (currRegEx.length() > currRegEx.indexOf(")") + 1) {
+                    if (currRegEx.charAt(currRegEx.indexOf(")") + 1) == '*') {
+                        // repeat OR / AND tokenization inside bracket
+                        bracketTokens.add(asterisk(
+                                        group(bracketGroup)
+                                ));
+                        toReturn.addAll(bracketTokens);
+                    } else if (currRegEx.charAt(currRegEx.indexOf(")") + 1) == '+') {
+                        // repeat OR / AND tokenization inside bracket
+                        bracketTokens.add(plus(
+                                        group(bracketGroup)
+                                ));
+                        toReturn.addAll(bracketTokens);
                     }
-                    else if (regEx.charAt(regEx.indexOf(")") + 1) == '+') {
-                        System.out.println("Bracket ends in '+'");
-                    }
+                } else {
+                    // repeat OR / AND tokenization inside bracket
+                    bracketTokens.add(
+                            group(bracketGroup)
+                    );
+                    toReturn.addAll(bracketTokens);
                 }
-
-                // tokenize the buffer between '(' and ')'
-                tokenizePart(bracketBuffer.toString(), iterator);
-            }
-            else {
-                tokenizePart(regEx, iterator);
+            } else {
+                toReturn.add(
+                        noop(currRegEx)
+                );
             }
         }
+
+        return tokenizeORs(toReturn);
     }
 
 
-    private void tokenizePart(String regExPart, ListIterator<String> iterator) {
-        /*
-         * plainPattern is the current subpattern without '*' or '+'
-         * for example digit* -> digit , digits+ -> digits ..
-         */
-        String plainPattern;
+    private List<String[]> tokenizeORs(List<String[]> tokens) {
 
-        // pattern ends with '*' and is not escaped
-        if (regExPart.endsWith(String.valueOf(ASTERISK)) && !regExPart.startsWith("\\")) {
+        List<String[]> toReturn = new ArrayList<>();
 
-            System.out.println("Regular definition ending with '*' detected:");
-            plainPattern = regExPart.substring(0, regExPart.length()-1);
-            iterator.set(plainPattern);
-            // Regular definition ending with '*' detected
-            if (regularDefinitionsNames.contains(plainPattern.trim())) {
-                // do nothing for now
-            }
-            System.out.println(plainPattern);
-        }
-        // pattern ends with '+' and is not escaped
-        else if (regExPart.endsWith(String.valueOf(PLUS)) && !regExPart.startsWith("\\")) {
+        for (String[] curr : tokens) {
+            String currOp = curr[0];
+            String currExp = curr[1];
 
-            System.out.println("Regular definition ending with '+' detected:");
-            plainPattern = regExPart.substring(0, regExPart.length()-1);
-            iterator.set(plainPattern);
-            // Regular definition ending with '+' detected
-            if (regularDefinitionsNames.contains(plainPattern.trim())) {
-                // do nothing for now
-            }
-            System.out.println(plainPattern);
-        }
-        //Regular definition not ending with '+' or '*' detected
-        else if (regularDefinitionsNames.contains(regExPart.trim())) {
-            System.out.println("Regular definition not ending with '+' or '*' detected:");
-            System.out.println(regExPart);
-        }
-        // Expression that is not a regular definition detected
-        // could still contain '|' and regular definitions
-        else {
-            String[] ORedExpressions = regExPart.split("\\|");
-            if (ORedExpressions.length > 1) {
-                System.out.println("ORed expressions:");
-                System.out.println(Arrays.toString(ORedExpressions));
-            }
-            else if (regExPart.equals("|")) {
-                System.out.println(this.regEx[iterator.previousIndex()-1] + " OR " + this.regEx[iterator.nextIndex()]);
-            }
-            else {
-                System.out.println(regExPart);
-                // TODO: handle escape characters like '\*' and '\+' or
-                // we can also compare directly using '\' prefix which I think is a better option
+            System.out.println(currExp);
+            String[] ORedExpressions = currExp.split("\\|");
 
+            if (ORedExpressions.length > 0) {
+                toReturn.add(or(currOp, ORedExpressions));
             }
         }
 
-        // TODO: think of return type for this function to make integration with NFA easier
-        //
+        return toReturn;
+    }
 
+    public static String[] asterisk(String[] expression) {
+        expression[0] += " *";
+        return expression;
+    }
+
+    public static String[] plus(String[] expression) {
+        expression[0] += " +";
+        return expression;
+    }
+
+    public static String[] group(String expression) {
+        return new String[]{"GROUP", expression};
+    }
+
+    public static String[] noop(String expression) {
+        if (expression.endsWith("+")) {
+            expression = expression.substring(0, expression.length()-1);
+            if (regularDefinitionsNames.contains(expression)) {
+                return new String[]{"DEF +", expression};
+            } else {
+                return new String[]{"+", expression};
+            }
+        }
+        else if (expression.endsWith("*")) {
+            expression = expression.substring(0, expression.length()-1);
+            if (regularDefinitionsNames.contains(expression)) {
+                return new String[]{"DEF *", expression};
+            } else {
+                return new String[]{"*", expression};
+            }
+        }
+        return new String[]{"NOOP", expression};
+    }
+
+    public static String[] or(String currOp, String[] oRedExpressions) {
+        List<String> orFormat = new ArrayList<>();
+        orFormat.add(currOp);
+        orFormat.addAll(Arrays.asList(oRedExpressions));
+        return orFormat.toArray(new String[0]);
     }
 
     /*
