@@ -2,32 +2,47 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class Part {
+
+    public static String DEF = "DEF";
+    public static String GROUP = "GROUP";
+    public static String NOOP = "NOOP";
+
     private String type;
-    private final String[] expressions;
+    private final String expression;
+    private Boolean asterisk = false;
+    private Boolean plus = false;
 
-    public Part(String type, String[] expressions) {
+    public Part(String type, String expression) {
         this.type = type;
-        this.expressions = expressions;
+        this.expression = expression;
     }
 
-    public String getOperationType() {
-        return type;
-    }
-
-    public String[] getExpressions() {
-        return expressions;
-    }
-
-    public void setOperationType(String newType) {
-        this.type = newType;
+    public String getExpression() {
+        return expression;
     }
 
     public boolean isGroup() {
-        return type.startsWith("GROUP");
+        return type.startsWith(GROUP);
+    }
+
+    public Boolean isAsterisk() {
+        return asterisk;
+    }
+
+    public Boolean isPlus() {
+        return plus;
+    }
+
+    public void setAsterisk() {
+        this.asterisk = true;
+    }
+
+    public void setPlus() {
+        this.plus = true;
     }
 
     @Override
     public String toString() {
-        return type + " " + Arrays.toString(expressions);
+        return type + " " + expression;
     }
 }
