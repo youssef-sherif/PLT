@@ -19,16 +19,7 @@ public class Main {
                     rulesTokenizer.getPunctuation()
             );
 
-            nfaList.add(
-                    regularExpressionTokenizer.toNFA(
-                            regularExpressionTokenizer.tokenizeParts(
-                                    regularExpressionTokenizer.tokenizeParenthesis(value)
-                            )
-                    )
-            );
+            nfaList.add(regularExpressionTokenizer.toNFA(value));
         }
-
-
-        NFA combinedNfa = NFA.combineNFAs(nfaList);
     }
 }

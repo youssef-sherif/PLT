@@ -2,22 +2,76 @@ import java.util.*;
 
 class RegularExpressionTokenizer {
 
-    private static Set<String> regularDefinitionsNames;
-    private static Set<String> keyWords;
-    private static Set<String> punctuation;
-    private static final Character ASTERISK = '*';
-    private static final Character PLUS = '+';
-    private Integer nfaId;
+    private final PartFactory partFactory;
+    private String key;
 
 
     public RegularExpressionTokenizer(String key, Set<String> regularDefinitionsNames, Set<String> keyWords, Set<String> punctuation) {
-        System.out.println("===" + key + "===");
-        RegularExpressionTokenizer.regularDefinitionsNames = regularDefinitionsNames;
-        RegularExpressionTokenizer.keyWords = keyWords;
-        RegularExpressionTokenizer.punctuation = punctuation;
+        this.key = key;
+        System.out.println("===" + this.key + "===");
+        this.partFactory = new PartFactory(regularDefinitionsNames, keyWords, punctuation);
     }
 
-    public List<Part> tokenizeParenthesis(String regExString) {
+    public NFA toNFA(String regex) {
+        List<List<Part>> andEdPartsList =  tokenizeParts(
+                tokenizeParenthesis(regex)
+        );
+        NFA nfa = new NFA();
+        for ( List<Part> operationsList: andEdPartsList) {
+            // NOTE: expressions with the same random number will be ANDed together
+            int x =  (new Random()).nextInt(1000);
+            List<NFA> edgesList = new ArrayList<>();
+            for (Part e : operationsList) {
+
+                if (e.isGroup()) {
+                    System.out.println(e.toString());
+                    return toNFA(e.getExpression());
+                }
+                // TODO: use character level parsing instead to avoid repeating this again...
+                String [] ORedExpressions = e.getExpression().split("\\|");
+                // Part contains ORed expressions
+                // create a list of NFAs and or them
+                if (ORedExpressions.length > 1) {
+                    List<NFA> nfas = new ArrayList<>();
+                    for (String exp : ORedExpressions) {
+                        Part part = partFactory.createPart(exp);
+                        System.out.print(part.toString() + " OR ");
+                        NFA edgeNfa = nfa.edgeNfa(part.getExpression());
+                        if (part.isAsterisk()) {
+                            nfas.add(nfa.asterisk(edgeNfa));
+                        } else if(part.isPlus()) {
+                            nfas.add(nfa.plus(edgeNfa));
+                        } else {
+                            nfas.add(edgeNfa);
+                        }
+                    }
+                    nfa = nfa.or(nfas);
+                    System.out.println();
+                }
+                // Part does not contain ORed expressions.
+                // create a new edge
+                else {
+                    System.out.println(x + " " + e.toString());
+                    NFA edgeNfa = nfa.edgeNfa(e.getExpression());
+                    if (e.isAsterisk()) {
+                        edgesList.add(
+                                nfa.asterisk(edgeNfa));
+                    } else if (e.isAsterisk()) {
+                        edgesList.add(
+                                nfa.plus(edgeNfa));
+                    } else {
+                        edgesList.add(edgeNfa);
+                    }
+                }
+                nfa = nfa.concatenate(edgesList);
+            }
+            nfa = nfa.or(edgesList);
+        }
+
+        return nfa;
+    }
+
+    private List<Part> tokenizeParenthesis(String regExString) {
 
         String[] regEx = (regExString + " |").split(" ");
 
@@ -35,7 +89,7 @@ class RegularExpressionTokenizer {
                 // remove '('
                 currRegEx = currRegEx.substring(1);
 
-                // TODO: use stack to handle parenthesis within other parenthesis
+                // TODO: use stack or a counter? to handle parenthesis within other parenthesis
                 while (!currRegEx.contains(")")) {
                     bracketBuffer.append(" ").append(currRegEx);
                     currRegEx = iterator.next();
@@ -44,32 +98,16 @@ class RegularExpressionTokenizer {
                 String regExInsideBracket = currRegEx.substring(0, currRegEx.indexOf(")"));
                 bracketBuffer.append(" ").append(regExInsideBracket);
 
-                List<Part> bracketTokens = new ArrayList<>();
+                List<Part> bracketParts = new ArrayList<>();
                 String bracketGroup = bracketBuffer.toString();
-                // Check if the bracket ends in '*' or '+'
-                if (currRegEx.length() > currRegEx.indexOf(")") + 1) {
-                    if (currRegEx.charAt(currRegEx.indexOf(")") + 1) == ASTERISK) {
-                        // repeat OR / AND tokenization inside bracket
-                        bracketTokens.add(asterisk(
-                                        group(bracketGroup)
-                                ));
-                        toReturn.addAll(bracketTokens);
-                    } else if (currRegEx.charAt(currRegEx.indexOf(")") + 1) == PLUS) {
-                        bracketTokens.add(plus(
-                                        group(bracketGroup)
-                                ));
-                        toReturn.addAll(bracketTokens);
-                    }
-                } else {
-                    bracketTokens.add(
-                            group(bracketGroup)
-                    );
-                    toReturn.addAll(bracketTokens);
-                }
+                bracketParts.add(
+                        partFactory.createGroupPart(bracketGroup, currRegEx)
+                );
+                toReturn.addAll(bracketParts);
             } else {
                 // NOOP because we are still not sure what it is but it is not inside parenthesis
                 toReturn.add(
-                        noop(currRegEx)
+                        partFactory.createPart(currRegEx)
                 );
             }
         }
@@ -78,122 +116,30 @@ class RegularExpressionTokenizer {
     }
 
 
-    public List<List<Part>> tokenizeParts(List<Part> tokens) {
+    private List<List<Part>> tokenizeParts(List<Part> tokens) {
 
         List< List<Part>> toReturn = new ArrayList<>();
         List<Part> buffer = new ArrayList<>();
 
         for (Part part : tokens) {
-            String currOp = part.getOperationType();
-            String[] expressions = part.getExpressions();
 
             if (!part.isGroup()) {
-                String[] ORedExpressions = expressions[0].trim().split("\\|");
+                String[] ORedExpressions = part.getExpression().split("\\|");
 
                 // fill buffer until we reach split. That means we should OR all ANDS together.
                 if (ORedExpressions.length == 0) {
                     toReturn.add(buffer);
                     buffer = new ArrayList<>();
                 }
-                // parenthesis expression
                 else {
-                    buffer.add(new Part(currOp, ORedExpressions));
+                    buffer.add(part);
                 }
-            } else {
+            }
+            // Part is a createGroupPart. We will deal with it as a single part.
+            else {
                 buffer.add(part);
             }
         }
-
         return toReturn;
     }
-
-    // TODO: this method returns empty NFA for now
-    public NFA toNFA(List<List<Part>> andEdOperationsList) {
-        for ( List<Part> operationsList: andEdOperationsList) {
-            // NOTE: expressions with the same random number will be ANDed together
-            int x =  (new Random()).nextInt(1000);
-            for (Part e : operationsList) {
-                if (e.isGroup()) {
-                    System.out.println(x + " " + e.toString());
-                    return toNFA(
-                            tokenizeParts(
-                                    tokenizeParenthesis(e.getExpressions()[0])
-                            )
-                    );
-                }
-                String[] operationExpressions = e.getExpressions();
-                String operationType = e.getOperationType();
-                // Part contains ORs
-                // We need to split it to smaller parts.
-                if (operationExpressions.length > 1) {
-                    System.out.println("OR " +  Arrays.toString(operationExpressions));
-                    for (String exp : operationExpressions) {
-                        String[] andEd = exp.trim().split(" ");
-                        if (andEd.length > 1) {
-                            System.out.println("AND " + Arrays.toString(andEd));
-                        } else {
-                            System.out.println(x + " " + Arrays.toString(andEd));
-//                            Part part = noop(andEd[0]);
-//                            if (!part.getExpressions()[0].isEmpty())
-//                                System.out.println(x + " " + part.toString());
-                        }
-                    }
-                }
-                // Part does not contain ORs.
-                else {
-                    System.out.println(x + " " + Arrays.toString(operationExpressions));
-//                    Part part = noop(operationExpressions[0]);
-//                    if (!part.getExpressions()[0].isEmpty())
-//                        System.out.println(x + " " + part.toString());
-                }
-            }
-        }
-
-        return new NFA();
-    }
-
-    private Part noop(String expression) {
-
-        if (expression.endsWith(String.valueOf(PLUS)) && !expression.startsWith("\\")) {
-            String expression1 = expression.substring(0, expression.length()-1);
-            if (regularDefinitionsNames.contains(expression1)) {
-                return new Part("DEF " + PLUS, new String[]{expression});
-            } else {
-                return new Part("NOOP " + String.valueOf(PLUS), new String[]{expression});
-            }
-        }
-        else if (expression.endsWith(String.valueOf(ASTERISK)) && !expression.startsWith("\\")) {
-            String expression1 = expression.substring(0, expression.length()-1);
-            if (regularDefinitionsNames.contains(expression1)) {
-                return new Part("DEF " + ASTERISK, new String[]{expression});
-            } else {
-                return new Part("NOOP " + String.valueOf(ASTERISK), new String[]{expression});
-            }
-        }
-        else if (regularDefinitionsNames.contains(expression)) {
-            return new Part("DEF", new String[]{expression});
-        }
-
-        return new Part("NOOP", new String[]{expression});
-    }
-
-    private Part asterisk(Part expression) {
-        expression.setOperationType(expression.getOperationType() + " " + ASTERISK);
-        return expression;
-    }
-
-    private Part plus(Part expression) {
-        expression.setOperationType(expression.getOperationType() + " " + PLUS);
-        return expression;
-    }
-
-    private Part group(String expression) {
-        return new Part("GROUP", new String[]{expression});
-    }
-
-
-    /*
-    TODO: create NFA State according to Thompson's construction
-     */
-
 }
