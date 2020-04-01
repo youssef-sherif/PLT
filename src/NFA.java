@@ -1,19 +1,11 @@
 import java.util.*;
 
 public class NFA {
-    //List<NFAState> graph;
     public NFAState startt;
     public NFAState finall;
-    public NFA() {
-    }
 
-    public static NFA combineNFAs(List<NFA> nfaList) {
-        NFA combinedNFA = new NFA();
-
-        return combinedNFA;
-    }
-    public NFA edgenfa(String attr)
-    {NFA nfa=new NFA();
+    public NFA edgeNfa(String attr) {
+        NFA nfa=new NFA();
         NFAState start=new NFAState();
         NFAState fin=new NFAState();
         fin.finalstate=true;
@@ -23,8 +15,9 @@ public class NFA {
         nfa.finall=fin;
         return nfa;
     }
-    public NFA ORnfa(List<NFA> nfalist)
-    {NFA nfa=new NFA();
+
+    public NFA or(List<NFA> nfalist) {
+        NFA nfa=new NFA();
         int size,i;
         size = nfalist.size();
         NFAState start=new NFAState();
@@ -42,17 +35,18 @@ public class NFA {
         nfa.finall=fin;
         return nfa;
     }
-    public NFA concnfa(List<NFA> nfalist)
-    {NFA nfa=new NFA();
+
+    public NFA concatenate(List<NFA> nfalist) {
+        NFA nfa=new NFA();
         int size,i;
         size = nfalist.size();
-        NFAState start=new NFAState();
         NFAState fin=new NFAState();
         fin.finalstate=true;
-        start= nfalist.get(0).startt;
+        NFAState start = nfalist.get(0).startt;
 
         for(i=0;i<size-1;i++)
-        {nfalist.get(i).finall=nfalist.get(i+1).startt;
+        {
+            nfalist.get(i).finall=nfalist.get(i+1).startt;
             nfalist.get(i).finall.finalstate=false;
         }
         nfa.startt=start;
@@ -60,8 +54,9 @@ public class NFA {
 
         return nfa;
     }
-    public NFA astericnfa(NFA inputnfa)
-    {NFA nfa=new NFA();
+
+    public NFA asterisk(NFA inputnfa)  {
+        NFA nfa=new NFA();
         NFAState start=new NFAState();
         NFAState fin=new NFAState();
         fin.finalstate=true;
@@ -77,5 +72,11 @@ public class NFA {
         nfa.finall=fin;
 
         return nfa;
+    }
+
+    public NFA plus(NFA nfa) {
+        List<NFA> tempNFAs = new ArrayList<>();
+        tempNFAs.add(nfa.asterisk(nfa));
+        return nfa.concatenate(tempNFAs);
     }
 }
