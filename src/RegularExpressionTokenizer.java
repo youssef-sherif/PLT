@@ -155,7 +155,6 @@ class RegularExpressionTokenizer {
                 currRegEx = iterator.next();
 
                 parenthesesCounter++;
-                // TODO: use stack or a counter? to handle parenthesis within other parenthesis
                 while (true) {
                     if (currRegEx == '(') {
                         parenthesesCounter++;
