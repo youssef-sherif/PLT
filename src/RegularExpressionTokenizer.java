@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 class RegularExpressionTokenizer {
 
@@ -6,7 +7,8 @@ class RegularExpressionTokenizer {
     private String key;
 
 
-    public RegularExpressionTokenizer(String key, Set<String> regularDefinitionsNames, Set<String> keyWords, Set<String> punctuation) {
+    public RegularExpressionTokenizer(String key, Map<String, String> regularDefinitionsNames,
+                                      Set<String> keyWords, Set<String> punctuation) {
         this.key = key;
         System.out.println("===" + this.key + "===");
         this.partFactory = new PartFactory(regularDefinitionsNames, keyWords, punctuation);
@@ -18,54 +20,90 @@ class RegularExpressionTokenizer {
         );
         NFA nfa = new NFA();
         for ( List<Part> operationsList: andEdPartsList) {
-            // NOTE: expressions with the same random number will be ANDed together
+            // NOTE: expressions with the same random number will be ORed together
+            // this is only used for debugging
             int x =  (new Random()).nextInt(1000);
             List<NFA> edgesList = new ArrayList<>();
             for (Part e : operationsList) {
 
+                // Recursively convert group Part to NFA
                 if (e.isGroup()) {
+                    if (e.isAndGroup()) {
+                        if (e.isAsterisk()) {
+                            System.out.println(e.toString());
+                            NFA groupNfa = toNFA(e.getExpression());
+                            groupNfa = groupNfa.asterisk(groupNfa);
+                            groupNfa = groupNfa.concatenate(edgesList);
+                            return groupNfa;
+                        } else if (e.isPlus()) {
+                            System.out.println(e.toString());
+                            NFA groupNfa = toNFA(e.getExpression());
+                            groupNfa = groupNfa.plus(groupNfa);
+                            groupNfa = groupNfa.concatenate(edgesList);
+                            return groupNfa;
+                        }
+                    } else {
+                        if (e.isAsterisk()) {
+                            System.out.println(e.toString());
+                            NFA groupNfa = toNFA(e.getExpression());
+                            groupNfa = groupNfa.asterisk(groupNfa);
+                            groupNfa = groupNfa.or(edgesList);
+                            return groupNfa;
+                        } else if (e.isPlus()) {
+                            System.out.println(e.toString());
+                            NFA groupNfa = toNFA(e.getExpression());
+                            groupNfa = groupNfa.plus(groupNfa);
+                            groupNfa = groupNfa.or(edgesList);
+                            return groupNfa;
+                        }
+                    }
+
                     System.out.println(e.toString());
                     return toNFA(e.getExpression());
                 }
-                // TODO: use character level parsing instead to avoid repeating this again...
-                String [] ORedExpressions = e.getExpression().split("\\|");
-                // Part contains ORed expressions
-                // create a list of NFAs and or them
-                if (ORedExpressions.length > 1) {
+                String [] ANDedExpressions = e.getExpression().trim().split(" ");
+                // Part contains ANDed expressions
+                // create a list of NFAs and concatenate them at the end
+                if (ANDedExpressions.length > 1) {
                     List<NFA> nfas = new ArrayList<>();
-                    for (String exp : ORedExpressions) {
+                    System.out.print(x);
+                    for (String exp : ANDedExpressions) {
                         Part part = partFactory.createPart(exp);
-                        System.out.print(part.toString() + " OR ");
+                        System.out.print(" " + part.toString() + " AND");
                         NFA edgeNfa = nfa.edgeNfa(part.getExpression());
                         if (part.isAsterisk()) {
                             nfas.add(nfa.asterisk(edgeNfa));
-                        } else if(part.isPlus()) {
+                        }
+                        else if(part.isPlus()) {
                             nfas.add(nfa.plus(edgeNfa));
-                        } else {
+                        }
+                        else {
                             nfas.add(edgeNfa);
                         }
                     }
-                    nfa = nfa.or(nfas);
+                    nfa = nfa.concatenate(nfas);
                     System.out.println();
                 }
-                // Part does not contain ORed expressions.
-                // create a new edge
+                // Part does not contain ANDed expressions.
+                // Add a new edge to nfaList and perform NFA OR
                 else {
                     System.out.println(x + " " + e.toString());
                     NFA edgeNfa = nfa.edgeNfa(e.getExpression());
                     if (e.isAsterisk()) {
                         edgesList.add(
                                 nfa.asterisk(edgeNfa));
-                    } else if (e.isAsterisk()) {
+                    }
+                    else if (e.isPlus()) {
                         edgesList.add(
                                 nfa.plus(edgeNfa));
-                    } else {
+                    }
+                    else {
                         edgesList.add(edgeNfa);
                     }
                 }
-                nfa = nfa.concatenate(edgesList);
+                nfa = nfa.or(edgesList);
             }
-            nfa = nfa.or(edgesList);
+            nfa = nfa.concatenate(edgesList);
         }
 
         return nfa;
@@ -73,42 +111,66 @@ class RegularExpressionTokenizer {
 
     private List<Part> tokenizeParenthesis(String regExString) {
 
-        String[] regEx = (regExString + " |").split(" ");
+        List<Character> regExStream = (regExString + " ").chars()
+                // Convert IntStream to Stream<Character>
+                .mapToObj(e -> (char)e)
+                // Collect the elements as a List Of Characters
+                .collect(Collectors.toList());
 
-        ListIterator<String> iterator = Arrays.asList(regEx).listIterator();
+        ListIterator<Character> iterator = regExStream.listIterator();
         List<Part> toReturn = new ArrayList<>();
 
+        StringBuilder buffer = new StringBuilder();
+
         while (iterator.hasNext()) {
-            String currRegEx = iterator.next();
+            char currRegEx = iterator.next();
 
             // if '(' found extract all the pattern inside '(' and ')' into a buffer
-            if (currRegEx.startsWith("(")) {
+            if (currRegEx == '(' && iterator.hasNext()) {
                 // buffer that we append to all regEx within '(' and ')'
                 StringBuilder bracketBuffer = new StringBuilder();
+                char parenthesisPostfix;
 
-                // remove '('
-                currRegEx = currRegEx.substring(1);
+                // find out if the parenthesis is ANDed or ORed to previous.
+                boolean isAndParenthesis = true;
+                int i = 1;
+                do {
+                    if (regExStream.get(iterator.previousIndex()-i) == '|'
+                            || regExStream.get(iterator.previousIndex()-i-1) == '|') {
+                        isAndParenthesis = false;
+                    }
+                    i++;
+                } while (regExStream.get(iterator.previousIndex()-i) == ' ');
+
+                    // Combine all characters before '('
+                toReturn.add(
+                        partFactory.createPart(buffer.toString())
+                );
+                buffer = new StringBuilder();
+
+                // skip '('
+                currRegEx = iterator.next();
 
                 // TODO: use stack or a counter? to handle parenthesis within other parenthesis
-                while (!currRegEx.contains(")")) {
-                    bracketBuffer.append(" ").append(currRegEx);
+                while (currRegEx != ')') {
+                    bracketBuffer.append(currRegEx);
                     currRegEx = iterator.next();
                 }
                 // remove ')'
-                String regExInsideBracket = currRegEx.substring(0, currRegEx.indexOf(")"));
-                bracketBuffer.append(" ").append(regExInsideBracket);
-
                 List<Part> bracketParts = new ArrayList<>();
-                String bracketGroup = bracketBuffer.toString();
+                parenthesisPostfix = regExStream.get(iterator.nextIndex());
                 bracketParts.add(
-                        partFactory.createGroupPart(bracketGroup, currRegEx)
+                        partFactory.createGroupPart(bracketBuffer.toString(), parenthesisPostfix, isAndParenthesis)
                 );
                 toReturn.addAll(bracketParts);
             } else {
-                // NOOP because we are still not sure what it is but it is not inside parenthesis
-                toReturn.add(
-                        partFactory.createPart(currRegEx)
-                );
+                // Combine all characters after brackets
+                buffer.append(currRegEx);
+                if (!iterator.hasNext()) {
+                    toReturn.add(
+                            partFactory.createPart(buffer.toString())
+                    );
+                }
             }
         }
 
@@ -126,20 +188,21 @@ class RegularExpressionTokenizer {
             if (!part.isGroup()) {
                 String[] ORedExpressions = part.getExpression().split("\\|");
 
+                buffer = new ArrayList<>();
                 // fill buffer until we reach split. That means we should OR all ANDS together.
-                if (ORedExpressions.length == 0) {
-                    toReturn.add(buffer);
-                    buffer = new ArrayList<>();
-                }
-                else {
-                    buffer.add(part);
+                for (String exp : ORedExpressions) {
+                    buffer.add(partFactory.createPart(exp));
                 }
             }
-            // Part is a createGroupPart. We will deal with it as a single part.
+            // Part is a group Part. We will deal with it as a single part.
             else {
+//                System.out.println(part.toString());
                 buffer.add(part);
             }
+            toReturn.add(buffer);
         }
+
+//        toReturn.forEach(e -> e.forEach(a -> System.out.println(a.toString())));
         return toReturn;
     }
 }

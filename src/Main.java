@@ -14,7 +14,7 @@ public class Main {
             String key = entry.getKey();
             String value = entry.getValue();
             RegularExpressionTokenizer regularExpressionTokenizer = new RegularExpressionTokenizer(key,
-                    rulesTokenizer.getRegularDefinitionsNames(),
+                    rulesTokenizer.getRegularDefinitions(),
                     rulesTokenizer.getKeyWords(),
                     rulesTokenizer.getPunctuation()
             );

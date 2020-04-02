@@ -3,14 +3,16 @@ import java.util.Arrays;
 
 public class Part {
 
-    public static String DEF = "DEF";
-    public static String GROUP = "GROUP";
-    public static String NOOP = "NOOP";
+    public static final String OR_GROUP = "OR GROUP";
+    public static final String AND_GROUP = "AND_GROUP";
+    public static final String DEF = "DEF";
+    public static final String NOOP = "NOOP";
 
     private String type;
     private final String expression;
     private Boolean asterisk = false;
     private Boolean plus = false;
+    private Boolean isCompleted = false;
 
     public Part(String type, String expression) {
         this.type = type;
@@ -22,7 +24,16 @@ public class Part {
     }
 
     public boolean isGroup() {
-        return type.startsWith(GROUP);
+        return type.equals(AND_GROUP)
+                || type.equals(OR_GROUP);
+    }
+
+    public boolean isAndGroup() {
+        return type.equals(AND_GROUP);
+    }
+
+    public boolean isOrGroup() {
+        return type.equals(OR_GROUP);
     }
 
     public Boolean isAsterisk() {
@@ -41,8 +52,18 @@ public class Part {
         this.plus = true;
     }
 
+    public Boolean isCompleted() {
+        return isCompleted;
+    }
+
+    public void markCompleted() {
+        isCompleted = true;
+    }
+
     @Override
     public String toString() {
-        return type + " " + expression;
+        return  type + " " + (asterisk ? " *" : "") + ""
+                + "" + (plus ? " +" : "") + ""
+                + " " + expression;
     }
 }

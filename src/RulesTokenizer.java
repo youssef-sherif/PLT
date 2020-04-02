@@ -86,10 +86,6 @@ public class RulesTokenizer {
         return punctuation;
     }
 
-    public Set<String> getRegularDefinitionsNames() {
-        return regularDefinitions.keySet();
-    }
-
     @Override
     public String toString() {
         return  "\n ===regularExpressions===\n" + regularExpressions.keySet() + "\n" + regularExpressions.values() +
