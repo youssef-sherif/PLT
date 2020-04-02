@@ -100,11 +100,8 @@ class RegularExpressionTokenizer {
                     else {
                         edgesList.add(edgeNfa);
                     }
+                    nfa = nfa.or(edgesList);
                 }
-                nfa = nfa.or(edgesList);
-            }
-            if (edgesList.size() > 1) {
-                nfa = nfa.concatenate(edgesList);
             }
         }
 
