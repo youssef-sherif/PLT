@@ -103,7 +103,9 @@ class RegularExpressionTokenizer {
                 }
                 nfa = nfa.or(edgesList);
             }
-            nfa = nfa.concatenate(edgesList);
+            if (edgesList.size() > 1) {
+                nfa = nfa.concatenate(edgesList);
+            }
         }
 
         return nfa;
@@ -121,6 +123,7 @@ class RegularExpressionTokenizer {
         List<Part> toReturn = new ArrayList<>();
 
         StringBuilder buffer = new StringBuilder();
+        int parenthesesCounter = 0;
 
         while (iterator.hasNext()) {
             char currRegEx = iterator.next();
@@ -151,8 +154,18 @@ class RegularExpressionTokenizer {
                 // skip '('
                 currRegEx = iterator.next();
 
+                parenthesesCounter++;
                 // TODO: use stack or a counter? to handle parenthesis within other parenthesis
-                while (currRegEx != ')') {
+                while (true) {
+                    if (currRegEx == '(') {
+                        parenthesesCounter++;
+                    }
+                    else if (currRegEx == ')') {
+                        parenthesesCounter--;
+                    }
+                    if (parenthesesCounter == 0){
+                        break;
+                    }
                     bracketBuffer.append(currRegEx);
                     currRegEx = iterator.next();
                 }
@@ -189,7 +202,7 @@ class RegularExpressionTokenizer {
                 String[] ORedExpressions = part.getExpression().split("\\|");
 
                 buffer = new ArrayList<>();
-                // fill buffer until we reach split. That means we should OR all ANDS together.
+                // fill buffer until we reach split.
                 for (String exp : ORedExpressions) {
                     buffer.add(partFactory.createPart(exp));
                 }
