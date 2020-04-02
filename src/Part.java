@@ -62,8 +62,8 @@ public class Part {
 
     @Override
     public String toString() {
-        return  type + " " + (asterisk ? " *" : "") + ""
-                + "" + (plus ? " +" : "") + ""
+        return  type + " " + (asterisk ? "*" : "")
+                + (plus ? "+" : "")
                 + " " + expression;
     }
 }
