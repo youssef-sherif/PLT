@@ -6,21 +6,19 @@ public class NFA {
     private NFAState finall;
     private Set<Character> alphabet;
 
-    private NFA() {
-        this.alphabet = new HashSet<>();
-    }
+    private NFA() { }
 
     public static NFA getInstance() {
         if (nfa == null) {
-            return new NFA();
+            nfa = new NFA();
+            nfa.alphabet = new HashSet<>();
+            return nfa;
         }
         return nfa;
     }
 
     public NFA edgeNfa(Character attr) {
-        if (nfa == null) {
-            nfa = new NFA();
-        }
+        NFA nfa = NFA.getInstance();
         System.out.println("Character that will be added to NFA: " + attr);
         NFAState start = new NFAState();
         NFAState fin = new NFAState();
@@ -35,7 +33,7 @@ public class NFA {
     }
 
     public NFA or(List<NFA> nfalist) {
-        NFA nfa=new NFA();
+        NFA nfa = NFA.getInstance();
         int size,i;
         size = nfalist.size();
         NFAState start=new NFAState();
@@ -55,7 +53,7 @@ public class NFA {
     }
 
     public NFA concatenate(List<NFA> nfalist) {
-        NFA nfa=new NFA();
+        NFA nfa = NFA.getInstance();
         int size,i;
         size = nfalist.size();
         NFAState fin=new NFAState();
@@ -74,7 +72,7 @@ public class NFA {
     }
 
     public NFA asterisk(NFA inputnfa)  {
-        NFA nfa=new NFA();
+        NFA nfa = NFA.getInstance();
         NFAState start=new NFAState();
         NFAState fin=new NFAState();
         fin.finalstate=true;
@@ -107,6 +105,15 @@ public class NFA {
     }
 
     public Set<Character> getAlphabet() {
-        return this.alphabet;
+        return alphabet;
+    }
+
+    public int[][] toTransitionTable() {
+        System.out.println(nfa.getStartState().edges);
+        System.out.println(nfa.getAlphabet());
+        // clear NFA
+        nfa = null;
+
+        return new int[1][1];
     }
 }

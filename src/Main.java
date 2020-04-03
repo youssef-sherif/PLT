@@ -20,10 +20,11 @@ public class Main {
                     rulesTokenizer.getPunctuation()
             );
 
-            nfaList.add(regularExpressionTokenizer.toNFA(value));
+            NFA nfa = regularExpressionTokenizer.toNFA(value);
+            System.out.println("===DFA===");
+            int[][] transitionTable = nfa.toTransitionTable();
+            nfaList.add(nfa);
         }
-
-        System.out.println("===DFA===");
-        TransitionTable transitionTable = new TransitionTable(nfaList.get(0));
+        ;
     }
 }
