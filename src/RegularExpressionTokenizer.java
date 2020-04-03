@@ -114,7 +114,7 @@ class RegularExpressionTokenizer {
                     }
                     // Part does not contain ANDed expressions.
                     // Add a new edge to nfaList and perform NFA OR
-                    else {
+                    else if (!ANDedExpressions[0].isEmpty()){
                         System.out.println(x + " " + part.toString());
                         if (part.isAsterisk()) {
                             // if part is a definitions recursively convert it to NFA
