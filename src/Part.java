@@ -52,6 +52,10 @@ public class Part {
         this.plus = true;
     }
 
+    public boolean isDefinition() {
+        return type.equals(DEF);
+    }
+
     public Boolean isCompleted() {
         return isCompleted;
     }

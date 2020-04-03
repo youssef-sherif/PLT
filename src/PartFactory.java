@@ -5,12 +5,12 @@ public class PartFactory {
 
     private static final Character ASTERISK = '*';
     private static final Character PLUS = '+';
-    private static Map<String, String> regularDefinitionsNames;
+    private static Map<String, String> regularDefinitions;
     private static Set<String> keyWords;
     private static Set<String> punctuation;
 
     public PartFactory(Map<String, String> regularDefinitionsNames, Set<String> keyWords, Set<String> punctuation) {
-        PartFactory.regularDefinitionsNames = regularDefinitionsNames;
+        PartFactory.regularDefinitions = regularDefinitionsNames;
         PartFactory.keyWords = keyWords;
         PartFactory.punctuation = punctuation;
     }
@@ -19,7 +19,7 @@ public class PartFactory {
         expression = expression.trim();
         if (expression.endsWith(String.valueOf(PLUS)) && !expression.equals("\\" + PLUS)) {
             String expression1 = expression.substring(0, expression.length()-1);
-            if (regularDefinitionsNames.keySet().contains(expression1)) {
+            if (regularDefinitions.keySet().contains(expression1)) {
                 Part part = new Part(Part.DEF, expression1);
                 part.setPlus();
                 return part;
@@ -31,7 +31,7 @@ public class PartFactory {
         }
         else if (expression.endsWith(String.valueOf(ASTERISK)) && !expression.equals("\\" + ASTERISK)) {
             String expression1 = expression.substring(0, expression.length()-1);
-            if (regularDefinitionsNames.keySet().contains(expression1)) {
+            if (regularDefinitions.keySet().contains(expression1)) {
                 Part part = new Part(Part.DEF, expression1);
                 part.setAsterisk();
                 return part;
@@ -41,7 +41,7 @@ public class PartFactory {
                 return part;
             }
         }
-        else if (regularDefinitionsNames.keySet().contains(expression)) {
+        else if (regularDefinitions.keySet().contains(expression)) {
             return new Part(Part.DEF, expression);
         }
 
@@ -50,7 +50,6 @@ public class PartFactory {
 
     public Part createGroupPart(String expression, char parenthesisPostfix, boolean and) {
         // Check if the bracket ends in '*' or '+'
-
         if (parenthesisPostfix == ASTERISK) {
             Part part;
             if (and) {
