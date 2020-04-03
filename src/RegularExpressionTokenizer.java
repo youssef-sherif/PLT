@@ -16,7 +16,7 @@ class RegularExpressionTokenizer {
 
     public NFA toNFA(String regex) {
         List<List<Part>> andEdPartsList =  tokenize(regex);
-        NFA nfa = new NFA();
+        NFA nfa = NFA.getInstance();
 //        andEdPartsList.forEach(e -> e.forEach(a -> System.out.println(a.toString())));
         for ( List<Part> operationsList: andEdPartsList) {
             // NOTE: expressions with the same random number will be ORed together
@@ -92,7 +92,8 @@ class RegularExpressionTokenizer {
                                     NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(ANDedPart.getExpression())));
                                     ANDedNFAs.add(nfa.asterisk(edgeNfa));
                                 } else {
-                                    NFA edgeNfa = nfa.edgeNfa(ANDedPart.getExpression());
+                                    // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
+                                    NFA edgeNfa = nfa.edgeNfa(ANDedPart.getExpression().charAt(0));
                                     ANDedNFAs.add(nfa.asterisk(edgeNfa));
                                 }
                             } else if (ANDedPart.isPlus()) {
@@ -101,7 +102,8 @@ class RegularExpressionTokenizer {
                                     NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(ANDedPart.getExpression())));
                                     ANDedNFAs.add(nfa.plus(edgeNfa));
                                 } else {
-                                    NFA edgeNfa = nfa.edgeNfa(ANDedPart.getExpression());
+                                    // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
+                                    NFA edgeNfa = nfa.edgeNfa(ANDedPart.getExpression().charAt(0));
                                     ANDedNFAs.add(nfa.plus(edgeNfa));
                                 }
                             } else {
@@ -110,7 +112,8 @@ class RegularExpressionTokenizer {
                                     NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(ANDedPart.getExpression())));
                                     ANDedNFAs.add(edgeNfa);
                                 } else {
-                                    NFA edgeNfa = nfa.edgeNfa(ANDedPart.getExpression());
+                                    // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
+                                    NFA edgeNfa = nfa.edgeNfa(ANDedPart.getExpression().charAt(0));
                                     ANDedNFAs.add(edgeNfa);
                                 }
                             }
@@ -127,7 +130,8 @@ class RegularExpressionTokenizer {
                                 NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
                                 edgesList.add(edgeNfa.asterisk(edgeNfa));
                             } else {
-                                NFA edgeNfa = nfa.edgeNfa(part.getExpression());
+                                // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
+                                NFA edgeNfa = nfa.edgeNfa(part.getExpression().charAt(0));
                                 edgesList.add(edgeNfa.asterisk(edgeNfa));
                             }
                         } else if (part.isPlus()) {
@@ -136,7 +140,8 @@ class RegularExpressionTokenizer {
                                 NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
                                 edgesList.add(edgeNfa.plus(edgeNfa));
                             } else {
-                                NFA edgeNfa = nfa.edgeNfa(part.getExpression());
+                                // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
+                                NFA edgeNfa = nfa.edgeNfa(part.getExpression().charAt(0));
                                 edgesList.add(edgeNfa.plus(edgeNfa));
                             }
                         } else {
@@ -145,7 +150,8 @@ class RegularExpressionTokenizer {
                                 NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
                                 edgesList.add(edgeNfa);
                             } else {
-                                NFA edgeNfa = nfa.edgeNfa(part.getExpression());
+                                // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
+                                NFA edgeNfa = nfa.edgeNfa(part.getExpression().charAt(0));
                                 edgesList.add(edgeNfa);
                             }
 

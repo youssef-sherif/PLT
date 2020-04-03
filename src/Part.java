@@ -16,6 +16,11 @@ public class Part {
     }
 
     public String getExpression() {
+        if (expression.length() == 2 && expression.startsWith("\\")) {
+            return String.valueOf(expression.charAt(1));
+        } else if (expression.length() == 1) {
+            return String.valueOf(expression.charAt(0));
+        }
         return expression;
     }
 

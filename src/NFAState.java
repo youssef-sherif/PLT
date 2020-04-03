@@ -2,6 +2,11 @@ import java.util.*;
 
 public class NFAState {
     boolean finalstate;
-    ArrayList<NFAState> next=new ArrayList<NFAState>();
-    ArrayList<String> edges=new ArrayList<String>();
+    ArrayList<NFAState> next;
+    ArrayList<Character> edges;
+
+    public NFAState() {
+        this.next = new ArrayList<>();
+        this.edges = new ArrayList<>();
+    }
 }

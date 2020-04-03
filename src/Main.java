@@ -22,5 +22,8 @@ public class Main {
 
             nfaList.add(regularExpressionTokenizer.toNFA(value));
         }
+
+        System.out.println("===DFA===");
+        TransitionTable transitionTable = new TransitionTable(nfaList.get(0));
     }
 }
