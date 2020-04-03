@@ -14,8 +14,7 @@ class RegularExpressionTokenizer {
         this.regularDefinitions = regularDefinitions;
     }
 
-    public NFA toNFA(String regex)
-    {
+    public NFA toNFA(String regex) {
         List<List<Part>> andEdPartsList =  tokenize(regex);
         NFA nfa = new NFA();
 //        andEdPartsList.forEach(e -> e.forEach(a -> System.out.println(a.toString())));
@@ -201,7 +200,17 @@ class RegularExpressionTokenizer {
     }
 
     private List<List<Part>> tokenize(String regExString) {
-        return tokenizeParts(tokenizeParenthesis(" | " + regExString));
+        /*
+         simple pre-processing
+         - append | to beginning (this does not change the meaning of the RegEx but it makes it work for RegExes
+         containing 1 component)
+         - replace all '\' (backslash) with ' \' (space backslash) to be able to concatenate them together
+         */
+        String regEx = " | " + regExString;
+        if (regEx.contains("\\")) {
+            regEx = regEx.replaceAll("\\\\", " \\\\");
+        }
+        return tokenizeParts(tokenizeParenthesis(regEx));
     }
 
     private List<Part> tokenizeParenthesis(String regExString) {
