@@ -18,7 +18,7 @@ public class PartFactory {
     public Part createPart(String expression) {
         expression = expression.trim();
         if (expression.endsWith(String.valueOf(PLUS)) && !expression.equals("\\" + PLUS)) {
-            String expression1 = expression.substring(0, expression.length()-1);
+            String expression1 = expression.substring(0, expression.length()-1).trim();
             if (regularDefinitions.keySet().contains(expression1)) {
                 Part part = new Part(Part.DEF, expression1);
                 part.setPlus();
@@ -30,7 +30,7 @@ public class PartFactory {
             }
         }
         else if (expression.endsWith(String.valueOf(ASTERISK)) && !expression.equals("\\" + ASTERISK)) {
-            String expression1 = expression.substring(0, expression.length()-1);
+            String expression1 = expression.substring(0, expression.length()-1).trim();
             if (regularDefinitions.keySet().contains(expression1)) {
                 Part part = new Part(Part.DEF, expression1);
                 part.setAsterisk();
