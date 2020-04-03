@@ -72,7 +72,6 @@ class RegularExpressionTokenizer {
                         if (part.isAsterisk()) {
                             if (e.isDefinition()) {
                                 NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
-//                                NFA edgeNfa = toNFA(e.getExpression());
                                 nfas.add(nfa.asterisk(edgeNfa));
                             } else {
                                 NFA edgeNfa = nfa.edgeNfa(e.getExpression());
