@@ -16,9 +16,7 @@ class RegularExpressionTokenizer {
 
     public NFA toNFA(String regex)
     {
-        List<List<Part>> andEdPartsList =  tokenizeParts(
-                tokenizeParenthesis("| " + regex)
-        );
+        List<List<Part>> andEdPartsList =  tokenize(regex);
         NFA nfa = new NFA();
 //        andEdPartsList.forEach(e -> e.forEach(a -> System.out.println(a.toString())));
         for ( List<Part> operationsList: andEdPartsList) {
@@ -30,7 +28,7 @@ class RegularExpressionTokenizer {
             for (Part part : operationsList) {
 
                 // Recursively convert group Part to NFA
-                if (part.isGroup() && !part.isCompleted()) {
+                if (part.isGroup()) {
                     System.out.println(part.toString());
                     if (part.isAndGroup()) {
                         if (part.isAsterisk()) {
@@ -41,6 +39,10 @@ class RegularExpressionTokenizer {
                         } else if (part.isPlus()) {
                             NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.plus(groupNfa);
+                            groupNfa = groupNfa.concatenate(edgesList);
+                            edgesList.add(groupNfa);
+                        } else {
+                            NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.concatenate(edgesList);
                             edgesList.add(groupNfa);
                         }
@@ -55,6 +57,10 @@ class RegularExpressionTokenizer {
                             groupNfa = groupNfa.plus(groupNfa);
                             groupNfa = groupNfa.or(edgesList);
                             edgesList.add(groupNfa);
+                        } else {
+                            NFA groupNfa = toNFA(part.getExpression());
+                            groupNfa = groupNfa.or(edgesList);
+                            edgesList.add(groupNfa);
                         }
                     } else {
                         if (part.isAsterisk()) {
@@ -65,12 +71,16 @@ class RegularExpressionTokenizer {
                             NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.plus(groupNfa);
                             edgesList.add(groupNfa);
+                        } else {
+                            NFA groupNfa = toNFA(part.getExpression());
+                            groupNfa = groupNfa.concatenate(edgesList);
+                            edgesList.add(groupNfa);
                         }
                     }
-                    part.markCompleted();
-                } else if (!part.isCompleted()) {
+                } else {
 
                     String[] ANDedExpressions = part.getExpression().split(" ");
+                    System.out.println(Arrays.toString(ANDedExpressions));
                     // Part contains ANDed expressions
                     // create a list of NFAs and concatenate them at the end
                     if (ANDedExpressions.length > 1) {
@@ -110,11 +120,10 @@ class RegularExpressionTokenizer {
                             }
                         }
                         edgesList.addAll(ANDedNFAs);
-                        return nfa;
                     }
                     // Part does not contain ANDed expressions.
                     // Add a new edge to nfaList and perform NFA OR
-                    else if (!ANDedExpressions[0].isEmpty()){
+                    else if (!ANDedExpressions[0].isEmpty()) {
                         System.out.println(x + " " + part.toString());
                         if (part.isAsterisk()) {
                             // if part is a definitions recursively convert it to NFA
@@ -146,7 +155,6 @@ class RegularExpressionTokenizer {
 
                         }
                         nfa = nfa.or(edgesList);
-                        part.markCompleted();
                     }
                 }
             }
@@ -190,6 +198,10 @@ class RegularExpressionTokenizer {
 
         System.out.println(toReturn);
         return toReturn.toString();
+    }
+
+    private List<List<Part>> tokenize(String regExString) {
+        return tokenizeParts(tokenizeParenthesis(" | " + regExString));
     }
 
     private List<Part> tokenizeParenthesis(String regExString) {

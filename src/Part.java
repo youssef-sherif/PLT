@@ -1,6 +1,3 @@
-import java.lang.reflect.Array;
-import java.util.Arrays;
-
 public class Part {
 
     public static final String OR_GROUP = "OR GROUP";
@@ -12,7 +9,6 @@ public class Part {
     private final String expression;
     private Boolean asterisk = false;
     private Boolean plus = false;
-    private Boolean isCompleted = false;
 
     public Part(String type, String expression) {
         this.type = type;
@@ -54,14 +50,6 @@ public class Part {
 
     public boolean isDefinition() {
         return type.equals(DEF);
-    }
-
-    public Boolean isCompleted() {
-        return isCompleted;
-    }
-
-    public void markCompleted() {
-        isCompleted = true;
     }
 
     @Override
