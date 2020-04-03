@@ -70,7 +70,7 @@ class RegularExpressionTokenizer {
                         System.out.println("        "  + x + " " + part.toString());
 
                         if (part.isAsterisk()) {
-                            if (e.isDefinition()) {
+                            if (part.isDefinition()) {
                                 NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
                                 nfas.add(nfa.asterisk(edgeNfa));
                             } else {
@@ -78,7 +78,7 @@ class RegularExpressionTokenizer {
                                 nfas.add(nfa.asterisk(edgeNfa));
                             }
                         } else if (part.isPlus()) {
-                            if (e.isDefinition()) {
+                            if (part.isDefinition()) {
                                 NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
                                 nfas.add(nfa.plus(edgeNfa));
                             } else {
@@ -87,7 +87,7 @@ class RegularExpressionTokenizer {
                             }
                         } else {
                             if (part.isDefinition()) {
-                                NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression().trim())));
+                                NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
                                 nfas.add(edgeNfa);
                             } else {
                                 NFA edgeNfa = nfa.edgeNfa(e.getExpression());
@@ -99,7 +99,7 @@ class RegularExpressionTokenizer {
                 }
                 // Part does not contain ANDed expressions.
                 // Add a new edge to nfaList and perform NFA OR
-                else if (!e.getExpression().isEmpty()) {
+                else {
                         System.out.println(x + " " + e.toString());
                         if (e.isAsterisk()) {
                             if (e.isDefinition()) {
@@ -112,6 +112,7 @@ class RegularExpressionTokenizer {
                             }
                         } else if (e.isPlus()) {
                             if (e.isDefinition()) {
+                                System.out.println("PLUS");
                                 NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(e.getExpression())));
                                 edgesList.add(edgeNfa);
                             } else {
@@ -132,6 +133,7 @@ class RegularExpressionTokenizer {
                     nfa = nfa.or(edgesList);
                 }
             }
+            nfa = nfa.concatenate(edgesList);
         }
 
         return nfa;
@@ -167,7 +169,7 @@ class RegularExpressionTokenizer {
             }
         }
 
-        return toReturn.append(" ").toString();
+        return toReturn.toString();
     }
 
     private List<Part> tokenizeParenthesis(String regExString) {
@@ -197,13 +199,13 @@ class RegularExpressionTokenizer {
                 boolean isAndParenthesis = true;
                 int i = 1;
                 if (iterator.previousIndex()-1 > 0)
-                do {
-                    if (regExStream.get(iterator.previousIndex()-i) == '|'
+                    do {
+                        if (regExStream.get(iterator.previousIndex()-i) == '|'
                             || regExStream.get(iterator.previousIndex()-i-1) == '|') {
-                        isAndParenthesis = false;
-                    }
-                    i++;
-                } while (regExStream.get(iterator.previousIndex()-i) == ' ');
+                            isAndParenthesis = false;
+                        }
+                        i++;
+                    } while (regExStream.get(iterator.previousIndex()-i) == ' ');
 
                     // Combine all characters before '('
                 toReturn.add(
