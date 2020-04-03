@@ -17,7 +17,7 @@ class RegularExpressionTokenizer {
     public NFA toNFA(String regex)
     {
         List<List<Part>> andEdPartsList =  tokenizeParts(
-                tokenizeParenthesis(regex)
+                tokenizeParenthesis("| " + regex)
         );
         NFA nfa = new NFA();
 //        andEdPartsList.forEach(e -> e.forEach(a -> System.out.println(a.toString())));
@@ -27,120 +27,132 @@ class RegularExpressionTokenizer {
             int x =  (new Random()).nextInt(1000);
 //            operationsList.forEach(e -> System.out.println(e.toString()));
             List<NFA> edgesList = new ArrayList<>();
-            for (Part e : operationsList) {
+            for (Part part : operationsList) {
 
                 // Recursively convert group Part to NFA
-                if (e.isGroup()) {
-//                    System.out.println(e.toString());
-                    NFA groupNfa = null;
-                    if (e.isAndGroup()) {
-                        if (e.isAsterisk()) {
-                            groupNfa = toNFA(e.getExpression());
+                if (part.isGroup() && !part.isCompleted()) {
+                    System.out.println(part.toString());
+                    if (part.isAndGroup()) {
+                        if (part.isAsterisk()) {
+                            NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.asterisk(groupNfa);
                             groupNfa = groupNfa.concatenate(edgesList);
-                        } else if (e.isPlus()) {
-                            groupNfa = toNFA(e.getExpression());
+                            edgesList.add(groupNfa);
+                        } else if (part.isPlus()) {
+                            NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.plus(groupNfa);
                             groupNfa = groupNfa.concatenate(edgesList);
+                            edgesList.add(groupNfa);
                         }
-                    } else if (e.isOrGroup()){
-                        if (e.isAsterisk()) {
-                            groupNfa = toNFA(e.getExpression());
+                    } else if (part.isOrGroup()){
+                        if (part.isAsterisk()) {
+                            NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.asterisk(groupNfa);
                             groupNfa = groupNfa.or(edgesList);
-                        } else if (e.isPlus()) {
-                            groupNfa = toNFA(e.getExpression());
+                            edgesList.add(groupNfa);
+                        } else if (part.isPlus()) {
+                            NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.plus(groupNfa);
                             groupNfa = groupNfa.or(edgesList);
+                            edgesList.add(groupNfa);
                         }
                     } else {
-                        if (e.isAsterisk()) {
-                            groupNfa = toNFA(e.getExpression());
+                        if (part.isAsterisk()) {
+                            NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.asterisk(groupNfa);
-                        } else if (e.isPlus()) {
-                            groupNfa = toNFA(e.getExpression());
+                            edgesList.add(groupNfa);
+                        } else if (part.isPlus()) {
+                            NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.plus(groupNfa);
+                            edgesList.add(groupNfa);
                         }
                     }
-                    return groupNfa;
-                } else {
+                    part.markCompleted();
+                } else if (!part.isCompleted()) {
 
-                    String[] ANDedExpressions = e.getExpression().split(" ");
-
+                    String[] ANDedExpressions = part.getExpression().split(" ");
                     // Part contains ANDed expressions
                     // create a list of NFAs and concatenate them at the end
                     if (ANDedExpressions.length > 1) {
-                        List<NFA> nfas = new ArrayList<>();
+                        List<NFA> ANDedNFAs = new ArrayList<>();
                         for (String exp : ANDedExpressions) {
 
-                            Part part = partFactory.createPart(exp);
-//                        System.out.println("        "  + x + " " + part.toString());
+                            Part ANDedPart = partFactory.createPart(exp);
+                            System.out.println("        "  + x + " " + ANDedPart.toString());
 
-                            if (part.isAsterisk()) {
-                                if (part.isDefinition()) {
-                                    NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
-                                    nfas.add(nfa.asterisk(edgeNfa));
+                            if (ANDedPart.isAsterisk()) {
+                                // if part is a definitions recursively convert it to NFA
+                                if (ANDedPart.isDefinition()) {
+                                    NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(ANDedPart.getExpression())));
+                                    ANDedNFAs.add(nfa.asterisk(edgeNfa));
                                 } else {
-                                    NFA edgeNfa = nfa.edgeNfa(e.getExpression());
-                                    nfas.add(nfa.asterisk(edgeNfa));
+                                    NFA edgeNfa = nfa.edgeNfa(ANDedPart.getExpression());
+                                    ANDedNFAs.add(nfa.asterisk(edgeNfa));
                                 }
-                            } else if (part.isPlus()) {
-                                if (part.isDefinition()) {
-                                    NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
-                                    nfas.add(nfa.plus(edgeNfa));
+                            } else if (ANDedPart.isPlus()) {
+                                // if part is a definitions recursively convert it to NFA
+                                if (ANDedPart.isDefinition()) {
+                                    NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(ANDedPart.getExpression())));
+                                    ANDedNFAs.add(nfa.plus(edgeNfa));
                                 } else {
-                                    NFA edgeNfa = nfa.edgeNfa(e.getExpression());
-                                    nfas.add(nfa.plus(edgeNfa));
+                                    NFA edgeNfa = nfa.edgeNfa(ANDedPart.getExpression());
+                                    ANDedNFAs.add(nfa.plus(edgeNfa));
                                 }
                             } else {
-                                if (part.isDefinition()) {
-                                    NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
-                                    nfas.add(edgeNfa);
+                                if (ANDedPart.isDefinition()) {
+                                    // if part is a definitions recursively convert it to NFA
+                                    NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(ANDedPart.getExpression())));
+                                    ANDedNFAs.add(edgeNfa);
                                 } else {
-                                    NFA edgeNfa = nfa.edgeNfa(e.getExpression());
-                                    nfas.add(edgeNfa);
+                                    NFA edgeNfa = nfa.edgeNfa(ANDedPart.getExpression());
+                                    ANDedNFAs.add(edgeNfa);
                                 }
                             }
                         }
-                        edgesList.addAll(nfas);
+                        edgesList.addAll(ANDedNFAs);
+                        return nfa;
                     }
                     // Part does not contain ANDed expressions.
                     // Add a new edge to nfaList and perform NFA OR
                     else {
-//                        System.out.println(x + " " + e.toString());
-                        if (e.isAsterisk()) {
-                            if (e.isDefinition()) {
-                                NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(e.getExpression())));
-                                edgesList.add(edgeNfa);
+                        System.out.println(x + " " + part.toString());
+                        if (part.isAsterisk()) {
+                            // if part is a definitions recursively convert it to NFA
+                            if (part.isDefinition()) {
+                                NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
+                                edgesList.add(edgeNfa.asterisk(edgeNfa));
                             } else {
-                                NFA edgeNfa = nfa.edgeNfa(e.getExpression());
-                                edgesList.add(
-                                        nfa.asterisk(edgeNfa));
+                                NFA edgeNfa = nfa.edgeNfa(part.getExpression());
+                                edgesList.add(edgeNfa.asterisk(edgeNfa));
                             }
-                        } else if (e.isPlus()) {
-                            if (e.isDefinition()) {
-                                NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(e.getExpression())));
-                                edgesList.add(edgeNfa);
+                        } else if (part.isPlus()) {
+                            // if part is a definitions recursively convert it to NFA
+                            if (part.isDefinition()) {
+                                NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
+                                edgesList.add(edgeNfa.plus(edgeNfa));
                             } else {
-                                NFA edgeNfa = nfa.edgeNfa(e.getExpression());
-                                edgesList.add(
-                                        nfa.plus(edgeNfa));
+                                NFA edgeNfa = nfa.edgeNfa(part.getExpression());
+                                edgesList.add(edgeNfa.plus(edgeNfa));
                             }
                         } else {
-                            if (e.isDefinition()) {
-                                NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(e.getExpression())));
+                            if (part.isDefinition()) {
+                                // if part is a definitions recursively convert it to NFA
+                                NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(part.getExpression())));
                                 edgesList.add(edgeNfa);
                             } else {
-                                NFA edgeNfa = nfa.edgeNfa(e.getExpression());
+                                NFA edgeNfa = nfa.edgeNfa(part.getExpression());
                                 edgesList.add(edgeNfa);
                             }
 
                         }
                         nfa = nfa.or(edgesList);
+                        part.markCompleted();
                     }
                 }
             }
-            nfa = nfa.concatenate(edgesList);
+            if (!edgesList.isEmpty()) {
+                nfa = nfa.concatenate(edgesList);
+            }
         }
 
         return nfa;
@@ -176,6 +188,7 @@ class RegularExpressionTokenizer {
             }
         }
 
+        System.out.println(toReturn);
         return toReturn.toString();
     }
 
@@ -247,7 +260,7 @@ class RegularExpressionTokenizer {
                         parenthesisPostfix = currRegEx;
                         break;
                     } else if (currRegEx != ' ') {
-                        parenthesesCounter = iterator.previous();
+                        parenthesisPostfix = iterator.previous();
                         break;
                     }
                 }
@@ -255,19 +268,29 @@ class RegularExpressionTokenizer {
                         partFactory.createGroupPart(bracketBuffer.toString(), parenthesisPostfix, isAndParenthesis)
                 );
                 toReturn.addAll(bracketParts);
-            } else {
+            }
                 // Combine all characters after brackets
-                buffer.append(currRegEx);
-                if (!iterator.hasNext()) {
-                    toReturn.add(
-                            partFactory.createPart(buffer.toString())
-                    );
+            else {
+                buffer = new StringBuilder();
+                while (iterator.hasNext() && regExStream.get(iterator.nextIndex()) != '(') {
+                    buffer.append(currRegEx);
+                    currRegEx = iterator.next();
+                    if (currRegEx == '(') {
+                        buffer.append(currRegEx);
+                        Part part = partFactory.createNoOpPart(buffer.toString());
+                        toReturn.add(part);
+                        break;
+                    } else if (!iterator.hasNext()) {
+                        buffer.append(currRegEx);
+                        Part part = partFactory.createNoOpPart(buffer.toString());
+                        toReturn.add(part);
+                        break;
+                    }
                 }
             }
         }
 
-        toReturn.forEach(e -> System.out.println(e.toString()));
-
+//        toReturn.forEach(e -> System.out.println(e.toString()));
         return toReturn;
     }
 

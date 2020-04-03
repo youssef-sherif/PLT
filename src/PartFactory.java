@@ -79,4 +79,8 @@ public class PartFactory {
         return part;
     }
 
+    public Part createNoOpPart(String expression) {
+//        System.out.println(expression);
+        return new Part(Part.NOOP, expression);
+    }
 }
