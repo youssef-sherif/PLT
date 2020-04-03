@@ -38,11 +38,9 @@ class RegularExpressionTokenizer {
                         } else if (part.isPlus()) {
                             NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.plus(groupNfa);
-                            groupNfa = groupNfa.concatenate(edgesList);
                             edgesList.add(groupNfa);
                         } else {
                             NFA groupNfa = toNFA(part.getExpression());
-                            groupNfa = groupNfa.concatenate(edgesList);
                             edgesList.add(groupNfa);
                         }
                     } else if (part.isOrGroup()){
@@ -72,7 +70,6 @@ class RegularExpressionTokenizer {
                             edgesList.add(groupNfa);
                         } else {
                             NFA groupNfa = toNFA(part.getExpression());
-                            groupNfa = groupNfa.concatenate(edgesList);
                             edgesList.add(groupNfa);
                         }
                     }
