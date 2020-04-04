@@ -80,7 +80,6 @@ public class PartFactory {
     }
 
     public Part createNoOpPart(String expression) {
-//        System.out.println(expression);
         return new Part(Part.NOOP, expression);
     }
 }

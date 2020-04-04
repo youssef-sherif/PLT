@@ -5,11 +5,14 @@ class RegularExpressionTokenizer {
 
     private final PartFactory partFactory;
     private final Map<String, String> regularDefinitions;
+    private String key;
 
 
     public RegularExpressionTokenizer(String key, Map<String, String> regularDefinitions,
-                                      Set<String> keyWords, Set<String> punctuation) {
+                                      Set<String> keyWords,
+                                      Set<String> punctuation) {
         System.out.println("===" + key + "===");
+        this.key = key;
         this.partFactory = new PartFactory(regularDefinitions, keyWords, punctuation);
         this.regularDefinitions = regularDefinitions;
     }
@@ -28,7 +31,7 @@ class RegularExpressionTokenizer {
 
                 // Recursively convert group Part to NFA
                 if (part.isGroup()) {
-                    System.out.println(part.toString());
+//                    System.out.println(part.toString());
                     NFA groupNfa = toNFA(part.getExpression());
                     if (part.isAndGroup()) {
                         if (part.isAsterisk()) {
@@ -60,7 +63,7 @@ class RegularExpressionTokenizer {
                 } else {
 
                     String[] ANDedExpressions = part.getExpression().split(" ");
-                    System.out.println(Arrays.toString(ANDedExpressions));
+//                    System.out.println(Arrays.toString(ANDedExpressions));
                     // Part contains ANDed expressions
                     // create a list of NFAs and concatenate them at the end
                     if (ANDedExpressions.length > 1) {
@@ -68,7 +71,7 @@ class RegularExpressionTokenizer {
                         for (String exp : ANDedExpressions) {
 
                             Part ANDedPart = partFactory.createPart(exp);
-                            System.out.println("        "  + x + " " + ANDedPart.toString());
+//                            System.out.println("        "  + x + " " + ANDedPart.toString());
 
                             if (ANDedPart.isAsterisk()) {
                                 // if part is a definitions recursively convert it to NFA
@@ -107,7 +110,7 @@ class RegularExpressionTokenizer {
                     // Part does not contain ANDed expressions.
                     // Add a new edge to nfaList and perform NFA OR
                     else if (!ANDedExpressions[0].isEmpty()) {
-                        System.out.println(x + " " + part.toString());
+//                        System.out.println(x + " " + part.toString());
                         if (part.isAsterisk()) {
                             // if part is a definitions recursively convert it to NFA
                             if (part.isDefinition()) {

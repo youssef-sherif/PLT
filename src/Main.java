@@ -14,15 +14,17 @@ public class Main {
         for (Map.Entry<String, String> entry : rulesTokenizer.getRegularExpressions().entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
+
             RegularExpressionTokenizer regularExpressionTokenizer = new RegularExpressionTokenizer(key,
                     rulesTokenizer.getRegularDefinitions(),
                     rulesTokenizer.getKeyWords(),
                     rulesTokenizer.getPunctuation()
             );
 
+            System.out.println("===NFA===");
             NFA nfa = regularExpressionTokenizer.toNFA(value);
-            System.out.println("===DFA===");
-            int[][] transitionTable = nfa.toTransitionTable();
+            nfa = nfa.or(nfaList);
+            System.out.println(nfa.toString());
             nfaList.add(nfa);
         }
         ;
