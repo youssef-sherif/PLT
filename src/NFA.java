@@ -15,6 +15,7 @@ public class NFA {
             nfa = new NFA();
             nfa.startt = new NFAState(false, nfa.numStates);
             nfa.alphabet = new HashSet<>();
+            nfa.numStates = 0;
         }
         return nfa;
     }
@@ -54,7 +55,7 @@ public class NFA {
         NFA nfa = NFA.getInstance();
         int size,i;
         size = nfalist.size();
-        NFAState fin = new NFAState(true, nfa.numStates);
+        NFAState fin = new NFAState(true, nfa.numStates++);
         fin.finalState =true;
         nfa.startt = nfalist.get(0).startt;
 
@@ -114,11 +115,18 @@ public class NFA {
         stack.push(nfa.startt.next);
         c.add(nfa.startt.next);
 
+
         while (!stack.empty()) {
             List<NFAState> t = stack.pop();
             for (NFAState a : t) {
-                if (a.edges.isEmpty()) continue;
-                result.append(a).append("\n");
+                result.append(a.getStateNo()).append("\n");
+                for (NFAState nfaState : a.next) {
+                    result.append(nfaState.getStateNo()).append(" ");
+                }
+                for (Character nfaState : a.edges) {
+                    result.append(nfaState).append(" ");
+                }
+                result.append("\n");
                 if (!c.contains(a.next)) {
                     c.add(a.next);
                     stack.push(a.next);
