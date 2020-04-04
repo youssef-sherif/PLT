@@ -29,49 +29,33 @@ class RegularExpressionTokenizer {
                 // Recursively convert group Part to NFA
                 if (part.isGroup()) {
                     System.out.println(part.toString());
+                    NFA groupNfa = toNFA(part.getExpression());
                     if (part.isAndGroup()) {
                         if (part.isAsterisk()) {
-                            NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.asterisk(groupNfa);
-                            groupNfa = groupNfa.concatenate(edgesList);
-                            edgesList.add(groupNfa);
                         } else if (part.isPlus()) {
-                            NFA groupNfa = toNFA(part.getExpression());
+                            groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.plus(groupNfa);
                             edgesList.add(groupNfa);
-                        } else {
-                            NFA groupNfa = toNFA(part.getExpression());
-                            edgesList.add(groupNfa);
                         }
+                        groupNfa = groupNfa.concatenate(edgesList);
+                        edgesList.add(groupNfa);
                     } else if (part.isOrGroup()){
                         if (part.isAsterisk()) {
-                            NFA groupNfa = toNFA(part.getExpression());
+                            groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.asterisk(groupNfa);
-                            groupNfa = groupNfa.or(edgesList);
-                            edgesList.add(groupNfa);
                         } else if (part.isPlus()) {
-                            NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.plus(groupNfa);
-                            groupNfa = groupNfa.or(edgesList);
-                            edgesList.add(groupNfa);
-                        } else {
-                            NFA groupNfa = toNFA(part.getExpression());
-                            groupNfa = groupNfa.or(edgesList);
-                            edgesList.add(groupNfa);
                         }
+                        groupNfa = groupNfa.or(edgesList);
+                        edgesList.add(groupNfa);
                     } else {
                         if (part.isAsterisk()) {
-                            NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.asterisk(groupNfa);
-                            edgesList.add(groupNfa);
                         } else if (part.isPlus()) {
-                            NFA groupNfa = toNFA(part.getExpression());
                             groupNfa = groupNfa.plus(groupNfa);
-                            edgesList.add(groupNfa);
-                        } else {
-                            NFA groupNfa = toNFA(part.getExpression());
-                            edgesList.add(groupNfa);
                         }
+                        edgesList.add(groupNfa);
                     }
                 } else {
 
