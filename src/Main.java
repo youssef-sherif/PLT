@@ -6,10 +6,10 @@ public class Main {
 
     public static void main(String[] args) {
 
+        try{
             GrammarRules rulesTokenizer = new GrammarRules("lexical_rules.txt");
             rulesTokenizer.tokenize();
 
-            NFA nfa = null;
             List<NFA> nfaList = new ArrayList<>();
 
             for (Map.Entry<String, String> entry : rulesTokenizer.getRegularExpressions().entrySet()) {
@@ -26,15 +26,12 @@ public class Main {
                 nfaList.add(currentNfa);
             }
 
-            if (nfaList.size() > 2) {
-                nfa = nfa.or(nfaList);
-            } else {
-                nfa = nfaList.get(0);
-            }
+            NFA nfa = NFA.getInstance().or(nfaList);
+
             System.out.println("===NFA===");
             System.out.println(nfa.toString());
 
-        try{
+
             System.out.println("===DFA===");
             DFA dfa = new DFA(nfa);
             dfa.DFAtoNFA();
