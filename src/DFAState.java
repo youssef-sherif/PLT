@@ -10,14 +10,15 @@ public class DFAState {
     private Map<Character, DFAState> transitions;
     private ArrayList<NFAState> collectionStates;
     private Integer id;
-    private boolean marked = false;
+    private boolean marked;
     private HashMap<DFAState, Character> TransTable;
 
     public DFAState(Integer id) {
         //    this.transitions = new Map<Character, DFAState>();
         this.collectionStates = new ArrayList<NFAState>();
         this.id = id;
-        //this.TransTable = new
+        this.marked = false;
+        this.TransTable = new HashMap<DFAState, Character>();
     }
 
     public void addCollectionState(NFAState inputState) {

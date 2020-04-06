@@ -35,7 +35,7 @@ public class Main {
 
         System.out.println("===DFA===");
         DFA dfa = new DFA(nfa);
-        dfa = dfa.DFAtoNFA(nfa);
-//        dfa.printTable();
+        dfa.DFAtoNFA();
+        dfa.printTable();
     }
 }
