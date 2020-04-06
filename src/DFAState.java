@@ -47,14 +47,14 @@ public class DFAState {
         return this.marked;
     }
 
-    public String assignNextState(DFAState nextState, Character inputSymbol) {
+    public void assignNextState(DFAState nextState, Character inputSymbol) {
         try {
             this.TransTable.put(nextState, inputSymbol);
-            return ("Transition complete"
+            System.out.println("Transition complete"
                     + " Next DFAState: " + nextState.getID() + " next symbol: " + inputSymbol + 
-                    "for state: " + this.getID());
+                    " for state: " + this.getID());
         } catch(Exception e)  {
-            return ("Tranisition failed for DFA state number: " + this.getID());
+            System.out.println("Tranisition failed for DFA state number: " + this.getID());
         }
     }
 
