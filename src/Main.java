@@ -37,7 +37,6 @@ public class Main {
             dfa.DFAtoNFA();
             dfa.printTable();
         } catch (Exception e) {
-            System.out.println("here");
             e.printStackTrace();
         }
     }
