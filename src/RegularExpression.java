@@ -106,6 +106,10 @@ class RegularExpression {
                             }
                         }
                         edgesList.addAll(ANDedNFAs);
+                        if (edgesList.size() > 1) {
+                            nfa = nfa.concatenate(edgesList);
+                        }
+
                     }
                     // Part does not contain ANDed expressions.
                     // Add a new edge to nfaList and perform NFA OR
@@ -143,11 +147,14 @@ class RegularExpression {
                             }
 
                         }
-                        nfa = nfa.or(edgesList);
+                        if(edgesList.size() > 1) {
+                            nfa = nfa.or(edgesList);
+                        }
                     }
                 }
+
             }
-            nfa = nfa.concatenate(edgesList);
+
         }
 
         return nfa;
@@ -183,7 +190,7 @@ class RegularExpression {
             }
         }
 
-        System.out.println(toReturn);
+//        System.out.println(toReturn);
         return toReturn.toString();
     }
 
@@ -230,13 +237,13 @@ class RegularExpression {
                 if (iterator.previousIndex()-1 > 0)
                     do {
                         if (regExStream.get(iterator.previousIndex()-i) == '|'
-                            || regExStream.get(iterator.previousIndex()-i-1) == '|') {
+                                || regExStream.get(iterator.previousIndex()-i-1) == '|') {
                             isAndParenthesis = false;
                         }
                         i++;
                     } while (regExStream.get(iterator.previousIndex()-i) == ' ');
 
-                    // Combine all characters before '('
+                // Combine all characters before '('
                 toReturn.add(
                         partFactory.createPart(buffer.toString())
                 );
@@ -278,7 +285,7 @@ class RegularExpression {
                 );
                 toReturn.addAll(bracketParts);
             }
-                // Combine all characters after brackets
+            // Combine all characters after brackets
             else {
                 buffer = new StringBuilder();
                 while (iterator.hasNext() && regExStream.get(iterator.nextIndex()) != '(') {

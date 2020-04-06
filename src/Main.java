@@ -8,6 +8,7 @@ public class Main {
         GrammarRules rulesTokenizer = new GrammarRules("lexical_rules.txt");
         rulesTokenizer.tokenize();
 
+        NFA nfa = null;
         List<NFA> nfaList = new ArrayList<>();
 
         for (Map.Entry<String, String> entry : rulesTokenizer.getRegularExpressions().entrySet()) {
@@ -20,12 +21,21 @@ public class Main {
                     rulesTokenizer.getPunctuation()
             );
 
-            System.out.println("===NFA===");
-            NFA nfa = regularExpressionTokenizer.toNFA(value);
-//            nfa = nfa.or(nfaList);
-            System.out.println(nfa.toString());
-            nfaList.add(nfa);
+            nfaList.add(regularExpressionTokenizer.toNFA(value));
         }
-        ;
+
+        if (nfaList.size() > 2) {
+            nfa = nfa.or(nfaList);
+        } else {
+            nfa = nfaList.get(0);
+
+        }
+        System.out.println("===NFA===");
+        System.out.println(nfa.toString());
+
+        System.out.println("===DFA===");
+        DFA dfa = new DFA(nfa);
+        dfa = dfa.DFAtoNFA(nfa);
+//        dfa.printTable();
     }
 }

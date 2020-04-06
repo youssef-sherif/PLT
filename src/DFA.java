@@ -2,8 +2,8 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.Stack;
 
-import com.google.common.collect.HashBasedTable; 
-import com.google.common.collect.Table; 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.google.common.collect.Table.Cell;
 
 public class DFA {
@@ -24,7 +24,7 @@ public class DFA {
 
     public void setDFAStart(DFAState start) {
         this.DFAStart = start;
-    }   
+    }
 
     public DFAState EpsilonClosure(DFAState state) {
         DFAState output = new DFAState(stateCounter++);
@@ -93,7 +93,7 @@ public class DFA {
         }
         return dfa;
     }
-    
+
     public void printTable(){
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         System.out.println("DFA Transition table:");
