@@ -35,6 +35,7 @@ public class NFA {
     }
 
     public NFA or(List<NFA> nfalist) {
+        System.out.println("or");
         NFA nfa = NFA.getInstance();
         int size,i;
         size = nfalist.size();
@@ -52,6 +53,7 @@ public class NFA {
     }
 
     public NFA concatenate(List<NFA> nfalist) {
+        System.out.println("concatenate");
         NFA nfa = NFA.getInstance();
         int size,i;
         size = nfalist.size();
@@ -115,6 +117,15 @@ public class NFA {
         stack.push(nfa.startt.next);
         c.add(nfa.startt.next);
 
+
+        result.append(nfa.startt.getStateNo()).append("\n");
+        for (NFAState nfaState : nfa.startt.next) {
+            result.append(nfaState.getStateNo()).append(" ");
+        }
+        for (Character nfaState : nfa.startt.edges) {
+            result.append(nfaState).append(" ");
+        }
+        result.append("\n");
 
         while (!stack.empty()) {
             List<NFAState> t = stack.pop();

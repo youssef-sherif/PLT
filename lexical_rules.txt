@@ -1,6 +1,1 @@
-relop: \=\= | !\= | > | >\= | < | <\=
-assign: =
-{ if else while }
-[; , \( \) { }]
-addop: \+ | -
-mulop: \* | /
+j: a b c
