@@ -21,21 +21,22 @@ public class Main {
                     rulesTokenizer.getPunctuation()
             );
 
-            nfaList.add(regularExpressionTokenizer.toNFA(value));
+            NFA currentNfa = regularExpressionTokenizer.toNFA(value);
+            nfaList.add(currentNfa);
         }
 
         if (nfaList.size() > 2) {
             nfa = nfa.or(nfaList);
-        } else {
+        }
+        else {
             nfa = nfaList.get(0);
-
         }
         System.out.println("===NFA===");
         System.out.println(nfa.toString());
-
-        System.out.println("===DFA===");
-        DFA dfa = new DFA(nfa);
-        dfa = dfa.DFAtoNFA(nfa);
+//
+//        System.out.println("===DFA===");
+//        DFA dfa = new DFA(nfa);
+//        dfa = dfa.DFAtoNFA(nfa);
 //        dfa.printTable();
     }
 }

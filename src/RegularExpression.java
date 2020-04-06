@@ -100,13 +100,13 @@ class RegularExpression {
                                     ANDedNFAs.add(edgeNfa);
                                 } else {
                                     // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
-                                    NFA edgeNfa = nfa.edge(ANDedPart.getExpression().charAt(0));
+                                    NFA edgeNfa = nfa.edge(ANDedPart.getNFACharacter());
                                     ANDedNFAs.add(edgeNfa);
                                 }
                             }
                         }
                         edgesList.addAll(ANDedNFAs);
-                        if (edgesList.size() > 1) {
+                        if (!edgesList.isEmpty()) {
                             nfa = nfa.concatenate(edgesList);
                         }
 
@@ -142,17 +142,19 @@ class RegularExpression {
                                 edgesList.add(edgeNfa);
                             } else {
                                 // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
-                                NFA edgeNfa = nfa.edge(part.getExpression().charAt(0));
+                                NFA edgeNfa = nfa.edge(part.getNFACharacter());
                                 edgesList.add(edgeNfa);
                             }
 
                         }
-                        if(edgesList.size() > 1) {
+                        if(!edgesList.isEmpty()) {
                             nfa = nfa.or(edgesList);
                         }
                     }
                 }
-
+                if (!edgesList.isEmpty()) {
+                    nfa = nfa.concatenate(edgesList);
+                }
             }
 
         }

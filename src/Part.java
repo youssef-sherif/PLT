@@ -16,12 +16,15 @@ public class Part {
     }
 
     public String getExpression() {
-        if (expression.length() == 2 && expression.startsWith("\\")) {
-            return String.valueOf(expression.charAt(1));
-        } else if (expression.length() == 1) {
-            return String.valueOf(expression.charAt(0));
-        }
         return expression;
+    }
+
+    public char getNFACharacter() {
+        if (expression.length() == 2 && expression.startsWith("\\")) {
+            return expression.charAt(1);
+        } else {
+            return expression.charAt(0);
+        }
     }
 
     public boolean isGroup() {

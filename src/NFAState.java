@@ -17,11 +17,6 @@ public class NFAState {
         return numStates;
     }
 
-    public void shiftStates() {
-        this.numStates = numStates+1;
-        this.next.forEach(NFAState::shiftStates);
-    }
-
     public String toString() {
         return edges.toString();
     }

@@ -38,12 +38,11 @@ public class NFA {
 
     public NFA or(List<NFA> nfalist) {
         NFA nfa = NFA.getInstance();
-        int size,i;
-        size = nfalist.size();
+        int size = nfalist.size();
         NFAState start=new NFAState(false,  ++NFA.getInstance().numStates);
         NFAState fin=new NFAState(true, ++NFA.getInstance().numStates);
-        for(i=0;i<size;i++)
-        {
+
+        for (int i = 0; i < size; i++) {
             start.edges.add(EPSILON);
             start.next.add(nfalist.get(i).startt);
             nfalist.get(i).finall.edges.add(EPSILON);
@@ -51,8 +50,9 @@ public class NFA {
             nfalist.get(i).finall.finalState=false;
         }
 
-        nfa.startt=start;
-        nfa.finall=fin;
+        nfa.startt = start;
+        nfa.finall = fin;
+
         return nfa;
     }
 
@@ -60,12 +60,6 @@ public class NFA {
         System.out.println("concatenate");
         NFA nfa = NFA.getInstance();
         int size = nfalist.size();
-        if (size <= 1) {
-            nfa.finall.next.add(nfalist.get(0).startt);
-            nfa.finall = nfalist.get(0).finall;
-            nfa.startt = nfalist.get(0).startt;
-            return nfa;
-        }
         nfa.startt = nfalist.get(0).startt;
 
         for(int i = 0; i < size-1; i++) {
@@ -73,8 +67,6 @@ public class NFA {
             nfalist.get(i).finall.next=nfalist.get(i+1).startt.next;
             nfalist.get(i).finall.finalState = false;
         }
-        //  nfalist.get(size-2).finall.next.add(nfalist.get(size-1).finall);
-        // nfalist.get(size-1).finall.finalState = true;
 
         nfa.finall = nfalist.get(size-1).finall;
 
@@ -103,7 +95,7 @@ public class NFA {
         inputnfa.finall.next.add(finalState);
 
         nfa.startt = startState;
-        nfa.finall=finalState;
+        nfa.finall = finalState;
 
         return nfa;
     }
@@ -131,7 +123,7 @@ public class NFA {
         Stack<List<NFAState>> stack = new Stack<>();
         HashSet<List<NFAState>> c = new HashSet<>();
 
-        StringBuilder result = new StringBuilder("Number of states : " + Integer.toString(this.numStates+1) + "\n");
+        StringBuilder result = new StringBuilder();
         result.append("Start state : ").append(this.startt.getStateNo()).append("\n");
         result.append("Final state : ").append(this.finall.getStateNo()).append("\n");
         result.append("States :\n");
