@@ -37,6 +37,7 @@ public class NFA {
     }
 
     public NFA or(List<NFA> nfalist) {
+        System.out.println("or");
         NFA nfa = NFA.getInstance();
         int size = nfalist.size();
         NFAState start=new NFAState(false,  ++NFA.getInstance().numStates);
@@ -107,11 +108,11 @@ public class NFA {
     }
 
     public NFAState getAcceptState() {
-        return nfa.finall;
+        return NFA.getInstance().finall;
     }
 
     public NFAState getStartState() {
-        return nfa.startt;
+        return NFA.getInstance().startt;
     }
 
     public Set<Character> getAlphabet() {
@@ -125,7 +126,7 @@ public class NFA {
 
         StringBuilder result = new StringBuilder();
         result.append("Start state : ").append(this.startt.getStateNo()).append("\n");
-        result.append("Final state : ").append(this.finall.getStateNo()).append("\n");
+        result.append("Final state : ").append(this.finall.getStateNo()).append(" ").append(this.finall.finalState).append("\n");
         result.append("States :\n");
 
 
@@ -133,7 +134,7 @@ public class NFA {
         c.add(nfa.startt.next);
 
 
-        result.append(this.startt.getStateNo()).append("\n");
+        result.append(this.startt.getStateNo()).append(" ").append(this.startt.finalState).append("\n");
         for (NFAState nfaState : this.startt.next) {
             result.append(nfaState.getStateNo()).append(" ");
         }
@@ -145,7 +146,7 @@ public class NFA {
         while (!stack.empty()) {
             List<NFAState> t = stack.pop();
             for (NFAState a : t) {
-                result.append(a.getStateNo()).append("\n");
+                result.append(a.getStateNo()).append(" ").append(a.finalState).append("\n");
                 for (NFAState nfaState : a.next) {
                     result.append(nfaState.getStateNo()).append(" ");
                 }

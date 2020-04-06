@@ -152,9 +152,6 @@ class RegularExpression {
                         }
                     }
                 }
-                if (!edgesList.isEmpty()) {
-                    nfa = nfa.concatenate(edgesList);
-                }
             }
 
         }
