@@ -15,11 +15,13 @@ public class DFA {
     private ArrayList<DFAState> DFAStates;
     private int stateCounter = 0;
     private Table<Integer, Character, Integer> DFATransitions;
+    private NFA Nfa;
 
     public DFA(NFA nfa) {
         this.alphabet = nfa.getAlphabet();
         this.DFAStates = new ArrayList<DFAState>();
         this.DFATransitions = HashBasedTable.create();
+        this.Nfa = nfa;
     }
 
     public void setDFAStart(DFAState start) {
@@ -69,44 +71,48 @@ public class DFA {
         return output;
     }
 
-    public DFA DFAtoNFA(NFA nfa) {
-        DFA dfa = new DFA(nfa);
+    public void DFAtoNFA() {
+        //DFA dfa = new DFA(nfa);
         //ArrayList<NFAState> collectionStates = dfa.EpsilonClosure(nfa.getStartState());
         DFAState startState = new DFAState(stateCounter++);
-        startState.addCollectionState(nfa.getStartState());
-        startState = dfa.EpsilonClosure(startState);
+        startState.addCollectionState(this.Nfa.getStartState());
+        startState = this.EpsilonClosure(startState);
         //startState.addCollectionState(collectionStates);
-        dfa.setDFAStart(startState);
-        dfa.DFAStates.add(startState);
-        while (!dfa.containsMarkedState()) {
-            int unmarkedIndex = dfa.getUnmarkedState();
-            DFAState T = dfa.DFAStates.get(unmarkedIndex);
-            T.mark();
-            for (Character inputSymbol : dfa.alphabet) {
-                DFAState u = dfa.EpsilonClosure(dfa.move(T, inputSymbol));
-                if (!dfa.DFAStates.contains(u)) {
-                    dfa.DFAStates.add(u);
+        this.setDFAStart(startState);
+        this.DFAStates.add(startState);
+        while (!this.containsMarkedState()) {
+            int unmarkedIndex = this.getUnmarkedState();
+                DFAState T = this.DFAStates.get(unmarkedIndex);
+                T.mark();
+            for (Character inputSymbol : this.alphabet) {
+                DFAState u = this.EpsilonClosure(this.move(T, inputSymbol));
+                if (!this.DFAStates.contains(u)) {
+                    this.DFAStates.add(u);
                     T.assignNextState(u, inputSymbol);
-                    dfa.DFATransitions.put(T.getID(), inputSymbol, u.getID());
+                    this.DFATransitions.put(T.getID(), inputSymbol, u.getID());
                 }
             }
         }
-        return dfa;
+        return;
     }
 
     public void printTable(){
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("Table size:" +this.DFATransitions.size());
         System.out.println("DFA Transition table:");
-        System.out.print("  ");
+        System.out.print("           ");
         for(Character col : this.DFATransitions.columnKeySet()){
-            System.out.print(col + " |");
+            System.out.print(col + "|     ");
         }
-        for(Cell<Integer, Character, Integer> cell : this.DFATransitions.cellSet()){
-            System.out.println(cell.getRowKey() + " |");
-            for(Cell<Integer, Character, Integer> cellValue : this.DFATransitions.cellSet()){
-                System.out.println(cell.getColumnKey() + " |");
+        System.out.println("");
+        for(Integer rowState : this.DFATransitions.rowKeySet()){
+            System.out.print("Row " + rowState + " |    ");
+            for(Character col : this.DFATransitions.columnKeySet()){
+                System.out.print(this.DFATransitions.get(rowState, col)+ "|     ");
             }
+            System.out.println("");
         }
+        System.out.println("");
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
     public boolean containsMarkedState() {
@@ -123,7 +129,7 @@ public class DFA {
         //DFAState temp;
         int i = 0;
         for (DFAState temp : this.DFAStates) {
-            if (temp.isMarked()) {
+            if (!temp.isMarked()) {
                 return i;
             }
             i++;
