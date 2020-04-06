@@ -1,6 +1,5 @@
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -11,7 +10,7 @@ public class DFA {
     private NFAState NFAStart;
     private DFAState DFAStart;
     private Set<Character> alphabet;
-    public static char EPSILON = '@';
+    public static char EPSILON = 'Ɛ';
     private ArrayList<DFAState> DFAStates;
     private int stateCounter = 0;
     private Table<Integer, Character, Integer> DFATransitions;
@@ -19,7 +18,7 @@ public class DFA {
 
     public DFA(NFA nfa) {
         this.alphabet = nfa.getAlphabet();
-        this.DFAStates = new ArrayList<DFAState>();
+        this.DFAStates = new ArrayList<>();
         this.DFATransitions = HashBasedTable.create();
         this.Nfa = nfa;
     }
@@ -33,7 +32,7 @@ public class DFA {
         //output.addCollectionState(state);
         //ArrayList<NFAState> output = new ArrayList<NFAState>();
         //output.add(state);
-        Stack s = new Stack();
+        Stack<NFAState> s = new Stack<>();
         for (NFAState nfastate : state.getCollectionStates()) {
             s.push(nfastate);
             output.addCollectionState(nfastate);
@@ -71,7 +70,7 @@ public class DFA {
         return output;
     }
 
-    public void DFAtoNFA() {
+    public void NFAtoDFA() {
         //DFA dfa = new DFA(nfa);
         //ArrayList<NFAState> collectionStates = dfa.EpsilonClosure(nfa.getStartState());
         DFAState startState = new DFAState(stateCounter++);
@@ -93,7 +92,6 @@ public class DFA {
                 }
             }
         }
-        return;
     }
 
     public void printTable(){
@@ -135,5 +133,38 @@ public class DFA {
             i++;
         }
         return -1;
+    }
+
+    public boolean matches(String input) {
+
+        List<Character> inputStream = input.chars()
+                // Convert IntStream to Stream<Character>
+                .mapToObj(e -> (char)e)
+                // Collect the elements as a List Of Characters
+                .collect(Collectors.toList());
+
+        Iterator<DFAState> stateIterator = DFAStates.iterator();
+        Map<Integer, Map<Character, Integer>> transitionsMap = DFATransitions.rowMap();
+        int currState = 1;
+
+        for (Character char1 : inputStream) {
+            int stateNo = transitionsMap.get(currState).get(char1);
+            if (DFAStates.contains(stateNo)) {
+                DFAState state = DFAStates.get(stateNo);
+                if (state.isAcceptState()) {
+                    return true;
+                } else {
+                    if (transitionsMap.containsKey(state.getID())) {
+                        currState = state.getID();
+                    } else {
+                        return false;
+                    }
+                }
+            } else {
+                return false;
+            }
+        }
+
+        return false;
     }
 }

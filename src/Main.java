@@ -13,16 +13,15 @@ public class Main {
             List<NFA> nfaList = new ArrayList<>();
 
             for (Map.Entry<String, String> entry : rulesTokenizer.getRegularExpressions().entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
 
-                RegularExpression regularExpressionTokenizer = new RegularExpression(key,
+                RegularExpression regularExpressionTokenizer = new RegularExpression(
+                        entry.getKey(),
                         rulesTokenizer.getRegularDefinitions(),
                         rulesTokenizer.getKeyWords(),
                         rulesTokenizer.getPunctuation()
                 );
 
-                NFA currentNfa = regularExpressionTokenizer.toNFA(value);
+                NFA currentNfa = regularExpressionTokenizer.toNFA(entry.getValue());
                 nfaList.add(currentNfa);
             }
 
@@ -34,8 +33,16 @@ public class Main {
 
             System.out.println("===DFA===");
             DFA dfa = new DFA(nfa);
-            dfa.DFAtoNFA();
+            dfa.NFAtoDFA();
             dfa.printTable();
+
+            ProgramFile programFile = new ProgramFile("test.txt");
+            boolean match = dfa.matches(programFile.getProgram());
+            if (match) {
+                System.out.println("match");
+            } else {
+                System.out.println("no match");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

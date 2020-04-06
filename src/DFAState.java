@@ -61,6 +61,10 @@ public class DFAState {
         }
     }
 
+    public boolean isAcceptState() {
+        return this.finalstate;
+    }
+
     public Integer getID() {
         return this.id;
     }

@@ -1,14 +1,14 @@
 import java.util.*;
 
 public class NFA {
-    public static char EPSILON = '@';
+    public static char EPSILON = 'Ɛ';
     private static NFA nfa;
     private NFAState startt;
     private NFAState finall;
     private Set<Character> alphabet;
     private int numStates;
 
-    private NFA() {
+    NFA() {
     }
 
     public static NFA getInstance() {
