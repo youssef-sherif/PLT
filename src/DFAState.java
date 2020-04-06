@@ -23,6 +23,9 @@ public class DFAState {
 
     public void addCollectionState(NFAState inputState) {
         // for(NFAState state: inputState){
+        if (inputState.finalState) {
+            this.finalstate = true;
+        }
         this.collectionStates.add(inputState);
         //}
     }
