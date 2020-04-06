@@ -1,12 +1,11 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class Main {
 
     public static void main(String[] args) {
-        RulesTokenizer rulesTokenizer = new RulesTokenizer("lexical_rules.txt");
+        GrammarRules rulesTokenizer = new GrammarRules("lexical_rules.txt");
         rulesTokenizer.tokenize();
 
         List<NFA> nfaList = new ArrayList<>();
@@ -15,7 +14,7 @@ public class Main {
             String key = entry.getKey();
             String value = entry.getValue();
 
-            RegularExpressionTokenizer regularExpressionTokenizer = new RegularExpressionTokenizer(key,
+            RegularExpression regularExpressionTokenizer = new RegularExpression(key,
                     rulesTokenizer.getRegularDefinitions(),
                     rulesTokenizer.getKeyWords(),
                     rulesTokenizer.getPunctuation()
@@ -23,7 +22,7 @@ public class Main {
 
             System.out.println("===NFA===");
             NFA nfa = regularExpressionTokenizer.toNFA(value);
-            nfa = nfa.or(nfaList);
+//            nfa = nfa.or(nfaList);
             System.out.println(nfa.toString());
             nfaList.add(nfa);
         }

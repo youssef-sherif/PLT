@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class NFAState {
-    private final int numStates;
+    private int numStates;
     boolean finalState;
     ArrayList<NFAState> next;
     ArrayList<Character> edges;
@@ -15,6 +15,11 @@ public class NFAState {
 
     public int getStateNo() {
         return numStates;
+    }
+
+    public void shiftStates() {
+        this.numStates = numStates+1;
+        this.next.forEach(NFAState::shiftStates);
     }
 
     public String toString() {

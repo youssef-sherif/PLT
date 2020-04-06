@@ -4,7 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-public class RulesTokenizer {
+public class GrammarRules {
 
     private final List<String> rules;
     private Map<String, String> regularExpressions;
@@ -12,7 +12,7 @@ public class RulesTokenizer {
     private Set<String> keyWords;
     private Set<String> punctuation;
 
-    public RulesTokenizer(String fileName) {
+    public GrammarRules(String fileName) {
         BufferedReader reader;
         this.rules = new ArrayList<>();
         this.regularExpressions = new HashMap<>();
