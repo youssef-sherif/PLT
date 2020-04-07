@@ -151,8 +151,8 @@ public class DFA {
             char char1 = iterator.next();
             System.out.println(char1);
             if (char1 == ' ') continue;
-            if (!transitionsMap.containsKey(currState)) { continue; }
-            if (!transitionsMap.get(currState).containsKey(char1))  { continue; }
+            if (!transitionsMap.containsKey(currState)) continue;
+            if (!transitionsMap.get(currState).containsKey(char1))  continue;
             int stateNo = transitionsMap.get(currState).get(char1);
             if (stateNo >= DFAStates.size()) continue;
             if (DFAStates.contains(DFAStates.get(stateNo))) {
