@@ -143,25 +143,34 @@ public class DFA {
                 // Collect the elements as a List Of Characters
                 .collect(Collectors.toList());
 
-        Iterator<DFAState> stateIterator = DFAStates.iterator();
         Map<Integer, Map<Character, Integer>> transitionsMap = DFATransitions.rowMap();
         int currState = 1;
 
         for (Character char1 : inputStream) {
-            int stateNo = transitionsMap.get(currState).get(char1);
-            if (DFAStates.contains(stateNo)) {
-                DFAState state = DFAStates.get(stateNo);
-                if (state.isAcceptState()) {
-                    return true;
-                } else {
-                    if (transitionsMap.containsKey(state.getID())) {
-                        currState = state.getID();
-                    } else {
-                        return false;
+            System.out.println(char1);
+            if (char1 == ' ') continue;
+            if (transitionsMap.containsKey(currState)) {
+                if (transitionsMap.get(currState).containsKey(char1)) {
+                    int stateNo = transitionsMap.get(currState).get(char1);
+                    if (stateNo < DFAStates.size()) {
+                        if (DFAStates.contains(DFAStates.get(stateNo))) {
+                            DFAState state = DFAStates.get(stateNo);
+                            System.out.println(state.getID());
+                            if (state.isAcceptState()) {
+                                return true;
+                            } else {
+                                if (transitionsMap.containsKey(state.getID())) {
+                                    System.out.println("here");
+                                    currState = state.getID();
+                                } else {
+                                    return false;
+                                }
+                            }
+                        } else {
+                            return false;
+                        }
                     }
                 }
-            } else {
-                return false;
             }
         }
 
