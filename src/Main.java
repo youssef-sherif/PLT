@@ -25,10 +25,10 @@ public class Main {
                 nfaList.add(currentNfa);
             }
 
-//            NFA nfa = NFA.getInstance().or(nfaList);
+            NFA nfa = NFA.getInstance().or(nfaList);
 
             System.out.println("===NFA===");
-            System.out.println(NFA.getInstance().toString());
+            System.out.println(nfa.toString());
 
 
             System.out.println("===DFA===");

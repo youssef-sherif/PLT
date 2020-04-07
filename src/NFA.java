@@ -8,7 +8,7 @@ public class NFA {
     private Set<Character> alphabet;
     private int numStates;
 
-    NFA() {
+    private NFA() {
     }
 
     public static NFA getInstance() {
@@ -25,19 +25,19 @@ public class NFA {
         NFA nfa = NFA.getInstance();
         nfa.alphabet.add(attr);
         NFA temp = new NFA();
-        System.out.println("Character that will be added to NFA: " + attr);
+//        System.out.println("Character that will be added to NFA: " + attr);
         temp.startt = new NFAState(false, ++nfa.numStates);
         temp.finall = new NFAState(true, ++nfa.numStates);
 
         temp.startt.edges.add(attr);
         temp.startt.next.add(temp.finall);
 
-        System.out.println(temp.toString());
         return temp;
     }
 
     public NFA or(List<NFA> nfalist) {
-        System.out.println("or");
+//        System.out.print("or ");
+//        System.out.println(nfalist);
         NFA nfa = NFA.getInstance();
         int size = nfalist.size();
         NFAState start=new NFAState(false,  ++NFA.getInstance().numStates);
@@ -58,7 +58,8 @@ public class NFA {
     }
 
     public NFA concatenate(List<NFA> nfalist) {
-        System.out.println("concatenate");
+//        System.out.print("concatenate ");
+//        System.out.println(nfalist);
         NFA nfa = NFA.getInstance();
         int size = nfalist.size();
         nfa.startt = nfalist.get(0).startt;
@@ -71,14 +72,13 @@ public class NFA {
 
         nfa.finall = nfalist.get(size-1).finall;
 
-        System.out.println(nfa.toString());
         return nfa;
     }
 
 
     public NFA asterisk(NFA inputnfa)  {
-        System.out.println("asterisk");
-        NFA nfa = NFA.getInstance();
+//        System.out.println("asterisk");
+//        NFA nfa = NFA.getInstance();
 
         NFAState startState = new NFAState(false, ++nfa.numStates);
         NFAState finalState = new NFAState(true, ++nfa.numStates);
@@ -104,6 +104,7 @@ public class NFA {
     public NFA plus(NFA nfa) {
         List<NFA> tempNFAs = new ArrayList<>();
         tempNFAs.add(nfa.asterisk(nfa));
+
         return nfa.concatenate(tempNFAs);
     }
 
@@ -126,7 +127,7 @@ public class NFA {
 
         StringBuilder result = new StringBuilder();
         result.append("Start state : ").append(this.startt.getStateNo()).append("\n");
-        result.append("Final state : ").append(this.finall.getStateNo()).append(" ").append(this.finall.finalState).append("\n");
+        result.append("Final state : ").append(this.finall.getStateNo()).append("\n");
         result.append("States :\n");
 
 
@@ -134,7 +135,7 @@ public class NFA {
         c.add(nfa.startt.next);
 
 
-        result.append(this.startt.getStateNo()).append(" ").append(this.startt.finalState).append("\n");
+        result.append(this.startt.getStateNo()).append("\n");
         for (NFAState nfaState : this.startt.next) {
             result.append(nfaState.getStateNo()).append(" ");
         }
@@ -146,7 +147,7 @@ public class NFA {
         while (!stack.empty()) {
             List<NFAState> t = stack.pop();
             for (NFAState a : t) {
-                result.append(a.getStateNo()).append(" ").append(a.finalState).append("\n");
+                result.append(a.getStateNo()).append("\n");
                 for (NFAState nfaState : a.next) {
                     result.append(nfaState.getStateNo()).append(" ");
                 }
