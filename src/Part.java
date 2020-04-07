@@ -1,7 +1,6 @@
 public class Part {
 
-    public static final String OR_GROUP = "OR GROUP";
-    public static final String AND_GROUP = "AND_GROUP";
+    public static final String GROUP = "GROUP";
     public static final String DEF = "DEF";
     public static final String NOOP = "NOOP";
 
@@ -32,16 +31,7 @@ public class Part {
     }
 
     public boolean isGroup() {
-        return type.equals(AND_GROUP)
-                || type.equals(OR_GROUP);
-    }
-
-    public boolean isAndGroup() {
-        return type.equals(AND_GROUP);
-    }
-
-    public boolean isOrGroup() {
-        return type.equals(OR_GROUP);
+        return type.equals(GROUP);
     }
 
     public Boolean isAsterisk() {

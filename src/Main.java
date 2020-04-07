@@ -16,12 +16,13 @@ public class Main {
 
                 RegularExpression regularExpressionTokenizer = new RegularExpression(
                         entry.getKey(),
+                        entry.getValue(),
                         rulesTokenizer.getRegularDefinitions(),
                         rulesTokenizer.getKeyWords(),
                         rulesTokenizer.getPunctuation()
                 );
 
-                NFA currentNfa = regularExpressionTokenizer.toNFA(entry.getValue());
+                NFA currentNfa = regularExpressionTokenizer.toNFA();
                 nfaList.add(currentNfa);
             }
 

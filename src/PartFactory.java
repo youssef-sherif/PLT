@@ -48,35 +48,19 @@ public class PartFactory {
         return new Part(Part.NOOP, expression);
     }
 
-    public Part createGroupPart(String expression, char parenthesisPostfix, boolean and) {
+    public Part createGroupPart(String expression, char parenthesisPostfix) {
         // Check if the bracket ends in '*' or '+'
         if (parenthesisPostfix == ASTERISK) {
-            Part part;
-            if (and) {
-                part = new Part(Part.AND_GROUP, expression);
-            } else {
-                part = new Part(Part.OR_GROUP, expression);
-            }
+            Part part = new Part(Part.GROUP, expression);
             part.setAsterisk();
             return part;
         } else if (parenthesisPostfix == PLUS) {
-            Part part;
-            if (and) {
-                part = new Part(Part.AND_GROUP, expression);
-            } else {
-                part = new Part(Part.OR_GROUP, expression);
-            }
+            Part part = new Part(Part.GROUP, expression);
             part.setPlus();
             return part;
-        }
-
-        Part part;
-        if (and) {
-            part = new Part(Part.AND_GROUP, expression);
         } else {
-            part = new Part(Part.OR_GROUP, expression);
+            return new Part(Part.GROUP, expression);
         }
-        return part;
     }
 
     public Part createNoOpPart(String expression) {
