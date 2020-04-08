@@ -48,10 +48,10 @@ public class NFA {
             nfalist.get(i).finall.next.add(fin);
         }
 //
-        NFA.getInstance().startt = start;
-        NFA.getInstance().finall = fin;
+        this.startt = start;
+        this.finall = fin;
 
-        return NFA.getInstance();
+        return this;
     }
 
     public NFA concatenate(List<NFA> nfalist) {
@@ -66,9 +66,9 @@ public class NFA {
             nfalist.get(i).finall.finalState = false;
         }
 
-        NFA.getInstance().finall = nfalist.get(size-1).finall;
+        this.finall = nfalist.get(size-1).finall;
 
-        return NFA.getInstance();
+        return this;
     }
 
 
@@ -90,27 +90,28 @@ public class NFA {
         inputnfa.finall.edges.add(EPSILON);
         inputnfa.finall.next.add(finalState);
 
-        NFA.getInstance().startt = startState;
-        NFA.getInstance().finall = finalState;
+        inputnfa.startt = startState;
+        inputnfa.finall = finalState;
 
-        return NFA.getInstance();
+        return inputnfa;
     }
 
     public NFA plus(NFA nfa) {
 //        System.out.println("plus");
 
         List<NFA> tempNFAs = new ArrayList<>();
+        tempNFAs.add(nfa);
         tempNFAs.add(nfa.asterisk(nfa));
 
-        return NFA.getInstance().concatenate(tempNFAs);
+        return nfa.concatenate(tempNFAs);
     }
 
     public NFAState getAcceptState() {
-        return NFA.getInstance().finall;
+        return this.finall;
     }
 
     public NFAState getStartState() {
-        return NFA.getInstance().startt;
+        return this.startt;
     }
 
     public Set<Character> getAlphabet() {

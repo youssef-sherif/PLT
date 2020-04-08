@@ -44,96 +44,90 @@ class RegularExpression {
 
     public NFA toNFA(String regExString) {
 
-        List<Part> oRedParts = tokenizeOrs(regExString);
+        List<Part> oRedPartsList = tokenizeOrs(regExString);
         List<NFA> edgesList = new ArrayList<>();
 
-        for (Part part : oRedParts) {
-            System.out.println(part.toString());
-             if (!part.getExpression().trim().isEmpty()) {
-                 NFA edgeNfa = toNFA(tokenizeParts(tokenizeGroups(part.getExpression())));
-                 System.out.println(edgeNfa);
-                edgesList.add(edgeNfa);
-            }
-        }
-
-        NFA.getInstance().or(edgesList);
-
-        return NFA.getInstance();
-
-    }
-
-    private NFA toNFA(List<List<Part>> andEdPartsList) {
-        for (List<Part> parts: andEdPartsList) {
-            List<NFA> edgesList = new ArrayList<>();
-            for ( Part part: parts) {
-                // NOTE: expressions with the same random number will be ORed together
-                // this is only used for debugging
-                int x = (new Random()).nextInt(1000);
-    //            operationsList.forEach(e -> System.out.println(e.toString()));
-
-                // Recursively convert group Part to NFA
-                if (part.isGroup()) {
-                    System.out.println(part.toString());
-                    NFA groupNfa = toNFA(part.getExpression());
-                    if (part.isAsterisk()) {
+        for ( Part part: oRedPartsList) {
+            // exp with different number will be ORed together
+            int x = (new Random()).nextInt(1000);
+            System.out.println(x + " " + part.toString());
+            List<Part> groupedParts = tokenizeGroups(part.getExpression());
+            List<NFA> concatenatedNFAs = new ArrayList<>();
+            for (Part part1: groupedParts) {
+                System.out.println("        " + x + " " + part1.toString());
+                if (part1.isGroup()) {
+                    // Recursively convert group Part to NFA
+//                    System.out.println(part1.toString());
+                    NFA groupNfa = toNFA(part1.getExpression());
+                    if (part1.isAsterisk()) {
                         groupNfa = groupNfa.asterisk(groupNfa);
-                    } else if (part.isPlus()) {
+                    } else if (part1.isPlus()) {
                         groupNfa = groupNfa.plus(groupNfa);
                     }
-                    edgesList.add(groupNfa);
-                } else {
-                    String[] andEdExpressions = part.getExpression().split(" ");
-
-                    System.out.println(x + " " + Arrays.toString(andEdExpressions));
-                    // Part contains ANDed expressions
-                    // create a list of NFAs and concatenate them at the end
-                    List<NFA> andEdNFAs = new ArrayList<>();
-                    for (String exp : andEdExpressions) {
-                        if (exp.isEmpty()) continue;
-                        Part andEdPart = partFactory.createPart(exp);
-                        System.out.println("        "  + x + " " + andEdPart.toString());
-
-                        if (andEdPart.isAsterisk()) {
-                            // if part is a definitions recursively convert it to NFA
-                            if (andEdPart.isDefinition()) {
-                                NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
-                                andEdNFAs.add(NFA.getInstance().asterisk(edgeNfa));
-                            } else {
-                                // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
-                                NFA edgeNfa = NFA.getInstance().edge(andEdPart.getNFACharacter());
-                                andEdNFAs.add(NFA.getInstance().asterisk(edgeNfa));
-                            }
-                        } else if (andEdPart.isPlus()) {
-                            // if part is a definitions recursively convert it to NFA
-                            if (andEdPart.isDefinition()) {
-                                NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
-                                andEdNFAs.add(NFA.getInstance().plus(edgeNfa));
-                            } else {
-                                // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
-                                NFA edgeNfa = NFA.getInstance().edge(andEdPart.getNFACharacter());
-                                andEdNFAs.add(NFA.getInstance().plus(edgeNfa));
-                            }
-                        } else {
-                            if (andEdPart.isDefinition()) {
-                                // if part is a definitions recursively convert it to NFA
-                                NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
-                                andEdNFAs.add(edgeNfa);
-                            } else {
-                                // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
-                                NFA edgeNfa = NFA.getInstance().edge(andEdPart.getNFACharacter());
-                                andEdNFAs.add(edgeNfa);
-                            }
-                        }
-                    }
-                    if (andEdNFAs.size() == 1) return andEdNFAs.get(0);
-                    edgesList.addAll(andEdNFAs);
+                    concatenatedNFAs.add(groupNfa);
+                } else if (!part1.getExpression().trim().isEmpty()) {
+                    concatenatedNFAs.add(toNFABase(part1.getExpression()));
                 }
-                if (edgesList.size() > 0) NFA.getInstance().concatenate(edgesList);
             }
 
+            if (concatenatedNFAs.size() > 0) {
+                edgesList.add(
+                        NFA.getInstance().concatenate(concatenatedNFAs)
+                );
+            }
         }
 
-        return NFA.getInstance();
+        return NFA.getInstance().or(edgesList);
+    }
+
+    private NFA toNFABase(String expression) {
+
+        List<NFA> andEdNFAs = new ArrayList<>();
+
+        String[] andEdExpressions = expression.split(" ");
+
+        System.out.println(Arrays.toString(andEdExpressions));
+        // Part contains ANDed expressions
+        // create a list of NFAs and concatenate them at the end
+        for (String exp : andEdExpressions) {
+            if (exp.isEmpty()) continue;
+            Part andEdPart = partFactory.createPart(exp);
+            System.out.println("        "  + andEdPart.toString());
+
+            if (andEdPart.isAsterisk()) {
+                // if part is a definitions recursively convert it to NFA
+                if (andEdPart.isDefinition()) {
+                    NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
+                    andEdNFAs.add(edgeNfa.asterisk(edgeNfa));
+                } else {
+                    // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
+                    NFA edgeNfa = NFA.getInstance().edge(andEdPart.getNFACharacter());
+                    andEdNFAs.add(edgeNfa.asterisk(edgeNfa));
+                }
+            } else if (andEdPart.isPlus()) {
+                // if part is a definitions recursively convert it to NFA
+                if (andEdPart.isDefinition()) {
+                    NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
+                    andEdNFAs.add(edgeNfa.plus(edgeNfa));
+                } else {
+                    // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
+                    NFA edgeNfa = NFA.getInstance().edge(andEdPart.getNFACharacter());
+                    andEdNFAs.add(NFA.getInstance().plus(edgeNfa));
+                }
+            } else {
+                if (andEdPart.isDefinition()) {
+                    // if part is a definitions recursively convert it to NFA
+                    NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
+                    andEdNFAs.add(edgeNfa);
+                } else {
+                    // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
+                    NFA edgeNfa = NFA.getInstance().edge(andEdPart.getNFACharacter());
+                    andEdNFAs.add(edgeNfa);
+                }
+            }
+        }
+
+        return NFA.getInstance().concatenate(andEdNFAs);
     }
 
     private String replaceRange(String string) {
@@ -210,7 +204,7 @@ class RegularExpression {
 
         List<Character> regExStream = regExString.chars()
                 // Convert IntStream to Stream<Character>
-                .mapToObj(e -> (char)e)
+                .mapToObj(e -> (char) e)
                 // Collect the elements as a List Of Characters
                 .collect(Collectors.toList());
 
@@ -242,11 +236,10 @@ class RegularExpression {
                 while (true) {
                     if (currRegEx == '(') {
                         parenthesesCounter++;
-                    }
-                    else if (regExStream.get(iterator.previousIndex()-1) == ')') {
+                    } else if (regExStream.get(iterator.previousIndex() - 1) == ')') {
                         parenthesesCounter--;
                     }
-                    if (parenthesesCounter == 0){
+                    if (parenthesesCounter == 0) {
                         break;
                     }
                     bracketBuffer.append(currRegEx);
@@ -258,7 +251,7 @@ class RegularExpression {
 
                 // check parenthesis post fix for '*' or '+'
                 while (iterator.hasNext()) {
-                    if ( currRegEx == '*' || currRegEx == '+' ) {
+                    if (currRegEx == '*' || currRegEx == '+') {
                         parenthesisPostfix = currRegEx;
                         break;
                     } else if (currRegEx != ' ') {
@@ -280,48 +273,21 @@ class RegularExpression {
                     currRegEx = iterator.next();
                     if (currRegEx == '(') {
                         buffer.append(currRegEx);
-                        Part part = partFactory.createNoOpPart(buffer.toString());
-                        toReturn.add(part);
+                        Part part1 = partFactory.createNoOpPart(buffer.toString());
+                        toReturn.add(part1);
                         break;
                     } else if (!iterator.hasNext()) {
                         buffer.append(currRegEx);
-                        Part part = partFactory.createNoOpPart(buffer.toString());
-                        toReturn.add(part);
+                        Part part1 = partFactory.createNoOpPart(buffer.toString());
+                        toReturn.add(part1);
                         break;
                     }
                 }
             }
         }
-
 //        System.out.println("(((((((((((((((((((((((((((((((((((");
 //        toReturn.forEach(e -> System.out.println(e.toString()));
 //        System.out.println(")))))))))))))))))))))))))))))))))))");
-        return toReturn;
-    }
-
-
-    private List<List<Part>> tokenizeParts(List<Part> tokens) {
-
-        List<List<Part>> toReturn = new ArrayList<>();
-        List<Part> buffer = new ArrayList<>();
-
-        for (Part part : tokens) {
-
-            if (!part.isGroup()) {
-                // fill buffer until we reach split.
-                buffer.add(partFactory.createNoOpPart(part.getExpression()));
-            }
-            // Part is a group Part. We will deal with it as a single part.
-            else {
-                buffer.add(part);
-                buffer = new ArrayList<>();
-            }
-            toReturn.add(buffer);
-        }
-//
-//        System.out.println("====================================");
-//        toReturn.forEach(e -> e.forEach(a -> System.out.println(a.toString())));
-//        System.out.println("====================================");
         return toReturn;
     }
 }
