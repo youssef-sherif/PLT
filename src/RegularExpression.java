@@ -50,7 +50,7 @@ class RegularExpression {
         for (Part part : oRedParts) {
             System.out.println(part.toString());
              if (!part.getExpression().trim().isEmpty()) {
-                 NFA edgeNfa = toNFA(tokenizeParts(tokenizeParenthesis(part.getExpression())));
+                 NFA edgeNfa = toNFA(tokenizeParts(tokenizeGroups(part.getExpression())));
                 edgesList.add(edgeNfa);
             }
         }
@@ -202,7 +202,7 @@ class RegularExpression {
         return toReturn;
     }
 
-    private List<Part> tokenizeParenthesis(String regExString) {
+    private List<Part> tokenizeGroups(String regExString) {
 
         List<Character> regExStream = regExString.chars()
                 // Convert IntStream to Stream<Character>
