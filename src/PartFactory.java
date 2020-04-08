@@ -9,7 +9,9 @@ public class PartFactory {
     private static Set<String> keyWords;
     private static Set<String> punctuation;
 
-    public PartFactory(Map<String, String> regularDefinitionsNames, Set<String> keyWords, Set<String> punctuation) {
+    public PartFactory(Map<String, String> regularDefinitionsNames,
+                       Set<String> keyWords,
+                       Set<String> punctuation) {
         PartFactory.regularDefinitions = regularDefinitionsNames;
         PartFactory.keyWords = keyWords;
         PartFactory.punctuation = punctuation;

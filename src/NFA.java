@@ -22,12 +22,11 @@ public class NFA {
     }
 
     public NFA edge(Character attr) {
-        NFA nfa = NFA.getInstance();
-        nfa.alphabet.add(attr);
+        NFA.getInstance().alphabet.add(attr);
         NFA temp = new NFA();
-//        System.out.println("Character that will be added to NFA: " + attr);
-        temp.startt = new NFAState(false, ++nfa.numStates);
-        temp.finall = new NFAState(true, ++nfa.numStates);
+        System.out.println("Character that will be added to NFA: " + attr);
+        temp.startt = new NFAState(false, ++NFA.getInstance().numStates);
+        temp.finall = new NFAState(true, ++NFA.getInstance().numStates);
 
         temp.startt.edges.add(attr);
         temp.startt.next.add(temp.finall);
@@ -37,32 +36,29 @@ public class NFA {
 
     public NFA or(List<NFA> nfalist) {
 //        System.out.print("or ");
-//        System.out.println(nfalist);
-        NFA nfa = NFA.getInstance();
+
         int size = nfalist.size();
-        NFAState start=new NFAState(false,  ++NFA.getInstance().numStates);
-        NFAState fin=new NFAState(true, ++NFA.getInstance().numStates);
+        NFAState start = new NFAState(false,  ++NFA.getInstance().numStates);
+        NFAState fin = new NFAState(true, ++NFA.getInstance().numStates);
 
         for (int i = 0; i < size; i++) {
             start.edges.add(EPSILON);
             start.next.add(nfalist.get(i).startt);
             nfalist.get(i).finall.edges.add(EPSILON);
             nfalist.get(i).finall.next.add(fin);
-            nfalist.get(i).finall.finalState=false;
         }
+//
+        NFA.getInstance().startt = start;
+        NFA.getInstance().finall = fin;
 
-        nfa.startt = start;
-        nfa.finall = fin;
-
-        return nfa;
+        return NFA.getInstance();
     }
 
     public NFA concatenate(List<NFA> nfalist) {
 //        System.out.print("concatenate ");
-//        System.out.println(nfalist);
-        NFA nfa = NFA.getInstance();
+
         int size = nfalist.size();
-        nfa.startt = nfalist.get(0).startt;
+        NFA.getInstance().startt = nfalist.get(0).startt;
 
         for(int i = 0; i < size-1; i++) {
             nfalist.get(i).finall.edges=nfalist.get(i+1).startt.edges;
@@ -70,15 +66,14 @@ public class NFA {
             nfalist.get(i).finall.finalState = false;
         }
 
-        nfa.finall = nfalist.get(size-1).finall;
+        NFA.getInstance().finall = nfalist.get(size-1).finall;
 
-        return nfa;
+        return NFA.getInstance();
     }
 
 
     public NFA asterisk(NFA inputnfa)  {
 //        System.out.println("asterisk");
-//        NFA nfa = NFA.getInstance();
 
         NFAState startState = new NFAState(false, ++nfa.numStates);
         NFAState finalState = new NFAState(true, ++nfa.numStates);
@@ -95,17 +90,19 @@ public class NFA {
         inputnfa.finall.edges.add(EPSILON);
         inputnfa.finall.next.add(finalState);
 
-        nfa.startt = startState;
-        nfa.finall = finalState;
+        NFA.getInstance().startt = startState;
+        NFA.getInstance().finall = finalState;
 
-        return nfa;
+        return NFA.getInstance();
     }
 
     public NFA plus(NFA nfa) {
+//        System.out.println("plus");
+
         List<NFA> tempNFAs = new ArrayList<>();
         tempNFAs.add(nfa.asterisk(nfa));
 
-        return nfa.concatenate(tempNFAs);
+        return NFA.getInstance().concatenate(tempNFAs);
     }
 
     public NFAState getAcceptState() {

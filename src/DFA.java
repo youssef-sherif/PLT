@@ -151,10 +151,10 @@ public class DFA {
             char char1 = iterator.next();
             System.out.println(char1);
             if (char1 == ' ') continue;
-            if (!transitionsMap.containsKey(currState)) continue;
-            if (!transitionsMap.get(currState).containsKey(char1))  continue;
+            if (!transitionsMap.containsKey(currState)) return false;
+            if (!transitionsMap.get(currState).containsKey(char1))  return false;
+            if (transitionsMap.get(currState).get(char1) >= DFAStates.size()) return false;
             int stateNo = transitionsMap.get(currState).get(char1);
-            if (stateNo >= DFAStates.size()) continue;
             if (DFAStates.contains(DFAStates.get(stateNo))) {
                 DFAState state = DFAStates.get(stateNo);
                 if (state.isAcceptState() && !iterator.hasNext()) {
@@ -162,7 +162,6 @@ public class DFA {
                 } else {
                     if (transitionsMap.containsKey(state.getID())) {
                         currState = state.getID();
-                        System.out.println("here");
                     }
                 }
             }
