@@ -23,6 +23,9 @@ public class Main {
                 );
 
                 NFA currentNfa = regularExpressionTokenizer.toNFA();
+                System.out.println("===current nfa===");
+                System.out.println(currentNfa.toString());
+                System.out.println("===current nfa===");
                 nfaList.add(currentNfa);
             }
 
@@ -33,7 +36,7 @@ public class Main {
 
 
             System.out.println("===DFA===");
-            DFA dfa = new DFA(NFA.getInstance());
+            DFA dfa = new DFA(nfa);
             dfa.NFAtoDFA();
             dfa.printTable();
 

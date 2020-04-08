@@ -20,7 +20,6 @@ public class Part {
 
     public char getNFACharacter() {
         if (expression.length() == 2 && expression.startsWith("\\")) {
-            System.out.println(expression);
             if (expression.charAt(1) == 'L') {
                 return 'λ';
             }
