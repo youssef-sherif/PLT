@@ -17,7 +17,7 @@ public class DFA {
     private NFA Nfa;
 
     public DFA(NFA nfa) {
-        this.alphabet = nfa.getAlphabet();
+        this.alphabet = NFA.getInstance().getAlphabet();
         this.DFAStates = new ArrayList<>();
         this.DFATransitions = HashBasedTable.create();
         this.Nfa = nfa;

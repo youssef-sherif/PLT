@@ -28,13 +28,13 @@ public class Main {
                 nfaList.add(currentNfa);
             }
 
-            NFA.getInstance().or(nfaList);
+            NFA nfa = NFA.combineNFAsOr(nfaList);
 
             System.out.println("===NFA===");
-            System.out.println(NFA.getInstance().toString());
+            System.out.println(nfa.toString());
 
             System.out.println("===DFA===");
-            DFA dfa = new DFA(NFA.getInstance());
+            DFA dfa = new DFA(nfa);
             dfa.NFAtoDFA();
             dfa.printTable();
 

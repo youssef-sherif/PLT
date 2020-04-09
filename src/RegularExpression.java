@@ -26,7 +26,7 @@ class RegularExpression {
          simple pre-processing
          - append | to beginning (this does not change the meaning of the RegEx but it makes it work for RegExes
          containing 1 component)
-         - replace all '\' (backslash) with ' \' (space backslash) to be able to concatenate them together
+         - replace all '\' (backslash) with ' \' (space backslash) to be able to combineNFAsConcatenate them together
          */
 
         String regEx = " | " + regExString + " | ";
@@ -44,14 +44,16 @@ class RegularExpression {
 
     public NFA toNFA(String regExString) {
 
-        List<Part> oRedPartsList = tokenizeOrs(regExString);
+        List<Part> oRedPartsList = findORedParts(regExString);
         List<NFA> edgesList = new ArrayList<>();
 
+        NFA nfa = null;
+        
         for ( Part part: oRedPartsList) {
             // exp with different number will be ORed together
             int x = (new Random()).nextInt(1000);
             System.out.println(x + " " + part.toString());
-            List<Part> groupedParts = tokenizeGroups(part.getExpression());
+            List<Part> groupedParts = findGroupedParts(part.getExpression());
             List<NFA> concatenatedNFAs = new ArrayList<>();
             for (Part part1: groupedParts) {
                 System.out.println("        " + x + " " + part1.toString());
@@ -66,21 +68,23 @@ class RegularExpression {
                     }
                     concatenatedNFAs.add(groupNfa);
                 } else if (!part1.getExpression().trim().isEmpty()) {
-                    concatenatedNFAs.add(toNFABase(part1.getExpression()));
+                    concatenatedNFAs.addAll(toNFABase(part1.getExpression()));
                 }
             }
 
-            if (concatenatedNFAs.size() > 0) {
-                edgesList.add(
-                        NFA.getInstance().concatenate(concatenatedNFAs)
-                );
+            if (!concatenatedNFAs.isEmpty()) {
+                edgesList.add(NFA.combineNFAsConcatenate(concatenatedNFAs));
             }
         }
 
-        return NFA.getInstance().or(edgesList);
+        if (!edgesList.isEmpty()) {
+             nfa = NFA.combineNFAsOr(edgesList);
+        }
+
+        return nfa;
     }
 
-    private NFA toNFABase(String expression) {
+    private List<NFA> toNFABase(String expression) {
 
         List<NFA> andEdNFAs = new ArrayList<>();
 
@@ -88,7 +92,7 @@ class RegularExpression {
 
         System.out.println(Arrays.toString(andEdExpressions));
         // Part contains ANDed expressions
-        // create a list of NFAs and concatenate them at the end
+        // create a list of NFAs and combineNFAsConcatenate them at the end
         for (String exp : andEdExpressions) {
             if (exp.isEmpty()) continue;
             Part andEdPart = partFactory.createPart(exp);
@@ -127,7 +131,7 @@ class RegularExpression {
             }
         }
 
-        return NFA.getInstance().concatenate(andEdNFAs);
+        return andEdNFAs;
     }
 
     private String replaceRange(String string) {
@@ -165,7 +169,7 @@ class RegularExpression {
     }
 
 
-    private List<Part> tokenizeOrs(String regExString) {
+    private List<Part> findORedParts(String regExString) {
         List<Character> regExStream = regExString.chars()
                 // Convert IntStream to Stream<Character>
                 .mapToObj(e -> (char)e)
@@ -200,7 +204,7 @@ class RegularExpression {
         return toReturn;
     }
 
-    private List<Part> tokenizeGroups(String regExString) {
+    private List<Part> findGroupedParts(String regExString) {
 
         List<Character> regExStream = regExString.chars()
                 // Convert IntStream to Stream<Character>
@@ -249,7 +253,7 @@ class RegularExpression {
                 // remove ')'
                 List<Part> bracketParts = new ArrayList<>();
 
-                // check parenthesis post fix for '*' or '+'
+                // check parenthesis post fix for '*' combineNFAsOr '+'
                 while (iterator.hasNext()) {
                     if (currRegEx == '*' || currRegEx == '+') {
                         parenthesisPostfix = currRegEx;
