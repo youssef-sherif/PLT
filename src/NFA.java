@@ -38,6 +38,9 @@ public class NFA {
         nfa.startt = start;
         nfa.finall = fin;
 
+        NFA.getInstance().startt = nfa.startt;
+        NFA.getInstance().finall = nfa.finall;
+
         return nfa;
     }
 
@@ -55,6 +58,9 @@ public class NFA {
 
         nfa.startt = start;
         nfa.finall = nfalist.get(size-1).finall;
+
+        NFA.getInstance().startt = nfa.startt;
+        NFA.getInstance().finall = nfa.finall;
 
         return nfa;
     }

@@ -132,8 +132,7 @@ class RegularExpression {
 
     private String replaceRange(String string) {
 
-        string += " | ";
-        char[] chars = string.toCharArray();
+        char[] chars = (string + " | ").toCharArray();
         StringBuilder toReturn = new StringBuilder();
 
         for (int i = 0; i < chars.length; i++) {
