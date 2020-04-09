@@ -51,15 +51,13 @@ class RegularExpression {
         
         for ( Part part: oRedPartsList) {
             // exp with different number will be ORed together
+            // this is used for debugging only
             int x = (new Random()).nextInt(1000);
-            System.out.println(x + " " + part.toString());
             List<Part> groupedParts = findGroupedParts(part.getExpression());
             List<NFA> concatenatedNFAs = new ArrayList<>();
             for (Part part1: groupedParts) {
-                System.out.println("        " + x + " " + part1.toString());
                 if (part1.isGroup()) {
                     // Recursively convert group Part to NFA
-//                    System.out.println(part1.toString());
                     NFA groupNfa = toNFA(part1.getExpression());
                     if (part1.isAsterisk()) {
                         groupNfa = groupNfa.asterisk(groupNfa);
@@ -90,13 +88,11 @@ class RegularExpression {
 
         String[] andEdExpressions = expression.split(" ");
 
-        System.out.println(Arrays.toString(andEdExpressions));
         // Part contains ANDed expressions
         // create a list of NFAs and combineNFAsConcatenate them at the end
         for (String exp : andEdExpressions) {
             if (exp.isEmpty()) continue;
             Part andEdPart = partFactory.createPart(exp);
-            System.out.println("        "  + andEdPart.toString());
 
             if (andEdPart.isAsterisk()) {
                 // if part is a definitions recursively convert it to NFA
@@ -186,6 +182,8 @@ class RegularExpression {
 
             buffer.append(curr);
 
+            // we ignore any '|' symbol that is within parenthesis.
+            // this function gets called again when we want to get ORed parts inside parenthesis.
             if (curr == '(') ignoring = true;
             if (curr == ')') ignoring = false;
             if ((curr == '|' || !iterator.hasNext())
@@ -197,10 +195,6 @@ class RegularExpression {
             }
         }
 
-
-//        System.out.println("|||||||||||||||||||||||||||||||||");
-//        toReturn.forEach(e -> System.out.println(e.toString()));
-//        System.out.println("|||||||||||||||||||||||||||||||||");
         return toReturn;
     }
 
@@ -289,9 +283,7 @@ class RegularExpression {
                 }
             }
         }
-//        System.out.println("(((((((((((((((((((((((((((((((((((");
-//        toReturn.forEach(e -> System.out.println(e.toString()));
-//        System.out.println(")))))))))))))))))))))))))))))))))))");
+
         return toReturn;
     }
 }
