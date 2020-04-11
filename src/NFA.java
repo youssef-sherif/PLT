@@ -24,7 +24,7 @@ public class NFA {
     public static NFA edge(Character attr) {
         NFA.getInstance().alphabet.add(attr);
         NFA temp = new NFA();
-        System.out.println("Character that will be added to NFA: " + attr);
+//        System.out.println("Character that will be added to NFA: " + attr);
         temp.startt = new NFAState(false, ++NFA.getInstance().numStates);
         temp.finall = new NFAState(true, ++NFA.getInstance().numStates);
 
@@ -51,6 +51,9 @@ public class NFA {
         nfa.startt = start;
         nfa.finall = fin;
 
+        NFA.getInstance().startt = nfa.startt;
+        NFA.getInstance().finall = nfa.finall;
+
         return nfa;
     }
 
@@ -68,6 +71,9 @@ public class NFA {
 
         nfa.startt = start;
         nfa.finall = nfalist.get(size-1).finall;
+
+        NFA.getInstance().startt = nfa.startt;
+        NFA.getInstance().finall = nfa.finall;
 
         return nfa;
     }

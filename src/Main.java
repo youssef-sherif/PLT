@@ -23,19 +23,19 @@ public class Main {
                 );
 
                 NFA currentNfa = regularExpressionTokenizer.toNFA();
-                System.out.println("===current nfa===");
-                System.out.println(currentNfa.toString());
+                System.out.println("===" + entry.getKey() + " NFA===");
+//                System.out.println(currentNfa.toString());
                 nfaList.add(currentNfa);
             }
 
-            NFA nfa = NFA.combineNFAsOr(nfaList);
+            NFA.combineNFAsOr(nfaList);
 
             System.out.println("===NFA===");
-            System.out.println(nfa.toString());
+//            System.out.println(NFA.getInstance().toString());
 
             System.out.println("===DFA===");
-            DFA dfa = new DFA(nfa);
-            dfa.NFAtoDFA();
+            DFA dfa = new DFA(NFA.getInstance());
+            dfa.nfaToDfa();
             dfa.printTable();
 
             ProgramFile programFile = new ProgramFile("test.txt");

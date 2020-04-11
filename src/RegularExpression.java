@@ -58,7 +58,6 @@ class RegularExpression {
             for (Part part1: groupedParts) {
                 if (part1.isGroup()) {
                     // Recursively convert group Part to NFA
-                    System.out.println(part1.getExpression());
                     NFA groupNfa = toNFA(preProcess(part1.getExpression()));
                     if (part1.isAsterisk()) {
                         concatenatedNFAs.add(NFA.asterisk(groupNfa));
