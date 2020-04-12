@@ -23,14 +23,14 @@ public class Main {
                 );
 
                 NFA currentNfa = regularExpressionTokenizer.toNFA();
-                System.out.println("===" + entry.getKey() + " NFA===");
+//                System.out.println("===" + entry.getKey() + " NFA===");
 //                System.out.println(currentNfa.toString());
                 nfaList.add(currentNfa);
             }
 
             NFA.combineNFAsOr(nfaList);
 
-            System.out.println("===NFA===");
+//            System.out.println("===NFA===");
 //            System.out.println(NFA.getInstance().toString());
 
             System.out.println("===DFA===");

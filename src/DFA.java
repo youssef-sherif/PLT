@@ -3,136 +3,153 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import com.google.common.collect.Table.Cell;
 
 public class DFA {
 
-    private NFAState NFAStart;
-    private DFAState DFAStart;
     private Set<Character> alphabet;
     public static char EPSILON = 'Ɛ';
-    private ArrayList<DFAState> DFAStates;
-    private int stateCounter = 0;
+    public List<DFAState> DFAStates;
     private Table<Integer, Character, Integer> DFATransitions;
-    private NFA Nfa;
+    private NFA nfa;
 
     public DFA(NFA nfa) {
-        this.alphabet = NFA.getInstance().getAlphabet();
+        this.alphabet = nfa.getAlphabet();
         this.DFAStates = new ArrayList<>();
         this.DFATransitions = HashBasedTable.create();
-        this.Nfa = nfa;
+        this.nfa = nfa;
     }
 
-    public void setDFAStart(DFAState start) {
-        this.DFAStart = start;
+    private List<NFAState> epsilonClosure(NFAState startState) {
+        return this.epsilonClosure(startState.next);
     }
 
-    public DFAState EpsilonClosure(DFAState state) {
-        DFAState output = new DFAState(stateCounter++);
-        //output.addCollectionState(state);
-        //ArrayList<NFAState> output = new ArrayList<NFAState>();
-        //output.add(state);
-        Stack<NFAState> s = new Stack<>();
-        for (NFAState nfastate : state.getCollectionStates()) {
-            s.push(nfastate);
-            output.addCollectionState(nfastate);
-        }
+    private List<NFAState> epsilonClosure(List<NFAState> states) {
+
+        List<NFAState> closure = new ArrayList<>();
+
+        Stack<List<NFAState>> s = new Stack<>();
+        Set<List<NFAState>> visited = new HashSet<>();
+
+        s.push(states);
+        visited.add(states);
+
         while (!s.empty()) {
-            NFAState temp = (NFAState) s.pop();
-            int i = 0;
-            for (Character input : temp.edges) {
-                if (input == EPSILON) {
-                    int edgeIndex = i;
-                    NFAState addToDFA = temp.next.get(edgeIndex);
-                    if (!output.isCollectionState(addToDFA)) {
-                        output.addCollectionState(addToDFA);
-                        s.push(addToDFA);
+            for (NFAState poppedState : s.pop()) {
+                int i = 0;
+                for (Character symbol : poppedState.edges) {
+                    if (symbol.equals(EPSILON)) {
+                        closure.add(poppedState.next.get(i));
                     }
+                    i++;
                 }
-                i++;
-            }
-        }
-        return output;
-    }
-
-    public DFAState move(DFAState state, Character input) {
-        DFAState output = new DFAState(stateCounter++);
-        for (NFAState nfaInDfa : state.getCollectionStates()) {
-            int i = 0;
-            for (Character symbol : nfaInDfa.edges) {
-                if (symbol.equals(input)) {
-                    int edgeIndex = i;
-                    output.addCollectionState(nfaInDfa.next.get(edgeIndex));
-                }
-                i++;
-            }
-        }
-        return output;
-    }
-
-    public void NFAtoDFA() {
-        //DFA dfa = new DFA(nfa);
-        //ArrayList<NFAState> collectionStates = dfa.EpsilonClosure(nfa.getStartState());
-        DFAState startState = new DFAState(stateCounter++);
-        startState.addCollectionState(this.Nfa.getStartState());
-        startState = this.EpsilonClosure(startState);
-        //startState.addCollectionState(collectionStates);
-        this.setDFAStart(startState);
-        this.DFAStates.add(startState);
-        while (!this.containsMarkedState()) {
-            int unmarkedIndex = this.getUnmarkedState();
-                DFAState T = this.DFAStates.get(unmarkedIndex);
-                T.mark();
-            for (Character inputSymbol : this.alphabet) {
-                DFAState u = this.EpsilonClosure(this.move(T, inputSymbol));
-                if (!this.DFAStates.contains(u)) {
-                    this.DFAStates.add(u);
-                    T.assignNextState(u, inputSymbol);
-                    this.DFATransitions.put(T.getID(), inputSymbol, u.getID());
+                if (!visited.contains(poppedState.next)) {
+                    s.push(poppedState.next);
+                    visited.add(poppedState.next);
                 }
             }
         }
+        return closure;
     }
 
-    public void printTable(){
+    private List<NFAState> move(DFAState state, Character input) {
+
+        List<NFAState> next = new ArrayList<>();
+
+        Stack<List<NFAState>> s = new Stack<>();
+        Set<List<NFAState>> visited = new HashSet<>();
+
+        s.push(state.getCollectionStates());
+        visited.add(state.getCollectionStates());
+
+        while (!s.empty()) {
+            for (NFAState poppedState : s.pop()) {
+                int i = 0;
+                for (Character symbol : poppedState.edges) {
+                    if (symbol.equals(input)) {
+                        next.add(poppedState.next.get(i));
+                    }
+                    i++;
+                }
+                if (!visited.contains(poppedState.next)) {
+                    s.push(poppedState.next);
+                    visited.add(poppedState.next);
+                }
+            }
+        }
+        return next;
+    }
+
+    private boolean containsState(DFAState next) {
+        for (DFAState state : this.DFAStates) {
+            if (state.getID().intValue() == next.getID().intValue()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean containsUnMarkedState() {
+        for (DFAState state : this.DFAStates) {
+            if (state.isNotMarked()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private DFAState getUnmarkedState() {
+        int i = 0;
+        for (DFAState state : this.DFAStates) {
+            if (state.isNotMarked()) {
+                break;
+            }
+            i++;
+        }
+
+        return this.DFAStates.get(i);
+    }
+
+    public void nfaToDfa() {
+
+        this.DFAStates.add(
+                new DFAState(epsilonClosure(this.nfa.getStartState()))
+        );
+
+        while (this.containsUnMarkedState()) {
+
+            DFAState T = this.getUnmarkedState();
+            T.mark();
+
+            for (char inputSymbol : this.alphabet) {
+                DFAState U = new DFAState(
+                        this.epsilonClosure(this.move(T, inputSymbol))
+                );
+                if (!this.containsState(U)) {
+                    this.DFAStates.add(U);
+                }
+                this.DFATransitions.put(T.getID(), inputSymbol, U.getID());
+            }
+        }
+    }
+
+    public void printTable() {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        System.out.println("Table size:" +this.DFATransitions.size());
+        System.out.println("Table size:" + DFATransitions.size());
         System.out.println("DFA Transition table:");
         System.out.print("           ");
-        for(Character col : this.DFATransitions.columnKeySet()){
+        for(Character col : DFATransitions.columnKeySet()){
             System.out.print(col + "|     ");
         }
         System.out.println("");
-        for(Integer rowState : this.DFATransitions.rowKeySet()){
+        for(Integer rowState : DFATransitions.rowKeySet()){
             System.out.print("Row " + rowState + " |    ");
-            for(Character col : this.DFATransitions.columnKeySet()){
-                System.out.print(this.DFATransitions.get(rowState, col)+ "|     ");
+            for(Character col : DFATransitions.columnKeySet()){
+                System.out.print(DFATransitions.get(rowState, col)+ "|     ");
             }
             System.out.println("");
         }
         System.out.println("");
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    }
-    public boolean containsMarkedState() {
-        boolean flag = false;
-        for (DFAState state : this.DFAStates) {
-            if (state.isMarked()) {
-                flag = true;
-            }
-        }
-        return flag;
-    }
-
-    public int getUnmarkedState() {
-        //DFAState temp;
-        int i = 0;
-        for (DFAState temp : this.DFAStates) {
-            if (!temp.isMarked()) {
-                return i;
-            }
-            i++;
-        }
-        return -1;
     }
 
     public boolean matches(String input) {

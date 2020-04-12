@@ -1,72 +1,52 @@
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DFAState {
 
-    private boolean finalstate;
-    private Map<Character, DFAState> transitions;
-    private ArrayList<NFAState> collectionStates;
+    private boolean finalState;
+    private List<NFAState> collectionStates;
     private Integer id;
     private boolean marked;
-    private HashMap<DFAState, Character> TransTable;
 
-    public DFAState(Integer id) {
-        //    this.transitions = new Map<Character, DFAState>();
-        this.collectionStates = new ArrayList<NFAState>();
-        this.id = id;
+    public DFAState(List<NFAState> epsilonClosure) {
+        this.collectionStates = new ArrayList<>();
         this.marked = false;
-        this.TransTable = new HashMap<DFAState, Character>();
-    }
-
-    public void addCollectionState(NFAState inputState) {
-        // for(NFAState state: inputState){
-        if (inputState.finalState) {
-            this.finalstate = true;
-        }
-        this.collectionStates.add(inputState);
-        //}
-    }
-
-    public ArrayList<NFAState> getCollectionStates() {
-        return this.collectionStates;
-    }
-
-    public boolean isCollectionState(NFAState inputState) {
-        if (this.collectionStates.contains(inputState)) {
-            return true;
+        if (epsilonClosure.isEmpty()) {
+            // this.id = epsilonClosure.hashCode();
+            this.id = -1;
         } else {
-            return false;
+            // TODO: I assign the DFA State id with the first id from the epsilon closure.
+            // I'm not sure if this guarantees that the id is unique.
+            // We can also use hashCode of it of the epsilonClosure and
+            // create a HashMap that maps the hashCode to a letter.
+            // this.id = epsilonClosure.hashCode();
+            this.id = epsilonClosure.get(0).getStateNo();
         }
+        this.collectionStates.addAll(epsilonClosure);
+    }
+
+    public List<NFAState> getCollectionStates() {
+        return this.collectionStates;
     }
 
     public void mark() {
         this.marked = true;
     }
 
-    public boolean isMarked() {
-        return this.marked;
-    }
-
-    public void assignNextState(DFAState nextState, Character inputSymbol) {
-        try {
-            this.TransTable.put(nextState, inputSymbol);
-            System.out.println("Transition complete"
-                    + " Next DFAState: " + nextState.getID() + " next symbol: " + inputSymbol + 
-                    " for state: " + this.getID());
-        } catch(Exception e)  {
-            System.out.println("Tranisition failed for DFA state number: " + this.getID());
-        }
+    public boolean isNotMarked() {
+        return !this.marked;
     }
 
     public boolean isAcceptState() {
-        return this.finalstate;
+        return this.finalState;
     }
 
     public Integer getID() {
         return this.id;
     }
-    
+
+    @Override
+    public String toString() {
+        return this.getID() + " " + !this.isNotMarked() + " " + this.collectionStates;
+    }
 }
