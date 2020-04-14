@@ -49,8 +49,4 @@ public class DFAState {
     public String toString() {
         return this.getID() + " " + !this.isNotMarked() + " " + this.collectionStates;
     }
-
-    public void unMark() {
-        this.marked = false;
-    }
 }
