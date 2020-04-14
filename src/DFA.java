@@ -42,17 +42,28 @@ public class DFA {
                     }
                     i++;
                 }
+                /*
+                This is important because if the next does not contain any EPSILONs
+                it skips it entirely and produces incorrect table.
+                So we need to check if all edges in next contain EPSILON before pushing it to stack.
+                If it does not contain EPSILON we add it to closure.
+                 */
                 if (!visited.contains(poppedState.next)) {
-                    s.push(poppedState.next);
-                    visited.add(poppedState.next);
+                    for (NFAState state : poppedState.next) {
+                        if (state.edges.contains(EPSILON)) {
+                            s.push(poppedState.next);
+                            visited.add(poppedState.next);
+                        } else {
+                            closure.add(poppedState);
+                        }
+                    }
                 }
             }
         }
         return closure;
     }
 
-    private List<NFAState> move(DFAState state, Character input, int j) {
-
+    private List<NFAState> move(DFAState state, Character input) {
         List<NFAState> next = new ArrayList<>();
 
         for (NFAState nfaInDfa : state.getCollectionStates()) {
@@ -64,12 +75,6 @@ public class DFA {
             }
         }
 
-        if (next.isEmpty()) {
-            if (j+1 < state.getCollectionStates().size()) {
-                DFAState state1 = new DFAState(state.getCollectionStates().get(j+1).next);
-                this.move(state1, input, j+1);
-            }
-        }
         return next;
     }
 
@@ -115,7 +120,7 @@ public class DFA {
             T.mark();
 
             for (char inputSymbol : this.alphabet) {
-                List<NFAState> next = this.move(T, inputSymbol, -1);
+                List<NFAState> next = this.move(T, inputSymbol);
                 DFAState U = new DFAState(
                         this.epsilonClosure(next)
                 );
@@ -166,6 +171,7 @@ public class DFA {
             if (!transitionsMap.containsKey(currState)) return false;
             if (!transitionsMap.get(currState).containsKey(char1))  return false;
             if (transitionsMap.get(currState).get(char1) >= DFAStates.size()) return false;
+            if (transitionsMap.get(currState).get(char1).equals(-1)) continue;
             int stateNo = transitionsMap.get(currState).get(char1);
             if (DFAStates.contains(DFAStates.get(stateNo))) {
                 DFAState state = DFAStates.get(stateNo);
