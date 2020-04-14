@@ -4,7 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-public class GrammarRules {
+public class LexicalRulesFile {
 
     private final List<String> rules;
     private Map<String, String> regularExpressions;
@@ -12,7 +12,7 @@ public class GrammarRules {
     private Set<String> keyWords;
     private Set<String> punctuation;
 
-    public GrammarRules(String fileName) {
+    public LexicalRulesFile(String fileName) {
         BufferedReader reader;
         this.rules = new ArrayList<>();
         this.regularExpressions = new HashMap<>();
@@ -35,10 +35,11 @@ public class GrammarRules {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        this.tokenize();
     }
 
 
-    public void tokenize() {
+    private void tokenize() {
         for (String s : this.rules) {
 
             // handle Punctuation

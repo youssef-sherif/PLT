@@ -7,22 +7,21 @@ public class Main {
     public static void main(String[] args) {
 
         try{
-            GrammarRules rulesTokenizer = new GrammarRules("lexical_rules.txt");
-            rulesTokenizer.tokenize();
+            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_2.txt");
 
             List<NFA> nfaList = new ArrayList<>();
 
-            for (Map.Entry<String, String> entry : rulesTokenizer.getRegularExpressions().entrySet()) {
+            for (Map.Entry<String, String> entry : lexicalRulesFile.getRegularExpressions().entrySet()) {
 
-                RegularExpression regularExpressionTokenizer = new RegularExpression(
+                RegularExpression regularExpression = new RegularExpression(
                         entry.getKey(),
                         entry.getValue(),
-                        rulesTokenizer.getRegularDefinitions(),
-                        rulesTokenizer.getKeyWords(),
-                        rulesTokenizer.getPunctuation()
+                        lexicalRulesFile.getRegularDefinitions(),
+                        lexicalRulesFile.getKeyWords(),
+                        lexicalRulesFile.getPunctuation()
                 );
 
-                NFA currentNfa = regularExpressionTokenizer.toNFA();
+                NFA currentNfa = regularExpression.toNFA();
 //                System.out.println("===" + entry.getKey() + " NFA===");
 //                System.out.println(currentNfa.toString());
                 nfaList.add(currentNfa);
