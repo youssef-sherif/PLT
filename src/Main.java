@@ -30,8 +30,8 @@ public class Main {
 
             NFA.combineNFAsOr(nfaList);
 
-//            System.out.println("===NFA===");
-//            System.out.println(NFA.getInstance().toString());
+            System.out.println("===NFA===");
+            System.out.println(NFA.getInstance().toString());
 
             System.out.println("===DFA===");
             DFA dfa = new DFA(NFA.getInstance());

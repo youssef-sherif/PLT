@@ -67,7 +67,7 @@ class RegularExpression {
                         concatenatedNFAs.add(groupNfa);
                     }
                 } else if (!part1.getExpression().trim().isEmpty()) {
-                    concatenatedNFAs.addAll(toConcatenatedNFAsList(part1.getExpression()));
+                    concatenatedNFAs.addAll(getConcatenatedNFAsList(part1.getExpression()));
                 }
             }
 
@@ -83,7 +83,7 @@ class RegularExpression {
         return nfa;
     }
 
-    private List<NFA> toConcatenatedNFAsList(String expression) {
+    private List<NFA> getConcatenatedNFAsList(String expression) {
 
         List<NFA> andEdNFAs = new ArrayList<>();
 

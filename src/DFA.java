@@ -51,29 +51,23 @@ public class DFA {
         return closure;
     }
 
-    private List<NFAState> move(DFAState state, Character input) {
+    private List<NFAState> move(DFAState state, Character input, int j) {
 
         List<NFAState> next = new ArrayList<>();
 
-        Stack<List<NFAState>> s = new Stack<>();
-        Set<List<NFAState>> visited = new HashSet<>();
-
-        s.push(state.getCollectionStates());
-        visited.add(state.getCollectionStates());
-
-        while (!s.empty()) {
-            for (NFAState poppedState : s.pop()) {
-                int i = 0;
-                for (Character symbol : poppedState.edges) {
-                    if (symbol.equals(input)) {
-                        next.add(poppedState.next.get(i));
-                    }
-                    i++;
+        for (NFAState nfaInDfa : state.getCollectionStates()) {
+            int i = 0;
+            for (Character edgeSymbol : nfaInDfa.edges) {
+                if (edgeSymbol.equals(input)) {
+                    next.add(nfaInDfa.next.get(i));
                 }
-                if (!visited.contains(poppedState.next)) {
-                    s.push(poppedState.next);
-                    visited.add(poppedState.next);
-                }
+            }
+        }
+
+        if (next.isEmpty()) {
+            if (j+1 < state.getCollectionStates().size()) {
+                DFAState state1 = new DFAState(state.getCollectionStates().get(j+1).next);
+                this.move(state1, input, j+1);
             }
         }
         return next;
@@ -121,8 +115,9 @@ public class DFA {
             T.mark();
 
             for (char inputSymbol : this.alphabet) {
+                List<NFAState> next = this.move(T, inputSymbol, -1);
                 DFAState U = new DFAState(
-                        this.epsilonClosure(this.move(T, inputSymbol))
+                        this.epsilonClosure(next)
                 );
                 if (!this.containsState(U)) {
                     this.DFAStates.add(U);
