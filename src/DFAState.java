@@ -37,10 +37,6 @@ public class DFAState {
         return !this.marked;
     }
 
-    public boolean isAcceptState() {
-        return this.finalState;
-    }
-
     public Integer getID() {
         return this.id;
     }
