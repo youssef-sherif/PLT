@@ -66,6 +66,11 @@ public class NFA {
         return nfa;
     }
 
+    /*
+    The difference between this function and concatenateNFAs
+    is that this one updates the NFA instance and concatenateNFAs does not
+    concatenateNFAs is used internally by combineNFAsOr
+     */
     public static NFA combineNFAsConcatenate(List<NFA> nfalist) {
 
         int size = nfalist.size();
