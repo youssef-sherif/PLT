@@ -45,14 +45,15 @@ public class NFA {
 
         for (int i = 0; i < size; i++) {
             start.edges.add(EPSILON);
+
             NFA epsilonEdge = NFA.edge(EPSILON);
             NFA epsilonEdge2 = NFA.edge(EPSILON);
-            List<NFA> x = new ArrayList<>();
-            x.add(epsilonEdge);
-            x.add(nfalist.get(i));
-            x.add(epsilonEdge2);
+            List<NFA> oRedEdge = new ArrayList<>();
+            oRedEdge.add(epsilonEdge);
+            oRedEdge.add(nfalist.get(i));
+            oRedEdge.add(epsilonEdge2);
 
-            start.next.add(NFA.concatenateNFAs(x).startt);
+            start.next.add(NFA.concatenateNFAs(oRedEdge).startt);
             nfalist.get(i).finall.edges.add(EPSILON);
             nfalist.get(i).finall.next.add(fin);
         }
