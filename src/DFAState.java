@@ -19,7 +19,7 @@ public class DFAState {
             // I'm not sure if this guarantees that the id is unique.
             // We can also use hashCode of it of the epsilonClosure and
             // create a HashMap that maps the hashCode to a letter.
-            // this.id = epsilonClosure.hashCode();
+//             this.id = epsilonClosure.hashCode();
             this.id = epsilonClosure.get(0).getStateNo();
         }
         this.collectionStates.addAll(epsilonClosure);

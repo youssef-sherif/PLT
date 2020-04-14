@@ -111,7 +111,7 @@ public class DFA {
     public void nfaToDfa() {
 
         this.DFAStates.add(
-                new DFAState(epsilonClosure(this.nfa.getStartState()))
+                new DFAState(this.epsilonClosure(this.nfa.getStartState()))
         );
 
         while (this.containsUnMarkedState()) {
@@ -154,36 +154,6 @@ public class DFA {
 
     public boolean matches(String input) {
 
-        List<Character> inputStream = input.chars()
-                // Convert IntStream to Stream<Character>
-                .mapToObj(e -> (char)e)
-                // Collect the elements as a List Of Characters
-                .collect(Collectors.toList());
-        ListIterator<Character> iterator = inputStream.listIterator();
-
-        Map<Integer, Map<Character, Integer>> transitionsMap = DFATransitions.rowMap();
-        int currState = 1;
-
-        while (iterator.hasNext()) {
-            char char1 = iterator.next();
-            System.out.println(char1);
-            if (char1 == ' ') continue;
-            if (!transitionsMap.containsKey(currState)) return false;
-            if (!transitionsMap.get(currState).containsKey(char1))  return false;
-            if (transitionsMap.get(currState).get(char1) >= DFAStates.size()) return false;
-            if (transitionsMap.get(currState).get(char1).equals(-1)) continue;
-            int stateNo = transitionsMap.get(currState).get(char1);
-            if (DFAStates.contains(DFAStates.get(stateNo))) {
-                DFAState state = DFAStates.get(stateNo);
-                if (state.isAcceptState() && !iterator.hasNext()) {
-                    return true;
-                } else {
-                    if (transitionsMap.containsKey(state.getID())) {
-                        currState = state.getID();
-                    }
-                }
-            }
-        }
         return false;
     }
 }
