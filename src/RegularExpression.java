@@ -82,6 +82,8 @@ class RegularExpression {
              nfa = NFA.combineNFAsOr(edgesList);
         }
 
+        NFA.getInstance().getFinalState().setRuleName(this.key);
+
         return nfa;
     }
 

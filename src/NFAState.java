@@ -5,6 +5,7 @@ public class NFAState {
     private boolean finalState;
     ArrayList<NFAState> next;
     ArrayList<Character> edges;
+    private String ruleName;
 
     public NFAState(boolean finalState, int numStates) {
         this.finalState = finalState;
@@ -23,6 +24,14 @@ public class NFAState {
 
     public void setFinalState(boolean finalState) {
         this.finalState = finalState;
+    }
+
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
+    }
+
+    public String getRuleName() {
+        return this.ruleName;
     }
 
     public String toString() {
