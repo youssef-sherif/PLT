@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) {
 
         try{
-            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_2.txt");
+            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_1.txt");
 
             List<NFA> nfaList = new ArrayList<>();
 

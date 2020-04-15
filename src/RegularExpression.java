@@ -6,7 +6,7 @@ class RegularExpression {
     private final PartFactory partFactory;
     private final Map<String, String> regularDefinitions;
     private final String regEx;
-    private String key;
+    private final String key;
 
 
     public RegularExpression(String key,

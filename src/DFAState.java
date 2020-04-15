@@ -23,6 +23,11 @@ public class DFAState {
             this.id = epsilonClosure.get(0).getStateNo();
         }
         this.collectionStates.addAll(epsilonClosure);
+        this.collectionStates.forEach(e -> {
+            if (e.isFinalState()) {
+                this.finalState = true;
+            }
+        });
     }
 
     public List<NFAState> getCollectionStates() {
@@ -35,6 +40,10 @@ public class DFAState {
 
     public boolean isNotMarked() {
         return !this.marked;
+    }
+
+    public boolean isFinalState() {
+        return this.finalState;
     }
 
     public Integer getID() {

@@ -108,6 +108,17 @@ public class DFA {
         return this.DFAStates.get(i);
     }
 
+    private DFAState getStateByID(Integer rowState) {
+        int i = 0;
+        for (DFAState state : this.DFAStates) {
+            if (state.getID().intValue() == rowState.intValue()) {
+                break;
+            }
+            i++;
+        }
+        return this.DFAStates.get(i);
+    }
+
     private void nfaToDfa() {
 
         this.DFAStates.add(
@@ -142,7 +153,9 @@ public class DFA {
         }
         System.out.println("");
         for(Integer rowState : DFATransitions.rowKeySet()){
-            System.out.print("Row " + rowState + " |    ");
+            System.out.print("Row " + rowState + " " +
+                    getStateByID(rowState).isFinalState()
+                    + " |    ");
             for(Character col : DFATransitions.columnKeySet()){
                 System.out.print(DFATransitions.get(rowState, col)+ "|     ");
             }

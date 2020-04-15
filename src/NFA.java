@@ -27,7 +27,6 @@ public class NFA {
             NFA.getInstance().alphabet.add(attr);
         }
         NFA temp = new NFA();
-//        System.out.println("Character that will be added to NFA: " + attr);
         temp.startt = new NFAState(false, ++NFA.getInstance().numStates);
         temp.finall = new NFAState(true, ++NFA.getInstance().numStates);
 
@@ -82,7 +81,7 @@ public class NFA {
         for (int i = 0; i < size-1; i++) {
             nfaList.get(i).finall.edges=nfaList.get(i+1).startt.edges;
             nfaList.get(i).finall.next=nfaList.get(i+1).startt.next;
-            nfaList.get(i).finall.finalState = false;
+            nfaList.get(i).finall.setFinalState(false);
         }
 
         nfa.startt = start;
@@ -102,7 +101,7 @@ public class NFA {
         for (int i = 0; i < size-1; i++) {
             nfaList.get(i).finall.edges=nfaList.get(i+1).startt.edges;
             nfaList.get(i).finall.next=nfaList.get(i+1).startt.next;
-            nfaList.get(i).finall.finalState = false;
+            nfaList.get(i).finall.setFinalState(false);
         }
 
         nfa.startt = start;

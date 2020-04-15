@@ -2,7 +2,7 @@ import java.util.*;
 
 public class NFAState {
     private int numStates;
-    boolean finalState;
+    private boolean finalState;
     ArrayList<NFAState> next;
     ArrayList<Character> edges;
 
@@ -15,6 +15,14 @@ public class NFAState {
 
     public int getStateNo() {
         return numStates;
+    }
+
+    public boolean isFinalState() {
+        return finalState;
+    }
+
+    public void setFinalState(boolean finalState) {
+        this.finalState = finalState;
     }
 
     public String toString() {
