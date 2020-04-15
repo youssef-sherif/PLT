@@ -9,8 +9,8 @@ public class Main {
         try{
 //            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_1.txt");
 //            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_2.txt");
-//            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_3.txt");
-            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("lexical_rules.txt");
+            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_3.txt");
+//            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("lexical_rules.txt");
 
             List<NFA> nfaList = new ArrayList<>();
 
@@ -33,7 +33,7 @@ public class Main {
             NFA.combineNFAsOr(nfaList);
 
             System.out.println("===NFA===");
-//            System.out.println(NFA.getInstance().toString());
+            System.out.println(NFA.getInstance().toString());
 
             System.out.println("===DFA===");
             DFA dfa = new DFA(NFA.getInstance());

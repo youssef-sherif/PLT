@@ -16,7 +16,7 @@ public class DFAState {
         this.collectionStates = new ArrayList<>();
         this.marked = false;
         if (epsilonClosure.isEmpty()) {
-            // this.id = epsilonClosure.hashCode();
+//             this.id = epsilonClosure.hashCode();
             this.id = -1;
         } else {
             // TODO: I assign the DFA State id with the first id from the epsilon closure.

@@ -209,7 +209,6 @@ public class DFA {
                 currState = transitionsMap.get(currState).get(char1);
                 state = getStateByID(currState);
                 if (state.isFinalState()) {
-                    iterator.next();
                     if (!iterator.hasNext()) {
                         return true;
                     } else if (transitionsMap.containsKey(state.getID())) {

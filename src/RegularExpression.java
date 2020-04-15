@@ -134,6 +134,7 @@ class RegularExpression {
                     andEdNFAs.add(edgeNfa);
                 }
             }
+            andEdNFAs.add(NFA.edge(NFA.EPSILON));
         }
 
         return andEdNFAs;
