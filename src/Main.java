@@ -8,6 +8,8 @@ public class Main {
 
         try{
             LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_1.txt");
+//            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_2.txt");
+//            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_3.txt");
 
             List<NFA> nfaList = new ArrayList<>();
 

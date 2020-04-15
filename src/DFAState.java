@@ -7,8 +7,10 @@ public class DFAState {
     private List<NFAState> collectionStates;
     private Integer id;
     private boolean marked;
+    private boolean startState;
 
     public DFAState(List<NFAState> epsilonClosure) {
+        this.startState = false;
         this.collectionStates = new ArrayList<>();
         this.marked = false;
         if (epsilonClosure.isEmpty()) {
@@ -44,6 +46,14 @@ public class DFAState {
 
     public boolean isFinalState() {
         return this.finalState;
+    }
+
+    public void setStartState(boolean startState) {
+        this.startState = startState;
+    }
+
+    public boolean isStartState() {
+        return this.startState;
     }
 
     public Integer getID() {
