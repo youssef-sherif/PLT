@@ -25,13 +25,14 @@ public class DFAState {
             // create a HashMap that maps the hashCode to a letter.
 //             this.id = epsilonClosure.hashCode();
             this.id = epsilonClosure.get(0).getStateNo();
+            this.collectionStates.addAll(epsilonClosure);
         }
-        this.collectionStates.addAll(epsilonClosure);
+
         for (NFAState e : this.collectionStates) {
             if (e.getRuleName() != null) {
+                this.ruleName = e.getRuleName();
                 if (e.isFinalState()) {
                     this.finalState = true;
-                    this.ruleName = e.getRuleName();
                 }
             }
         }

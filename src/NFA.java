@@ -41,7 +41,7 @@ public class NFA {
         int size = nfaList.size();
         NFA nfa = new NFA();
         NFAState start = new NFAState(false,  ++NFA.getInstance().numStates);
-        NFAState fin = new NFAState(true, ++NFA.getInstance().numStates);
+        NFAState fin = new NFAState(false, ++NFA.getInstance().numStates);
 
         for (int i = 0; i < size; i++) {
             start.edges.add(EPSILON);
@@ -76,6 +76,7 @@ public class NFA {
         for (int i = 0; i < size-1; i++) {
             nfaList.get(i).finall.edges=nfaList.get(i+1).startt.edges;
             nfaList.get(i).finall.next=nfaList.get(i+1).startt.next;
+            nfaList.get(i).finall.setFinalState(true);
         }
 
         nfa.startt = start;
