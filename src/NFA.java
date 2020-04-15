@@ -53,7 +53,7 @@ public class NFA {
             oRedEdge.add(nfaList.get(i));
             oRedEdge.add(epsilonEdge2);
 
-            start.next.add(NFA.concatenateNFAs(oRedEdge).startt);
+            start.next.add(NFA.combineNFAsConcatenate(oRedEdge).startt);
             nfaList.get(i).finall.edges.add(EPSILON);
             nfaList.get(i).finall.next.add(fin);
         }
@@ -67,11 +67,6 @@ public class NFA {
         return nfa;
     }
 
-    /*
-    The difference between this function and concatenateNFAs
-    is that this one updates the NFA instance and concatenateNFAs does not
-    concatenateNFAs is used internally.
-     */
     public static NFA combineNFAsConcatenate(List<NFA> nfaList) {
 
         int size = nfaList.size();
@@ -81,7 +76,6 @@ public class NFA {
         for (int i = 0; i < size-1; i++) {
             nfaList.get(i).finall.edges=nfaList.get(i+1).startt.edges;
             nfaList.get(i).finall.next=nfaList.get(i+1).startt.next;
-            nfaList.get(i).finall.setFinalState(false);
         }
 
         nfa.startt = start;
@@ -89,23 +83,6 @@ public class NFA {
 
         NFA.getInstance().startt = nfa.startt;
         NFA.getInstance().finall = nfa.finall;
-
-        return nfa;
-    }
-
-    private static NFA concatenateNFAs(List<NFA> nfaList) {
-        int size = nfaList.size();
-        NFA nfa = new NFA();
-        NFAState start = nfaList.get(0).startt;
-
-        for (int i = 0; i < size-1; i++) {
-            nfaList.get(i).finall.edges=nfaList.get(i+1).startt.edges;
-            nfaList.get(i).finall.next=nfaList.get(i+1).startt.next;
-            nfaList.get(i).finall.setFinalState(false);
-        }
-
-        nfa.startt = start;
-        nfa.finall = nfaList.get(size-1).finall;
 
         return nfa;
     }
@@ -132,7 +109,7 @@ public class NFA {
         return this;
     }
 
-    public NFAState getAcceptState() {
+    public NFAState getFinalState() {
         return this.finall;
     }
 
@@ -151,7 +128,7 @@ public class NFA {
 
         StringBuilder result = new StringBuilder();
         result.append("Start state : ").append(this.getStartState().getStateNo()).append("\n");
-        result.append("Final state : ").append(this.getAcceptState().getStateNo()).append("\n");
+        result.append("Final state : ").append(this.getFinalState().getStateNo()).append("\n");
         result.append("States :\n");
 
 
