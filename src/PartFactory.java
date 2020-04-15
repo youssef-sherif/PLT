@@ -19,31 +19,28 @@ public class PartFactory {
 
     public Part createPart(String expression) {
         expression = expression.trim();
+        String trim = expression.substring(0, expression.length() - 1).trim();
         if (expression.endsWith(String.valueOf(PLUS)) && !expression.equals("\\" + PLUS)) {
-            String expression1 = expression.substring(0, expression.length()-1).trim();
-            if (regularDefinitions.keySet().contains(expression1)) {
-                Part part = new Part(Part.DEF, expression1);
-                part.setPlus();
-                return part;
+            Part part;
+            if (regularDefinitions.containsKey(trim)) {
+                part = new Part(Part.DEF, trim);
             } else {
-                Part part = new Part(Part.NOOP, expression);
-                part.setPlus();
-                return part;
+                part = new Part(Part.NOOP, expression);
             }
+            part.setPlus();
+            return part;
         }
         else if (expression.endsWith(String.valueOf(ASTERISK)) && !expression.equals("\\" + ASTERISK)) {
-            String expression1 = expression.substring(0, expression.length()-1).trim();
-            if (regularDefinitions.keySet().contains(expression1)) {
-                Part part = new Part(Part.DEF, expression1);
-                part.setAsterisk();
-                return part;
+            Part part;
+            if (regularDefinitions.containsKey(trim)) {
+                part = new Part(Part.DEF, trim);
             } else {
-                Part part = new Part(Part.NOOP, expression);
-                part.setAsterisk();
-                return part;
+                part = new Part(Part.NOOP, expression);
             }
+            part.setAsterisk();
+            return part;
         }
-        else if (regularDefinitions.keySet().contains(expression)) {
+        else if (regularDefinitions.containsKey(expression)) {
             return new Part(Part.DEF, expression);
         }
 
