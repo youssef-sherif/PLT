@@ -9,8 +9,8 @@ public class Main {
         try{
 //            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_1.txt");
 //            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_2.txt");
-            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_3.txt");
-//            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("lexical_rules.txt");
+//            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_3.txt");
+            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("lexical_rules.txt");
 
             List<NFA> nfaList = new ArrayList<>();
 
@@ -40,7 +40,7 @@ public class Main {
             dfa.printTable();
 
             ProgramFile programFile = new ProgramFile("input.txt");
-            boolean match = dfa.matches(programFile.getProgram());
+            boolean match = dfa.accept(programFile.getProgram());
             if (match) {
                 System.out.println("match");
             } else {
