@@ -171,9 +171,11 @@ public class DFA {
         }
         System.out.println("");
         for(Integer rowState : DFATransitions.rowKeySet()){
+            DFAState state = getStateByID(rowState);
             System.out.print("Row " + rowState + " " +
-                    (getStateByID(rowState).isFinalState() ? "accept" : "") +
-                    (getStateByID(rowState).isStartState() ? "start" : "") +
+                    (state.isFinalState() ? "accept" +
+                            " " + state.getRuleName() + " " : "") +
+                    (state.isStartState() ? "start" : "") +
                     " |    ");
             for(Character col : DFATransitions.columnKeySet()){
                 System.out.print(DFATransitions.get(rowState, col)+ "|     ");
@@ -184,7 +186,7 @@ public class DFA {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
-    public boolean matches(String input) {
+    public boolean accept(String input) {
         ListIterator<Character> iterator = input.chars()
                 // Convert IntStream to Stream<Character>
                 .mapToObj(e -> (char)e)

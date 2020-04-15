@@ -3,14 +3,16 @@ import java.util.*;
 
 public class DFAState {
 
+    private String ruleName;
     private boolean finalState;
-    private List<NFAState> collectionStates;
-    private Integer id;
+    private final List<NFAState> collectionStates;
+    private final Integer id;
     private boolean marked;
     private boolean startState;
 
     public DFAState(List<NFAState> epsilonClosure) {
         this.startState = false;
+        this.finalState = false;
         this.collectionStates = new ArrayList<>();
         this.marked = false;
         if (epsilonClosure.isEmpty()) {
@@ -25,11 +27,14 @@ public class DFAState {
             this.id = epsilonClosure.get(0).getStateNo();
         }
         this.collectionStates.addAll(epsilonClosure);
-        this.collectionStates.forEach(e -> {
-            if (e.isFinalState()) {
-                this.finalState = true;
+        for (NFAState e : this.collectionStates) {
+            if (e.getRuleName() != null) {
+                if (e.isFinalState()) {
+                    this.finalState = true;
+                    this.ruleName = e.getRuleName();
+                }
             }
-        });
+        }
     }
 
     public List<NFAState> getCollectionStates() {
@@ -58,6 +63,10 @@ public class DFAState {
 
     public Integer getID() {
         return this.id;
+    }
+
+    public String getRuleName() {
+        return this.ruleName;
     }
 
     @Override
