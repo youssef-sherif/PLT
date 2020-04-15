@@ -153,27 +153,6 @@ public class DFA {
     }
 
     public boolean matches(String input) {
-
-        List<Integer> list1 = new ArrayList<>();
-        List<Integer> list2 = new ArrayList<>();
-
-        for (Character char1 : input.toCharArray()) {
-            for (Integer row : DFATransitions.rowKeySet()) {
-                list1.add(DFATransitions.get(row, char1));
-
-            }
-        }
-
-        for (Character char2 : this.alphabet) {
-            for (Integer row : DFATransitions.rowKeySet()) {
-                list2.add(DFATransitions.get(row, char2));
-            }
-            if (list1.equals(list2)) return true;
-        }
-
-        System.out.println(list1);
-        System.out.println(list2);
-
-        return list1.equals(list2);
+        return false;
     }
 }
