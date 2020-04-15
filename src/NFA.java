@@ -6,6 +6,7 @@ public class NFA {
     private NFAState startt;
     private NFAState finall;
     private Set<Character> alphabet;
+
     private int numStates;
 
     private NFA() {
@@ -36,9 +37,9 @@ public class NFA {
         return temp;
     }
 
-    public static NFA combineNFAsOr(List<NFA> nfalist) {
+    public static NFA combineNFAsOr(List<NFA> nfaList) {
 
-        int size = nfalist.size();
+        int size = nfaList.size();
         NFA nfa = new NFA();
         NFAState start = new NFAState(false,  ++NFA.getInstance().numStates);
         NFAState fin = new NFAState(true, ++NFA.getInstance().numStates);
@@ -50,12 +51,12 @@ public class NFA {
             NFA epsilonEdge2 = NFA.edge(EPSILON);
             List<NFA> oRedEdge = new ArrayList<>();
             oRedEdge.add(epsilonEdge);
-            oRedEdge.add(nfalist.get(i));
+            oRedEdge.add(nfaList.get(i));
             oRedEdge.add(epsilonEdge2);
 
             start.next.add(NFA.concatenateNFAs(oRedEdge).startt);
-            nfalist.get(i).finall.edges.add(EPSILON);
-            nfalist.get(i).finall.next.add(fin);
+            nfaList.get(i).finall.edges.add(EPSILON);
+            nfaList.get(i).finall.next.add(fin);
         }
 
         nfa.startt = start;
@@ -70,22 +71,22 @@ public class NFA {
     /*
     The difference between this function and concatenateNFAs
     is that this one updates the NFA instance and concatenateNFAs does not
-    concatenateNFAs is used internally by combineNFAsOr
+    concatenateNFAs is used internally.
      */
-    public static NFA combineNFAsConcatenate(List<NFA> nfalist) {
+    public static NFA combineNFAsConcatenate(List<NFA> nfaList) {
 
-        int size = nfalist.size();
+        int size = nfaList.size();
         NFA nfa = new NFA();
-        NFAState start = nfalist.get(0).startt;
+        NFAState start = nfaList.get(0).startt;
 
-        for(int i = 0; i < size-1; i++) {
-            nfalist.get(i).finall.edges=nfalist.get(i+1).startt.edges;
-            nfalist.get(i).finall.next=nfalist.get(i+1).startt.next;
-            nfalist.get(i).finall.finalState = false;
+        for (int i = 0; i < size-1; i++) {
+            nfaList.get(i).finall.edges=nfaList.get(i+1).startt.edges;
+            nfaList.get(i).finall.next=nfaList.get(i+1).startt.next;
+            nfaList.get(i).finall.finalState = false;
         }
 
         nfa.startt = start;
-        nfa.finall = nfalist.get(size-1).finall;
+        nfa.finall = nfaList.get(size-1).finall;
 
         NFA.getInstance().startt = nfa.startt;
         NFA.getInstance().finall = nfa.finall;
@@ -93,51 +94,43 @@ public class NFA {
         return nfa;
     }
 
-    private static NFA concatenateNFAs(List<NFA> nfalist) {
-        int size = nfalist.size();
+    private static NFA concatenateNFAs(List<NFA> nfaList) {
+        int size = nfaList.size();
         NFA nfa = new NFA();
-        NFAState start = nfalist.get(0).startt;
+        NFAState start = nfaList.get(0).startt;
 
-        for(int i = 0; i < size-1; i++) {
-            nfalist.get(i).finall.edges=nfalist.get(i+1).startt.edges;
-            nfalist.get(i).finall.next=nfalist.get(i+1).startt.next;
-            nfalist.get(i).finall.finalState = false;
+        for (int i = 0; i < size-1; i++) {
+            nfaList.get(i).finall.edges=nfaList.get(i+1).startt.edges;
+            nfaList.get(i).finall.next=nfaList.get(i+1).startt.next;
+            nfaList.get(i).finall.finalState = false;
         }
 
         nfa.startt = start;
-        nfa.finall = nfalist.get(size-1).finall;
+        nfa.finall = nfaList.get(size-1).finall;
 
         return nfa;
     }
 
-    public static NFA asterisk(NFA inputnfa)  {
+    public NFA asterisk()  {
         NFAState startState = new NFAState(false, ++NFA.getInstance().numStates);
         NFAState finalState = new NFAState(true, ++NFA.getInstance().numStates);
 
-        startState.next.add(inputnfa.startt);
         startState.edges.add(EPSILON);
+        startState.next.add(this.startt);
 
         startState.edges.add(EPSILON);
         startState.next.add(finalState);
 
-        inputnfa.finall.edges.add(EPSILON);
-        inputnfa.finall.next.add(inputnfa.startt);
+        this.finall.edges.add(EPSILON);
+        this.finall.next.add(this.startt);
 
-        inputnfa.finall.edges.add(EPSILON);
-        inputnfa.finall.next.add(finalState);
+        this.finall.edges.add(EPSILON);
+        this.finall.next.add(finalState);
 
-        inputnfa.startt = startState;
-        inputnfa.finall = finalState;
+        this.startt = startState;
+        this.finall = finalState;
 
-        return inputnfa;
-    }
-
-    public static NFA plus(NFA nfa) {
-        List<NFA> tempNFAs = new ArrayList<>();
-        tempNFAs.add(nfa);
-        tempNFAs.add(NFA.asterisk(nfa));
-
-        return NFA.combineNFAsConcatenate(tempNFAs);
+        return this;
     }
 
     public NFAState getAcceptState() {

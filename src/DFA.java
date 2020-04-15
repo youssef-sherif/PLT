@@ -1,22 +1,22 @@
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 public class DFA {
 
-    private Set<Character> alphabet;
+    private final Set<Character> alphabet;
     public static char EPSILON = 'Ɛ';
     public List<DFAState> DFAStates;
-    private Table<Integer, Character, Integer> DFATransitions;
-    private NFA nfa;
+    private final Table<Integer, Character, Integer> DFATransitions;
+    private final NFA nfa;
 
     public DFA(NFA nfa) {
         this.alphabet = nfa.getAlphabet();
         this.DFAStates = new ArrayList<>();
         this.DFATransitions = HashBasedTable.create();
         this.nfa = nfa;
+        this.nfaToDfa();
     }
 
     private List<NFAState> epsilonClosure(NFAState startState) {
@@ -108,7 +108,7 @@ public class DFA {
         return this.DFAStates.get(i);
     }
 
-    public void nfaToDfa() {
+    private void nfaToDfa() {
 
         this.DFAStates.add(
                 new DFAState(this.epsilonClosure(this.nfa.getStartState()))
@@ -154,6 +154,26 @@ public class DFA {
 
     public boolean matches(String input) {
 
-        return false;
+        List<Integer> list1 = new ArrayList<>();
+        List<Integer> list2 = new ArrayList<>();
+
+        for (Character char1 : input.toCharArray()) {
+            for (Integer row : DFATransitions.rowKeySet()) {
+                list1.add(DFATransitions.get(row, char1));
+
+            }
+        }
+
+        for (Character char2 : this.alphabet) {
+            for (Integer row : DFATransitions.rowKeySet()) {
+                list2.add(DFATransitions.get(row, char2));
+            }
+            if (list1.equals(list2)) return true;
+        }
+
+        System.out.println(list1);
+        System.out.println(list2);
+
+        return list1.equals(list2);
     }
 }

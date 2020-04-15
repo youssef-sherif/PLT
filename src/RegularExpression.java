@@ -60,9 +60,11 @@ class RegularExpression {
                     // Recursively convert group Part to NFA
                     NFA groupNfa = toNFA(preProcess(part1.getExpression()));
                     if (part1.isAsterisk()) {
-                        concatenatedNFAs.add(NFA.asterisk(groupNfa));
+                        concatenatedNFAs.add(groupNfa.asterisk());
                     } else if (part1.isPlus()) {
-                        concatenatedNFAs.add(NFA.plus(groupNfa));
+                        NFA groupNfa2 = toNFA(preProcess(part1.getExpression()));
+                        concatenatedNFAs.add(groupNfa);
+                        concatenatedNFAs.add(groupNfa2.asterisk());
                     } else {
                         concatenatedNFAs.add(groupNfa);
                     }
@@ -99,21 +101,25 @@ class RegularExpression {
                 // if part is a definitions recursively convert it to NFA
                 if (andEdPart.isDefinition()) {
                     NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
-                    andEdNFAs.add(NFA.asterisk(edgeNfa));
+                    andEdNFAs.add(edgeNfa.asterisk());
                 } else {
                     // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
                     NFA edgeNfa = NFA.edge(andEdPart.getNFACharacter());
-                    andEdNFAs.add(NFA.asterisk(edgeNfa));
+                    andEdNFAs.add(edgeNfa.asterisk());
                 }
             } else if (andEdPart.isPlus()) {
                 // if part is a definitions recursively convert it to NFA
                 if (andEdPart.isDefinition()) {
                     NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
-                    andEdNFAs.add(NFA.plus(edgeNfa));
+                    NFA edgeNfa2 = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
+                    andEdNFAs.add(edgeNfa);
+                    andEdNFAs.add(edgeNfa2.asterisk());
                 } else {
                     // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
                     NFA edgeNfa = NFA.edge(andEdPart.getNFACharacter());
-                    andEdNFAs.add(NFA.plus(edgeNfa));
+                    NFA edgeNfa2 = NFA.edge(andEdPart.getNFACharacter());
+                    andEdNFAs.add(edgeNfa);
+                    andEdNFAs.add(edgeNfa2.asterisk());
                 }
             } else {
                 if (andEdPart.isDefinition()) {
