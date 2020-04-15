@@ -9,8 +9,8 @@ public class Main {
         try{
 //            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_1.txt");
 //            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_2.txt");
-            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_3.txt");
-//            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("lexical_rules.txt");
+//            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_3.txt");
+            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("lexical_rules.txt");
 
             List<NFA> nfaList = new ArrayList<>();
 
@@ -33,21 +33,20 @@ public class Main {
             NFA.combineNFAsOr(nfaList);
 
             System.out.println("===NFA===");
-            System.out.println(NFA.getInstance().toString());
+//            System.out.println(NFA.getInstance().toString());
 
             System.out.println("===DFA===");
-            DFA dfa = new DFA(NFA.getInstance());
+            DFA dfa = new DFA(NFA.getInstance(),
+                            lexicalRulesFile.getKeyWords(),
+                            lexicalRulesFile.getPunctuation()
+            );
             dfa.printTable();
 
             ProgramFile programFile = new ProgramFile("input.txt");
-            boolean match = dfa.accept(programFile.getProgram());
-            if (match) {
-                System.out.println("match");
-            } else {
-                System.out.println("no match");
-            }
+            List<String> tokens = dfa.getTokens(programFile.getProgram());
+            System.out.println(tokens);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Syntax Error");
         }
     }
 }

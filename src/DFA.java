@@ -7,17 +7,22 @@ import com.google.common.collect.Table;
 public class DFA {
 
     private final Set<Character> alphabet;
-    public static char EPSILON = 'Ɛ';
-    public List<DFAState> DFAStates;
+    private final Set<String> punctuation;
+    private final Set<String> keyWords;
     private final Table<Integer, Character, Integer> DFATransitions;
     private final NFA nfa;
 
-    public DFA(NFA nfa) {
+    public static char EPSILON = 'Ɛ';
+    public List<DFAState> DFAStates;
+
+    public DFA(NFA nfa, Set<String> keyWords, Set<String> punctuation) {
         this.alphabet = nfa.getAlphabet();
         this.DFAStates = new ArrayList<>();
         this.DFATransitions = HashBasedTable.create();
         this.nfa = nfa;
         this.nfaToDfa();
+        this.keyWords = keyWords;
+        this.punctuation = punctuation;
     }
 
     private List<NFAState> epsilonClosure(NFAState startState) {
@@ -186,7 +191,7 @@ public class DFA {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
-    public boolean accept(String input) {
+    public String getTokenType(String input) throws Exception {
         ListIterator<Character> iterator = input.chars()
                 // Convert IntStream to Stream<Character>
                 .mapToObj(e -> (char)e)
@@ -200,34 +205,65 @@ public class DFA {
 
         DFAState state = getStateByID(currState);
         if (state.isFinalState()) {
-            return true;
+            return state.getRuleName();
         }
 
-        try {
-            while (iterator.hasNext()) {
-                char char1 = iterator.next();
-                currState = transitionsMap.get(currState).get(char1);
-                state = getStateByID(currState);
-                if (state.isFinalState()) {
-                    if (!iterator.hasNext()) {
-                        return true;
-                    } else if (transitionsMap.containsKey(state.getID())) {
-                        currState = state.getID();
-                        state = getStateByID(currState);
-                        if (state.isFinalState()) {
-                            if (!iterator.hasNext()) {
-                                return true;
-                            }
+        while (iterator.hasNext()) {
+            char char1 = iterator.next();
+            if (!transitionsMap.containsKey(currState)
+                    || !transitionsMap.get(currState).containsKey(char1)) {
+                throw new Exception();
+            }
+            currState = transitionsMap.get(currState).get(char1);
+            state = getStateByID(currState);
+            if (state.isFinalState()) {
+                if (!iterator.hasNext()) {
+                    return state.getRuleName();
+                } else if (transitionsMap.containsKey(state.getID())) {
+                    currState = state.getID();
+                    state = getStateByID(currState);
+                    if (state.isFinalState()) {
+                        if (!iterator.hasNext()) {
+                            return state.getRuleName();
                         }
-                    } else {
-                        return false;
                     }
+                } else {
+                    throw new Exception();
                 }
             }
-        } catch (Exception e) {
-            return false;
         }
 
-        return false;
+        throw new Exception();
+    }
+
+    public List<String> getTokens(String input) throws Exception {
+
+        List<String> toReturn = new ArrayList<>();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (Character char1 : input.toCharArray()) {
+            if (punctuation.contains(Character.toString(char1))) {
+                String word = stringBuilder.toString();
+                if (!word.trim().isEmpty()) {
+                    toReturn.add(getTokenType(word));
+                }
+                stringBuilder = new StringBuilder();
+
+                toReturn.add(Character.toString(char1));
+                continue;
+            } else if (char1 != ' ') {
+                stringBuilder.append(char1);
+            }
+            if (char1 == ' ') {
+                String word = stringBuilder.toString();
+                if (keyWords.contains(word)) {
+                    toReturn.add(word);
+                } else {
+                    toReturn.add(getTokenType(word));
+                }
+                stringBuilder = new StringBuilder();
+            }
+        }
+        return toReturn;
     }
 }
