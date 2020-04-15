@@ -61,8 +61,7 @@ public class DFA {
                 }
             }
         }
-        System.out.println("closure");
-        System.out.println(closure);
+
         return closure;
     }
 
@@ -78,8 +77,6 @@ public class DFA {
             }
         }
 
-        System.out.println("move");
-        System.out.println(next);
         return next;
     }
 
