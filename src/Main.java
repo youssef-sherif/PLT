@@ -38,7 +38,7 @@ public class Main {
             DFA dfa = new DFA(NFA.getInstance());
             dfa.printTable();
 
-            ProgramFile programFile = new ProgramFile("test.txt");
+            ProgramFile programFile = new ProgramFile("input.txt");
             boolean match = dfa.matches(programFile.getProgram());
             if (match) {
                 System.out.println("match");
