@@ -45,7 +45,14 @@ public class LexicalRulesFile {
             // handle Punctuation
             if (s.startsWith("[")) {
                 String punctuation = s.substring(1, s.length()-1);
-                Collections.addAll(this.punctuation, punctuation.split(" "));
+                String[] split = punctuation.split(" ");
+                for (String s1 : split) {
+                    if (s1.length() == 2 && s1.startsWith("\\")) {
+                        Collections.addAll(this.punctuation, Character.toString(s1.charAt(1)));
+                    } else if (s1.length() == 1) {
+                        Collections.addAll(this.punctuation, Character.toString(s1.charAt(0)));
+                    }
+                }
             }
             // handle Keywords
             else if (s.startsWith("{")) {
