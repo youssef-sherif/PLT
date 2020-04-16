@@ -79,6 +79,7 @@ public class DFA {
                 if (edgeSymbol.equals(input)) {
                     next.add(nfaInDfa.next.get(i));
                 }
+                i++;
             }
         }
 
@@ -242,27 +243,27 @@ public class DFA {
         StringBuilder stringBuilder = new StringBuilder();
 
         for (Character char1 : input.toCharArray()) {
-            if (punctuation.contains(Character.toString(char1))) {
-                String word = stringBuilder.toString();
-                if (!word.trim().isEmpty()) {
-                    toReturn.add(getTokenType(word));
-                }
-                stringBuilder = new StringBuilder();
-
-                toReturn.add(Character.toString(char1));
-                continue;
-            } else if (char1 != ' ') {
+            if (char1 != ' '
+                    && (int) char1 != 9) {
                 stringBuilder.append(char1);
             }
-            if (char1 == ' ') {
+            else {
                 String word = stringBuilder.toString();
-                if (keyWords.contains(word)) {
+                if (punctuation.contains(word)) {
+                    System.out.println(word);
                     toReturn.add(word);
-                } else {
-                    toReturn.add(getTokenType(word));
+                }
+                else {
+                    System.out.println(word);
+                    if (keyWords.contains(word)) {
+                        toReturn.add(word);
+                    } else {
+                        toReturn.add(getTokenType(word));
+                    }
                 }
                 stringBuilder = new StringBuilder();
             }
+//            System.out.println(toReturn);
         }
         return toReturn;
     }

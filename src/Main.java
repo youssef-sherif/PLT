@@ -7,8 +7,8 @@ public class Main {
     public static void main(String[] args) {
 
         try{
-            String rulesFileName = "lexical_rules_2.txt";
-            String programFileName = "program2.txt";
+            String rulesFileName = "lexical_rules_1.txt";
+            String programFileName = "program1.txt";
             LexicalRulesFile lexicalRulesFile = new LexicalRulesFile(rulesFileName);
 
             List<NFA> nfaList = new ArrayList<>();
@@ -47,6 +47,7 @@ public class Main {
             List<String> tokens = dfa.getTokens(programFile.getProgram());
             System.out.println(tokens);
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Syntax Error");
         }
     }

@@ -7,11 +7,11 @@ var  sum , count  : integer ;
 		while pass <> 10  do
 		begin
 		pass := pass + 1 ;
-read (mnt) ;
+read ( mnt ) ;
 if mnt <= 0 then
 count := count + 1.234
 else
 sum := sum + mnt
 end ;
-write (sum , count)
+write ( sum , count )
 end.

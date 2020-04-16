@@ -10,7 +10,7 @@ public class ProgramFile {
             String line;
             StringBuilder builder = new StringBuilder();
             while((line = reader.readLine()) != null){
-                builder.append(line);
+                builder.append(" ").append(line);
             }
 
             this.program = builder.toString();
