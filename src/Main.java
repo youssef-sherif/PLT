@@ -7,12 +7,13 @@ public class Main {
     public static void main(String[] args) {
 
         try{
-//            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_1.txt");
-//            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_2.txt");
-//            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("test_rules_3.txt");
-            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile("lexical_rules.txt");
+            String rulesFileName = "lexical_rules_2.txt";
+            String programFileName = "program2.txt";
+            LexicalRulesFile lexicalRulesFile = new LexicalRulesFile(rulesFileName);
 
             List<NFA> nfaList = new ArrayList<>();
+
+            System.out.println(lexicalRulesFile.toString());
 
             for (Map.Entry<String, String> entry : lexicalRulesFile.getRegularExpressions().entrySet()) {
 
@@ -42,7 +43,7 @@ public class Main {
             );
             dfa.printTable();
 
-            ProgramFile programFile = new ProgramFile("input.txt");
+            ProgramFile programFile = new ProgramFile(programFileName);
             List<String> tokens = dfa.getTokens(programFile.getProgram());
             System.out.println(tokens);
         } catch (Exception e) {
