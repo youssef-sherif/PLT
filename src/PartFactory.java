@@ -18,33 +18,12 @@ public class PartFactory {
     }
 
     public Part createPart(String expression) {
-        expression = expression.trim();
-        String trim = expression.substring(0, expression.length() - 1).trim();
-        if (expression.endsWith(String.valueOf(PLUS)) && !expression.equals("\\" + PLUS)) {
-            Part part;
-            if (regularDefinitions.containsKey(trim)) {
-                part = new Part(Part.DEF, trim);
-            } else {
-                part = new Part(Part.NOOP, expression);
-            }
-            part.setPlus();
-            return part;
-        }
-        else if (expression.endsWith(String.valueOf(ASTERISK)) && !expression.equals("\\" + ASTERISK)) {
-            Part part;
-            if (regularDefinitions.containsKey(trim)) {
-                part = new Part(Part.DEF, trim);
-            } else {
-                part = new Part(Part.NOOP, expression);
-            }
-            part.setAsterisk();
-            return part;
-        }
-        else if (regularDefinitions.containsKey(expression)) {
-            return new Part(Part.DEF, expression);
+        String expression1 = expression.trim();
+        if (regularDefinitions.containsKey(expression1)) {
+            return new Part(Part.DEF, expression1);
         }
 
-        return new Part(Part.NOOP, expression);
+        return new Part(Part.NOOP, expression1);
     }
 
     public Part createGroupPart(String expression, char parenthesisPostfix) {

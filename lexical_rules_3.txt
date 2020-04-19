@@ -5,11 +5,11 @@ digits = digit+
 { program var integer }
 num: digit+
 floatNum: digit+ | digit+ . digits ( \L | E digits)
-relop: \= | < > | > | >\= | < | <\=
+relop: \= | <> | > | >\= | < | <\=
 assign: \:\=
 {real begin end if else then while do read write}
 addop: \+ | -
 incop: \+\+
-decop: - -
+decop: --
 mulop: \* | /
 [: ; , . \( \)]

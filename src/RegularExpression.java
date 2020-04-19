@@ -1,4 +1,6 @@
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 class RegularExpression {
@@ -50,12 +52,14 @@ class RegularExpression {
         NFA nfa = null;
         
         for ( Part part: oRedPartsList) {
+            System.out.println(part);
             // exp with different number will be ORed together
             // this is used for debugging only
             int x = (new Random()).nextInt(1000);
             List<Part> groupedParts = findGroupedParts(part.getExpression());
             List<NFA> concatenatedNFAs = new ArrayList<>();
             for (Part part1: groupedParts) {
+                System.out.println("       " + part1);
                 if (part1.isGroup()) {
                     // Recursively convert group Part to NFA
                     NFA groupNfa = toNFA(preProcess(part1.getExpression()));
@@ -68,7 +72,7 @@ class RegularExpression {
                     } else {
                         concatenatedNFAs.add(groupNfa);
                     }
-                } else if (!part1.getExpression().trim().isEmpty()) {
+                } else {
                     concatenatedNFAs.addAll(getConcatenatedNFAsList(part1.getExpression()));
                 }
             }
@@ -89,27 +93,66 @@ class RegularExpression {
 
     private List<NFA> getConcatenatedNFAsList(String expression) {
 
+        System.out.println(expression);
+        // TODO: handle special characters like '\L'
         List<NFA> andEdNFAs = new ArrayList<>();
 
-        String[] andEdExpressions = expression.split(" ");
+        List<Character> regExStream = expression.chars()
+                // Convert IntStream to Stream<Character>
+                .mapToObj(e -> (char)e)
+                // Collect the elements as a List Of Characters
+                .collect(Collectors.toList());
 
-        // Part contains ANDed expressions
-        // create a list of NFAs and combineNFAsConcatenate them at the end
-        for (String exp : andEdExpressions) {
-            if (exp.isEmpty()) continue;
-            Part andEdPart = partFactory.createPart(exp);
+        ListIterator<Character> iterator = regExStream.listIterator();
+        StringBuilder buffer = new StringBuilder();
 
-            if (andEdPart.isAsterisk()) {
+        System.out.println(expression);
+        while (iterator.hasNext()) {
+            char currRegEx = iterator.next();
+
+            if (currRegEx == '\\') {
+                // escape character
+                currRegEx = iterator.next();
+                buffer.append(currRegEx);
+            }
+
+            else if (currRegEx == '*') {
+                String exp = buffer.toString();
+
+                if (exp.isEmpty()) {
+                    buffer = new StringBuilder();
+                    continue;
+                }
+
+                Part andEdPart = partFactory.createPart(exp);
+
                 // if part is a definitions recursively convert it to NFA
                 if (andEdPart.isDefinition()) {
                     NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                     andEdNFAs.add(edgeNfa.asterisk());
                 } else {
                     // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
-                    NFA edgeNfa = NFA.edge(andEdPart.getNFACharacter());
-                    andEdNFAs.add(edgeNfa.asterisk());
+                    for (char nfaChar : andEdPart.getExpression().toCharArray()) {
+                        NFA edgeNfa = NFA.edge(nfaChar);
+                        andEdNFAs.add(edgeNfa.asterisk());
+                        andEdNFAs.add(NFA.edge(NFA.EPSILON));
+                    }
                 }
-            } else if (andEdPart.isPlus()) {
+
+                andEdNFAs.add(NFA.edge(NFA.EPSILON));
+
+                buffer = new StringBuilder();
+            }
+            else if (currRegEx == '+') {
+                String exp = buffer.toString();
+
+                if (exp.isEmpty()) {
+                    buffer = new StringBuilder();
+                    continue;
+                }
+
+                Part andEdPart = partFactory.createPart(exp);
+
                 // if part is a definitions recursively convert it to NFA
                 if (andEdPart.isDefinition()) {
                     NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
@@ -118,23 +161,51 @@ class RegularExpression {
                     andEdNFAs.add(edgeNfa2.asterisk());
                 } else {
                     // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
-                    NFA edgeNfa = NFA.edge(andEdPart.getNFACharacter());
-                    NFA edgeNfa2 = NFA.edge(andEdPart.getNFACharacter());
-                    andEdNFAs.add(edgeNfa);
-                    andEdNFAs.add(edgeNfa2.asterisk());
+                    for (char nfaChar : andEdPart.getExpression().toCharArray()) {
+                        NFA edgeNfa = NFA.edge(nfaChar);
+                        NFA edgeNfa2 = NFA.edge(nfaChar);
+                        andEdNFAs.add(edgeNfa);
+                        andEdNFAs.add(edgeNfa2.asterisk());
+                        andEdNFAs.add(NFA.edge(NFA.EPSILON));
+                    }
                 }
-            } else {
+
+                andEdNFAs.add(NFA.edge(NFA.EPSILON));
+
+                buffer = new StringBuilder();
+            }
+
+            else if (currRegEx != ' ') {
+                buffer.append(currRegEx);
+            }
+
+            else {
+                String exp = buffer.toString();
+
+                if (exp.isEmpty()) {
+                    buffer = new StringBuilder();
+                    continue;
+                }
+
+                Part andEdPart = partFactory.createPart(exp);
+
                 if (andEdPart.isDefinition()) {
                     // if part is a definitions recursively convert it to NFA
                     NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                     andEdNFAs.add(edgeNfa);
                 } else {
                     // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
-                    NFA edgeNfa = NFA.edge(andEdPart.getNFACharacter());
-                    andEdNFAs.add(edgeNfa);
+                    for (char nfaChar : andEdPart.getExpression().toCharArray()) {
+                        NFA edgeNfa = NFA.edge(nfaChar);
+                        andEdNFAs.add(edgeNfa);
+                        andEdNFAs.add(NFA.edge(NFA.EPSILON));
+                    }
                 }
+
+                andEdNFAs.add(NFA.edge(NFA.EPSILON));
+
+                buffer = new StringBuilder();
             }
-            andEdNFAs.add(NFA.edge(NFA.EPSILON));
         }
 
         return andEdNFAs;
@@ -209,7 +280,8 @@ class RegularExpression {
 
     private List<Part> findGroupedParts(String regExString) {
 
-        List<Character> regExStream = regExString.chars()
+        String regExString1 = regExString + " ";
+        List<Character> regExStream = regExString1.chars()
                 // Convert IntStream to Stream<Character>
                 .mapToObj(e -> (char) e)
                 // Collect the elements as a List Of Characters

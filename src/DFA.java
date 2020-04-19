@@ -252,6 +252,7 @@ public class DFA {
 
         while (iterator.hasNext()) {
             char char1 = iterator.next();
+            System.out.println(char1);
             if (punctuation.contains(Character.toString(char1))) {
                 toReturn.add(Character.toString(char1));
                 stringBuilder = new StringBuilder();

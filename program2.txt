@@ -13,5 +13,5 @@ count := count + 1.234
 else
 sum := sum + mnt
 end ;
-write (sum , count)
+write ( sum , count )
 end.

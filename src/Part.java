@@ -18,17 +18,6 @@ public class Part {
         return expression;
     }
 
-    public char getNFACharacter() {
-        if (expression.length() == 2 && expression.startsWith("\\")) {
-            if (expression.charAt(1) == 'L') {
-                return 'λ';
-            }
-            return expression.charAt(1);
-        } else {
-            return expression.charAt(0);
-        }
-    }
-
     public boolean isGroup() {
         return type.equals(GROUP);
     }
