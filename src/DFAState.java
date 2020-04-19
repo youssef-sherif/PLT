@@ -56,6 +56,7 @@ public class DFAState {
 
     public void setStartState(boolean startState) {
         this.startState = startState;
+        this.finalState = false;
     }
 
     public boolean isStartState() {

@@ -239,39 +239,33 @@ public class DFA {
 
     public List<String> getTokens(String input) throws Exception {
 
-        List<Character> inputStream = input.chars()
-                // Convert IntStream to Stream<Character>
-                .mapToObj(e -> (char)e)
-                // Collect the elements as a List Of Characters
-                .collect(Collectors.toList());
-
-        ListIterator<Character> iterator = inputStream.listIterator();
-
         List<String> toReturn = new ArrayList<>();
         StringBuilder stringBuilder = new StringBuilder();
 
-        while (iterator.hasNext()) {
-            char char1 = iterator.next();
-            System.out.println(char1);
-            if (punctuation.contains(Character.toString(char1))) {
-                toReturn.add(Character.toString(char1));
-                stringBuilder = new StringBuilder();
-            }
-            else if (char1 != ' '
-                    && (int) char1 != 9) {
+        for (Character char1 : input.toCharArray()) {
+            if (char1 != ' '
+                    && (int) char1 != 9
+                    && char1 != '\n') {
                 stringBuilder.append(char1);
             }
             else {
                 String word = stringBuilder.toString();
-                System.out.println(word);
-                if (keyWords.contains(word)) {
+                if (punctuation.contains(word)) {
+                    System.out.println(word);
                     toReturn.add(word);
-                } else {
-                    toReturn.add(getTokenType(word));
+                }
+                else {
+                    if (keyWords.contains(word)) {
+                        System.out.println(word);
+                        toReturn.add(word);
+                    } else {
+                        System.out.println(word);
+                        System.out.println(getTokenType(word));
+                        toReturn.add(getTokenType(word));
+                    }
                 }
                 stringBuilder = new StringBuilder();
             }
-//            System.out.println(toReturn);
         }
         return toReturn;
     }
