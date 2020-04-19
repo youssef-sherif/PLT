@@ -52,14 +52,12 @@ class RegularExpression {
         NFA nfa = null;
         
         for ( Part part: oRedPartsList) {
-            System.out.println(part);
             // exp with different number will be ORed together
             // this is used for debugging only
             int x = (new Random()).nextInt(1000);
             List<Part> groupedParts = findGroupedParts(part.getExpression());
             List<NFA> concatenatedNFAs = new ArrayList<>();
             for (Part part1: groupedParts) {
-                System.out.println("       " + part1);
                 if (part1.isGroup()) {
                     // Recursively convert group Part to NFA
                     NFA groupNfa = toNFA(preProcess(part1.getExpression()));
@@ -93,7 +91,6 @@ class RegularExpression {
 
     private List<NFA> getConcatenatedNFAsList(String expression) {
 
-        System.out.println(expression);
         // TODO: handle special characters like '\L'
         List<NFA> andEdNFAs = new ArrayList<>();
 
@@ -106,7 +103,6 @@ class RegularExpression {
         ListIterator<Character> iterator = regExStream.listIterator();
         StringBuilder buffer = new StringBuilder();
 
-        System.out.println(expression);
         while (iterator.hasNext()) {
             char currRegEx = iterator.next();
 
