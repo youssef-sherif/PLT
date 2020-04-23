@@ -258,7 +258,7 @@ public class DFA {
                     if (keyWords.contains(word)) {
                         System.out.println(word);
                         toReturn.add(word);
-                    } else {
+                    } else if (!word.isEmpty()){
                         System.out.println(word);
                         System.out.println(getTokenType(word));
                         toReturn.add(getTokenType(word));

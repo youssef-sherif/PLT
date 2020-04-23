@@ -47,6 +47,7 @@ public class Main {
             List<String> tokens = dfa.getTokens(programFile.getProgram());
             System.out.println(tokens);
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Syntax Error");
         }
     }
