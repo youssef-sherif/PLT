@@ -1,4 +1,4 @@
-package phase1;
+package lexicalanalyzer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -172,7 +172,7 @@ public class DFA {
     public void printTable() {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         System.out.println("Table size:" + DFATransitions.size());
-        System.out.println("phase1.DFA Transition table:");
+        System.out.println("lexicalanalyzer.DFA Transition table:");
         System.out.print("           ");
         for(Character col : DFATransitions.columnKeySet()){
             System.out.print(col + "|     ");
@@ -253,13 +253,14 @@ public class DFA {
             }
             else {
                 String word = stringBuilder.toString();
+                if (word.isEmpty()) continue;
                 if (punctuation.contains(word)) {
                     toReturn.add(word);
                 }
                 else {
                     if (keyWords.contains(word)) {
                         toReturn.add(word);
-                    } else if (!word.isEmpty()){
+                    } else {
                         toReturn.add(getTokenType(word));
                     }
                 }

@@ -1,7 +1,6 @@
-package phase1;
+package lexicalanalyzer;
 
 import java.util.Map;
-import java.util.Set;
 
 public class PartFactory {
 

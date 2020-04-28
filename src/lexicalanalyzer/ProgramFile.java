@@ -1,4 +1,4 @@
-package phase1;
+package lexicalanalyzer;
 
 import java.io.*;
 

@@ -1,4 +1,4 @@
-package phase1;
+package lexicalanalyzer;
 
 import java.util.*;
 import java.util.List;
@@ -152,7 +152,7 @@ public class RegularExpression {
 
                     Part andEdPart = partFactory.createPart(exp, '+');
 
-                    // if part is a definitions recursively convert it to phase1.NFA
+                    // if part is a definitions recursively convert it to lexicalanalyzer.NFA
                     if (andEdPart.isDefinition()) {
                         NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                         NFA edgeNfa2 = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
