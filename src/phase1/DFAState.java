@@ -1,3 +1,4 @@
+package phase1;
 
 import java.util.*;
 
@@ -19,7 +20,7 @@ public class DFAState {
 //             this.id = epsilonClosure.hashCode();
             this.id = -1;
         } else {
-            // TODO: I assign the DFA State id with the first id from the epsilon closure.
+            // TODO: I assign the phase1.DFA State id with the first id from the epsilon closure.
             // I'm not sure if this guarantees that the id is unique.
             // We can also use hashCode of it of the epsilonClosure and
             // create a HashMap that maps the hashCode to a letter.

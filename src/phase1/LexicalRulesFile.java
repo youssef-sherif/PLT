@@ -1,3 +1,5 @@
+package phase1;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -97,7 +99,7 @@ public class LexicalRulesFile {
     @Override
     public String toString() {
         return  "\n ===regularExpressions===\n" + regularExpressions.keySet() + "\n" + regularExpressions.values() +
-                "\n regularDefinitions===\n" + regularDefinitions.keySet() + "\n" + regularDefinitions.values() +
+                "\n ===regularDefinitions===\n" + regularDefinitions.keySet() + "\n" + regularDefinitions.values() +
                 "\n ===keyWords===\n" + keyWords +
                 "\n ===punctuation===\n" + punctuation;
     }

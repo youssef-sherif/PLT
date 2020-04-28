@@ -1,3 +1,5 @@
+import phase1.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,8 +9,8 @@ public class Main {
     public static void main(String[] args) {
 
         try{
-            String rulesFileName = "lexical_rules_2.txt";
-            String programFileName = "program2.txt";
+            String rulesFileName = "lexical_rules_1.txt";
+            String programFileName = "program1.txt";
             LexicalRulesFile lexicalRulesFile = new LexicalRulesFile(rulesFileName);
 
             List<NFA> nfaList = new ArrayList<>();
@@ -20,13 +22,11 @@ public class Main {
                 RegularExpression regularExpression = new RegularExpression(
                         entry.getKey(),
                         entry.getValue(),
-                        lexicalRulesFile.getRegularDefinitions(),
-                        lexicalRulesFile.getKeyWords(),
-                        lexicalRulesFile.getPunctuation()
+                        lexicalRulesFile.getRegularDefinitions()
                 );
 
                 NFA currentNfa = regularExpression.toNFA();
-//                System.out.println("===" + entry.getKey() + " NFA===");
+//                System.out.println("===" + entry.getKey() + " phase1.NFA===");
 //                System.out.println(currentNfa.toString());
                 nfaList.add(currentNfa);
             }
@@ -34,7 +34,7 @@ public class Main {
             NFA.combineNFAsOr(nfaList);
 
             System.out.println("===NFA===");
-//            System.out.println(NFA.getInstance().toString());
+//            System.out.println(phase1.NFA.getInstance().toString());
 
             System.out.println("===DFA===");
             DFA dfa = new DFA(NFA.getInstance(),

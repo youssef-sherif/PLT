@@ -12,4 +12,4 @@ else
 sum := sum + mnt
 end ;
 write ( sum , count )
-end.
+end

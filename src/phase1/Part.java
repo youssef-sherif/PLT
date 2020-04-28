@@ -1,3 +1,5 @@
+package phase1;
+
 public class Part {
 
     public static final String GROUP = "GROUP";

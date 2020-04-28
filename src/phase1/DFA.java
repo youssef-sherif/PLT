@@ -1,3 +1,5 @@
+package phase1;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -170,7 +172,7 @@ public class DFA {
     public void printTable() {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         System.out.println("Table size:" + DFATransitions.size());
-        System.out.println("DFA Transition table:");
+        System.out.println("phase1.DFA Transition table:");
         System.out.print("           ");
         for(Character col : DFATransitions.columnKeySet()){
             System.out.print(col + "|     ");
@@ -239,10 +241,11 @@ public class DFA {
 
     public List<String> getTokens(String input) throws Exception {
 
+        String input1 = input + " ";
         List<String> toReturn = new ArrayList<>();
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (Character char1 : input.toCharArray()) {
+        for (Character char1 : input1.toCharArray()) {
             if (char1 != ' '
                     && (int) char1 != 9
                     && char1 != '\n') {
@@ -251,16 +254,12 @@ public class DFA {
             else {
                 String word = stringBuilder.toString();
                 if (punctuation.contains(word)) {
-                    System.out.println(word);
                     toReturn.add(word);
                 }
                 else {
                     if (keyWords.contains(word)) {
-                        System.out.println(word);
                         toReturn.add(word);
                     } else if (!word.isEmpty()){
-                        System.out.println(word);
-                        System.out.println(getTokenType(word));
                         toReturn.add(getTokenType(word));
                     }
                 }
