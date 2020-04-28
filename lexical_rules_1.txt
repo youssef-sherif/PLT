@@ -1,4 +1,4 @@
-letter = a-f | A-F
+letter = a-z | A-Z
 digit = 0 - 9
 digits = digit+
 { program var integer }
