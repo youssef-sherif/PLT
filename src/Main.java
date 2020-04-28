@@ -9,8 +9,8 @@ public class Main {
     public static void main(String[] args) {
 
         try{
-            String rulesFileName = "phase1_test_cases/lexical_rules_1.txt";
-            String programFileName = "phase1_test_cases/program1.txt";
+            String rulesFileName = "lexical_analyzer_test_cases/lexical_rules_1.txt";
+            String programFileName = "lexical_analyzer_test_cases/program1.txt";
 
             LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(
                     rulesFileName,
