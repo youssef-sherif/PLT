@@ -1,5 +1,7 @@
 package lexicalanalyzer;
 
+import static lexicalanalyzer.Constants.EPSILON;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -11,13 +13,13 @@ public class DFA {
     private final Set<Character> alphabet;
     private final Set<String> punctuation;
     private final Set<String> keyWords;
+    private final List<DFAState> DFAStates;
     private final Table<Integer, Character, Integer> DFATransitions;
     private final NFA nfa;
 
-    public static char EPSILON = 'Ɛ';
-    public List<DFAState> DFAStates;
-
-    public DFA(NFA nfa, Set<String> keyWords, Set<String> punctuation) {
+    public DFA(NFA nfa,
+               Set<String> keyWords,
+               Set<String> punctuation) {
         this.alphabet = nfa.getAlphabet();
         this.DFAStates = new ArrayList<>();
         this.DFATransitions = HashBasedTable.create();

@@ -1,12 +1,15 @@
 package lexicalanalyzer;
 
+import static lexicalanalyzer.Constants.EPSILON;
+
 import java.util.*;
 
 public class NFA {
-    public static char EPSILON = 'Ɛ';
+
     private static NFA nfa;
-    private NFAState startt;
-    private NFAState finall;
+
+    private NFAState startState;
+    private NFAState finalState;
     private Set<Character> alphabet;
 
     private int numStates;
@@ -18,7 +21,7 @@ public class NFA {
         if (nfa == null) {
             nfa = new NFA();
             nfa.numStates = 0;
-            nfa.startt = new NFAState(false, nfa.numStates);
+            nfa.startState = new NFAState(false, nfa.numStates);
             nfa.alphabet = new HashSet<>();
         }
         return nfa;
@@ -29,11 +32,11 @@ public class NFA {
             NFA.getInstance().alphabet.add(attr);
         }
         NFA temp = new NFA();
-        temp.startt = new NFAState(false, ++NFA.getInstance().numStates);
-        temp.finall = new NFAState(true, ++NFA.getInstance().numStates);
+        temp.startState = new NFAState(false, ++NFA.getInstance().numStates);
+        temp.finalState = new NFAState(true, ++NFA.getInstance().numStates);
 
-        temp.startt.edges.add(attr);
-        temp.startt.next.add(temp.finall);
+        temp.startState.edges.add(attr);
+        temp.startState.next.add(temp.finalState);
 
         return temp;
     }
@@ -55,16 +58,16 @@ public class NFA {
             oRedEdge.add(nfaList.get(i));
             oRedEdge.add(epsilonEdge2);
 
-            start.next.add(NFA.combineNFAsConcatenate(oRedEdge).startt);
-            nfaList.get(i).finall.edges.add(EPSILON);
-            nfaList.get(i).finall.next.add(fin);
+            start.next.add(NFA.combineNFAsConcatenate(oRedEdge).startState);
+            nfaList.get(i).finalState.edges.add(EPSILON);
+            nfaList.get(i).finalState.next.add(fin);
         }
 
-        nfa.startt = start;
-        nfa.finall = fin;
+        nfa.startState = start;
+        nfa.finalState = fin;
 
-        NFA.getInstance().startt = nfa.startt;
-        NFA.getInstance().finall = nfa.finall;
+        NFA.getInstance().startState = nfa.startState;
+        NFA.getInstance().finalState = nfa.finalState;
 
         return nfa;
     }
@@ -73,19 +76,19 @@ public class NFA {
 
         int size = nfaList.size();
         NFA nfa = new NFA();
-        NFAState start = nfaList.get(0).startt;
+        NFAState start = nfaList.get(0).startState;
 
         for (int i = 0; i < size-1; i++) {
-            nfaList.get(i).finall.edges=nfaList.get(i+1).startt.edges;
-            nfaList.get(i).finall.next=nfaList.get(i+1).startt.next;
-            nfaList.get(i).finall.setFinalState(true);
+            nfaList.get(i).finalState.edges=nfaList.get(i+1).startState.edges;
+            nfaList.get(i).finalState.next=nfaList.get(i+1).startState.next;
+            nfaList.get(i).finalState.setFinalState(true);
         }
 
-        nfa.startt = start;
-        nfa.finall = nfaList.get(size-1).finall;
+        nfa.startState = start;
+        nfa.finalState = nfaList.get(size-1).finalState;
 
-        NFA.getInstance().startt = nfa.startt;
-        NFA.getInstance().finall = nfa.finall;
+        NFA.getInstance().startState = nfa.startState;
+        NFA.getInstance().finalState = nfa.finalState;
 
         return nfa;
     }
@@ -95,29 +98,29 @@ public class NFA {
         NFAState finalState = new NFAState(true, ++NFA.getInstance().numStates);
 
         startState.edges.add(EPSILON);
-        startState.next.add(this.startt);
+        startState.next.add(this.startState);
 
         startState.edges.add(EPSILON);
         startState.next.add(finalState);
 
-        this.finall.edges.add(EPSILON);
-        this.finall.next.add(this.startt);
+        this.finalState.edges.add(EPSILON);
+        this.finalState.next.add(this.startState);
 
-        this.finall.edges.add(EPSILON);
-        this.finall.next.add(finalState);
+        this.finalState.edges.add(EPSILON);
+        this.finalState.next.add(finalState);
 
-        this.startt = startState;
-        this.finall = finalState;
+        this.startState = startState;
+        this.finalState = finalState;
 
         return this;
     }
 
     public NFAState getFinalState() {
-        return this.finall;
+        return this.finalState;
     }
 
     public NFAState getStartState() {
-        return this.startt;
+        return this.startState;
     }
 
     public Set<Character> getAlphabet() {
@@ -135,15 +138,15 @@ public class NFA {
         result.append("States :\n");
 
 
-        stack.push(this.startt.next);
-        c.add(nfa.startt.next);
+        stack.push(this.startState.next);
+        c.add(nfa.startState.next);
 
 
-        result.append(this.startt.getStateNo()).append("\n");
-        for (NFAState nfaState : this.startt.next) {
+        result.append(this.startState.getStateNo()).append("\n");
+        for (NFAState nfaState : this.startState.next) {
             result.append(nfaState.getStateNo()).append(" ");
         }
-        for (Character nfaState : this.startt.edges) {
+        for (Character nfaState : this.startState.edges) {
             result.append(nfaState).append(" ");
         }
         result.append("\n");

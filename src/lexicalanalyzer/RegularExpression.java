@@ -1,5 +1,7 @@
 package lexicalanalyzer;
 
+import static lexicalanalyzer.Constants.*;
+
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +20,7 @@ public class RegularExpression {
     ) {
         this.regEx = regEx;
         this.key = key;
-        this.partFactory = new PartFactory(regularDefinitions);
+        this.partFactory = new PartFactory(regularDefinitions.keySet());
         this.regularDefinitions = regularDefinitions;
     }
 
@@ -115,8 +117,8 @@ public class RegularExpression {
 
             // add all characters that are not ' ', '*' or '+' to buffer
             else if (currRegEx != ' '
-                    && currRegEx != '*'
-                    && currRegEx != '+') {
+                    && currRegEx != ASTERISK
+                    && currRegEx != PLUS) {
                 buffer.append(currRegEx);
             }
 
@@ -128,9 +130,9 @@ public class RegularExpression {
                     continue;
                 }
 
-                if (currRegEx == '*') {
+                if (currRegEx == ASTERISK) {
 
-                    Part andEdPart = partFactory.createPart(exp, '*');
+                    Part andEdPart = partFactory.createPart(exp, ASTERISK);
 
                     // if part is a definitions recursively convert it to NFA
                     if (andEdPart.isDefinition()) {
@@ -141,16 +143,16 @@ public class RegularExpression {
                             // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
                             NFA edgeNfa = NFA.edge(nfaChar);
                             andEdNFAs.add(edgeNfa.asterisk());
-                            andEdNFAs.add(NFA.edge(NFA.EPSILON));
+                            andEdNFAs.add(NFA.edge(EPSILON));
                         }
                     }
 
-                    andEdNFAs.add(NFA.edge(NFA.EPSILON));
+                    andEdNFAs.add(NFA.edge(EPSILON));
 
                     buffer = new StringBuilder();
-                } else if (currRegEx == '+') {
+                } else if (currRegEx == PLUS) {
 
-                    Part andEdPart = partFactory.createPart(exp, '+');
+                    Part andEdPart = partFactory.createPart(exp, PLUS);
 
                     // if part is a definitions recursively convert it to lexicalanalyzer.NFA
                     if (andEdPart.isDefinition()) {
@@ -165,11 +167,11 @@ public class RegularExpression {
                             NFA edgeNfa2 = NFA.edge(nfaChar);
                             andEdNFAs.add(edgeNfa);
                             andEdNFAs.add(edgeNfa2.asterisk());
-                            andEdNFAs.add(NFA.edge(NFA.EPSILON));
+                            andEdNFAs.add(NFA.edge(EPSILON));
                         }
                     }
 
-                    andEdNFAs.add(NFA.edge(NFA.EPSILON));
+                    andEdNFAs.add(NFA.edge(EPSILON));
 
                     buffer = new StringBuilder();
                 } else {
@@ -185,11 +187,11 @@ public class RegularExpression {
                             // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
                             NFA edgeNfa = NFA.edge(nfaChar);
                             andEdNFAs.add(edgeNfa);
-                            andEdNFAs.add(NFA.edge(NFA.EPSILON));
+                            andEdNFAs.add(NFA.edge(EPSILON));
                         }
                     }
 
-                    andEdNFAs.add(NFA.edge(NFA.EPSILON));
+                    andEdNFAs.add(NFA.edge(EPSILON));
 
                     buffer = new StringBuilder();
                 }

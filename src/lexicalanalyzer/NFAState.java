@@ -3,21 +3,25 @@ package lexicalanalyzer;
 import java.util.*;
 
 public class NFAState {
-    private int numStates;
+
+    private final int stateNo;
+
     private boolean finalState;
-    ArrayList<NFAState> next;
-    ArrayList<Character> edges;
     private String ruleName;
 
-    public NFAState(boolean finalState, int numStates) {
+    ArrayList<NFAState> next;
+    ArrayList<Character> edges;
+
+    public NFAState(boolean finalState,
+                    int numStates) {
         this.finalState = finalState;
-        this.numStates = numStates;
+        this.stateNo = numStates;
         this.next = new ArrayList<>();
         this.edges = new ArrayList<>();
     }
 
     public int getStateNo() {
-        return numStates;
+        return stateNo;
     }
 
     public boolean isFinalState() {

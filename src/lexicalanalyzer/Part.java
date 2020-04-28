@@ -1,17 +1,17 @@
 package lexicalanalyzer;
 
+import static lexicalanalyzer.Constants.*;
+
 public class Part {
 
-    public static final String GROUP = "GROUP";
-    public static final String DEF = "DEF";
-    public static final String NOOP = "NOOP";
+    private final String expression;
 
     private String type;
-    private final String expression;
     private Boolean asterisk = false;
     private Boolean plus = false;
 
-    public Part(String type, String expression) {
+    public Part(String type,
+                String expression) {
         this.type = type;
         this.expression = expression;
     }

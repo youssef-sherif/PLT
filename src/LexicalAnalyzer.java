@@ -9,7 +9,8 @@ public class LexicalAnalyzer {
     private final String rulesFileName;
     private final String programFileName;
 
-    LexicalAnalyzer(String rulesFileName, String programFileName) {
+    LexicalAnalyzer(String rulesFileName,
+                    String programFileName) {
         this.rulesFileName = rulesFileName;
         this.programFileName = programFileName;
     }

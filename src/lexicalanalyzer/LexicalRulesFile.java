@@ -9,10 +9,10 @@ import java.util.*;
 public class LexicalRulesFile {
 
     private final List<String> rules;
-    private Map<String, String> regularExpressions;
-    private Map<String, String> regularDefinitions;
-    private Set<String> keyWords;
-    private Set<String> punctuation;
+    private final Map<String, String> regularExpressions;
+    private final Map<String, String> regularDefinitions;
+    private final Set<String> keyWords;
+    private final Set<String> punctuation;
 
     public LexicalRulesFile(String fileName) {
         BufferedReader reader;
