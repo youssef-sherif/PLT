@@ -1,5 +1,3 @@
-package lexicalanalyzer;
-
 import java.io.*;
 
 public class ProgramFile {

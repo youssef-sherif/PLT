@@ -6,18 +6,16 @@ import java.util.Map;
 
 public class LexicalAnalyzer {
 
-    private final String rulesFileName;
-    private final String programFileName;
+    private final LexicalRulesFile lexicalRulesFile;
+    private final ProgramFile programFile;
 
-    LexicalAnalyzer(String rulesFileName,
-                    String programFileName) {
-        this.rulesFileName = rulesFileName;
-        this.programFileName = programFileName;
+    LexicalAnalyzer(LexicalRulesFile rulesFile,
+                    ProgramFile programFile) {
+        this.lexicalRulesFile = rulesFile;
+        this.programFile = programFile;
     }
 
     public List<String> getTokens() throws Exception {
-
-        LexicalRulesFile lexicalRulesFile = new LexicalRulesFile(rulesFileName);
 
         List<NFA> nfaList = new ArrayList<>();
 
@@ -44,8 +42,6 @@ public class LexicalAnalyzer {
         );
 
         dfa.printTable();
-
-        ProgramFile programFile = new ProgramFile(programFileName);
 
         return dfa.getTokens(programFile.getProgram());
     }

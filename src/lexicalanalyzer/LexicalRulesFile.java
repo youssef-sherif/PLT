@@ -98,8 +98,8 @@ public class LexicalRulesFile {
 
     @Override
     public String toString() {
-        return  "\n ===regularExpressions===\n" + regularExpressions.keySet() + "\n" + regularExpressions.values() +
-                "\n ===regularDefinitions===\n" + regularDefinitions.keySet() + "\n" + regularDefinitions.values() +
+        return  "\n ===regularExpressions===\n" + regularExpressions.entrySet() +
+                "\n ===regularDefinitions===\n" + regularDefinitions.entrySet() +
                 "\n ===keyWords===\n" + keyWords +
                 "\n ===punctuation===\n" + punctuation;
     }

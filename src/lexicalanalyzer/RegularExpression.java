@@ -16,8 +16,7 @@ public class RegularExpression {
 
     public RegularExpression(String key,
                              String regEx,
-                             Map<String, String> regularDefinitions
-    ) {
+                             Map<String, String> regularDefinitions) {
         this.regEx = regEx;
         this.key = key;
         this.partFactory = new PartFactory(regularDefinitions.keySet());
