@@ -2,18 +2,13 @@ import parseranalyzer.CFG;
 import parseranalyzer.CFGRulesFile;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public class ParserAnalyzer {
 
     private final List<String> tokens;
     private final List<CFG> cfgList;
-
-    public List<CFG> getCfgList() {
-        return cfgList;
-    }
+    private final String program;
 
     public ParserAnalyzer(List<String> tokens,
                           CFGRulesFile cfgRulesFile,
@@ -21,18 +16,12 @@ public class ParserAnalyzer {
 
         this.tokens = tokens;
         this.cfgList = new ArrayList<>();
+        this.program = programFile.toString();
 
-        for (Map.Entry<String, String> entry : cfgRulesFile.getCFGRules().entrySet()) {
+        CFG cfg = new CFG(
+                cfgRulesFile.getCFGRules()
+        );
 
-            CFG cfg = new CFG(
-                    tokens,
-                    entry.getKey(),
-                    entry.getValue()
-            );
-
-            this.cfgList.add(cfg);
-        }
+        System.out.println(cfg.getRules());
     }
-
-
 }

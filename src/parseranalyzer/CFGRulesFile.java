@@ -30,7 +30,7 @@ public class CFGRulesFile {
 
             List<String> allRules = this.parseAllRules(buffer.toString());
             for (String rule : allRules) {
-                parseRule(rule);
+                putRuleToMap(rule);
             }
 
         } catch (IOException e) {
@@ -62,7 +62,7 @@ public class CFGRulesFile {
         return rules;
     }
 
-    private void parseRule(String cfgRule) {
+    private void putRuleToMap(String cfgRule) {
         String cfgRuleName = "";
         boolean firstEqual = false;
 
