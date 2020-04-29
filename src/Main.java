@@ -23,9 +23,10 @@ public class Main {
 
             ParserAnalyzer parserAnalyzer = new ParserAnalyzer(
                     tokens,
-                    cfgRulesFile,
-                    programFile
+                    cfgRulesFile
             );
+
+            parserAnalyzer.parse(programFile.getProgram());
 
         } catch (Exception e) {
             e.printStackTrace();

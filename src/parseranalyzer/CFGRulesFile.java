@@ -38,7 +38,6 @@ public class CFGRulesFile {
         }
     }
 
-
     private List<String> parseAllRules(String cfg) {
 
         StringBuilder buffer = new StringBuilder();
@@ -76,7 +75,7 @@ public class CFGRulesFile {
                 firstEqual = true;
                 cfgRuleName = buffer.toString();
                 // remove '='
-                cfgRuleName = cfgRuleName.substring(0, cfgRuleName.length()-1);
+                cfgRuleName = cfgRuleName.substring(0, cfgRuleName.length()-1).trim();
                 buffer = new StringBuilder();
             }
         }

@@ -1,27 +1,25 @@
 import parseranalyzer.CFG;
 import parseranalyzer.CFGRulesFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ParserAnalyzer {
 
     private final List<String> tokens;
-    private final List<CFG> cfgList;
-    private final String program;
+    private final CFG cfg;
 
     public ParserAnalyzer(List<String> tokens,
-                          CFGRulesFile cfgRulesFile,
-                          ProgramFile programFile) {
-
+                          CFGRulesFile cfgRulesFile) {
         this.tokens = tokens;
-        this.cfgList = new ArrayList<>();
-        this.program = programFile.toString();
+        this.cfg = new CFG(cfgRulesFile.getCFGRules());
+    }
 
-        CFG cfg = new CFG(
-                cfgRulesFile.getCFGRules()
-        );
+    public void parse(String program) {
+        System.out.println("===CFG===");
+        System.out.println(this.cfg.getProductions().toString());
 
-        System.out.println(cfg.getRules());
+        this.cfg.computeFirstAndFollow();
+        System.out.println("===FIRST===");
+        System.out.println(this.cfg.getFirst());
     }
 }
