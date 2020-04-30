@@ -7,6 +7,7 @@ import java.util.*;
 
 public class CFG {
 
+    private static final String EPSILON = "Ɛ";
     private final List<CFGEntry> productions;
 
     private Map<String, Set<String>> first;
@@ -34,15 +35,14 @@ public class CFG {
         for (CFGEntry cfgEntry : this.productions) {
             String key = cfgEntry.getKey();
             for (List<String> value : cfgEntry.getRule()) {
-                System.out.println(value);
-                if (!value.get(0).equals("@")) {
+                if (!value.get(0).equals(EPSILON)) {
                     for (String element : first.get(key)) {
-                        if (!element.equals("@"))
+                        if (!element.equals(EPSILON))
                             this.parsingTable.put(key, element, value);
                     }
                 } else {
                     for (String element : follow.get(key)) {
-                        if (!element.equals("@"))
+                        if (!element.equals(EPSILON))
                             this.parsingTable.put(key, element, value);
                     }
                 }
@@ -157,7 +157,7 @@ public class CFG {
                                 Collections.singletonList(value.subList(firstOccurrenceOfNonTerminal+1, value.size()))
                         );
 
-                        if (firstOfNext.contains("@")) {
+                        if (firstOfNext.contains(EPSILON)) {
                             if (!key.equals(nonTerminal)) {
                                 if (follow.containsKey(key)) {
                                     Set<String> temp = follow.get(key);
@@ -165,7 +165,7 @@ public class CFG {
                                 }
                             }
                             follow.get(nonTerminal).addAll(firstOfNext);
-                            follow.get(nonTerminal).remove("@");
+                            follow.get(nonTerminal).remove(EPSILON);
                         } else {
                             follow.get(nonTerminal).addAll(firstOfNext);
                         }

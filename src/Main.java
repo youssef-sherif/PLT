@@ -10,6 +10,7 @@ public class Main {
 
         try{
             LexicalRulesFile rulesFile = new LexicalRulesFile("lexical_analyzer_test_cases/lexical_rules_0.txt");
+//            CFGRulesFile cfgRulesFile = new CFGRulesFile("parser_analyzer_test_cases/cfg.txt");
             CFGRulesFile cfgRulesFile = new CFGRulesFile("parser_analyzer_test_cases/cfg_0.txt");
             ProgramFile programFile = new ProgramFile("test_programs/program_0.txt");
 
@@ -19,7 +20,8 @@ public class Main {
             );
 
             List<String> tokens = new ArrayList<>();
-                    //lexicalAnalyzer.getTokens();
+            // comment to test parser analyzer without having to build DFA and tokens
+//            List<String> tokens = lexicalAnalyzer.getTokens();
 
             System.out.println(tokens);
 
