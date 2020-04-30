@@ -1,6 +1,7 @@
 import lexicalanalyzer.LexicalRulesFile;
 import parseranalyzer.CFGRulesFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -17,7 +18,8 @@ public class Main {
                     programFile
             );
 
-            List<String> tokens = lexicalAnalyzer.getTokens();
+            List<String> tokens = new ArrayList<>();
+                    //lexicalAnalyzer.getTokens();
 
             System.out.println(tokens);
 

@@ -1,12 +1,17 @@
 package parseranalyzer;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+
 import java.util.*;
 
 public class CFG {
 
+    private final List<CFGEntry> productions;
+
     private Map<String, Set<String>> first;
     private Map<String, Set<String>> follow;
-    private final List<CFGEntry> productions;
+    private Table<String, String, List<String>> parsingTable;
 
     public CFG(Map<String, String> productions) {
         this.productions = new ArrayList<>();
@@ -21,9 +26,34 @@ public class CFG {
         }
     }
 
+    public void createLL1Table(Map<String, Set<String >> first,
+                               Map<String, Set<String>> follow) {
+
+         this.parsingTable = HashBasedTable.create();
+
+        for (CFGEntry cfgEntry : this.productions) {
+            String key = cfgEntry.getKey();
+            for (List<String> value : cfgEntry.getRule()) {
+                System.out.println(value);
+                if (!value.get(0).equals("@")) {
+                    for (String element : first.get(key)) {
+                        if (!element.equals("@"))
+                            this.parsingTable.put(key, element, value);
+                    }
+                } else {
+                    for (String element : follow.get(key)) {
+                        if (!element.equals("@"))
+                            this.parsingTable.put(key, element, value);
+                    }
+                }
+            }
+        }
+    }
+
     public void createFirstAndFollowSets() {
         this.first = new LinkedHashMap<>();
         this.follow = new LinkedHashMap<>();
+
         // first we need to initialize follow sets
         for (CFGEntry cfgEntry : this.productions) {
             this.follow.put(cfgEntry.getKey(), new HashSet<>());
@@ -38,8 +68,10 @@ public class CFG {
         }
     }
 
-    // convert TERM | SIGN TERM | SIMPLE_EXPRESSION 'addop' TERM
-    // to [[TERM], [SIGN, TERM], [SIMPLE_EXPRESSION, 'addop', TERM]]
+    /*  Example:
+     *      convert TERM | SIGN TERM | SIMPLE_EXPRESSION 'addop' TERM
+    *       to [[TERM], [SIGN, TERM], [SIMPLE_EXPRESSION, 'addop', TERM]]
+     */
     private List<List<String>> convertRuleToList(String rule) {
         List<List<String>> toReturn = new ArrayList<>();
         String[] orEd = rule.split("\\|");
@@ -124,7 +156,19 @@ public class CFG {
                         Set<String> firstOfNext = first(
                                 Collections.singletonList(value.subList(firstOccurrenceOfNonTerminal+1, value.size()))
                         );
-                        follow.get(nonTerminal).addAll(firstOfNext);
+
+                        if (firstOfNext.contains("@")) {
+                            if (!key.equals(nonTerminal)) {
+                                if (follow.containsKey(key)) {
+                                    Set<String> temp = follow.get(key);
+                                    follow.get(nonTerminal).addAll(temp);
+                                }
+                            }
+                            follow.get(nonTerminal).addAll(firstOfNext);
+                            follow.get(nonTerminal).remove("@");
+                        } else {
+                            follow.get(nonTerminal).addAll(firstOfNext);
+                        }
                     }
                 }
             }
@@ -141,6 +185,10 @@ public class CFG {
 
     public List<CFGEntry> getProductions() {
         return productions;
+    }
+
+    public Table<String, String, List<String>> getLL1ParsingTable() {
+        return this.parsingTable;
     }
 
     @Override
