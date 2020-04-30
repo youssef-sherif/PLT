@@ -34,7 +34,7 @@ public class CFG {
 
         for (CFGEntry cfgEntry : this.productions) {
             this.first.put(cfgEntry.getKey(), first(cfgEntry.getRule()));
-            this.follow = follow(cfgEntry.getKey(), this.follow);
+            follow(cfgEntry.getKey(), this.follow);
         }
     }
 
@@ -102,8 +102,8 @@ public class CFG {
         return toReturn;
     }
 
-    private Map<String, Set<String>> follow(String nonTerminal,
-                                            Map<String, Set<String>> follow) {
+    private void follow(String nonTerminal,
+                        Map<String, Set<String>> follow) {
         for (CFGEntry cfgEntry : this.productions) {
             String key = cfgEntry.getKey();
             for (List<String> value : cfgEntry.getRule()) {
@@ -129,7 +129,6 @@ public class CFG {
                 }
             }
         }
-        return follow;
     }
 
     public Map<String, Set<String>> getFirst() {
