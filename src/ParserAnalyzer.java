@@ -18,8 +18,12 @@ public class ParserAnalyzer {
         System.out.println("===CFG===");
         System.out.println(this.cfg.getProductions().toString());
 
-        this.cfg.computeFirstAndFollow();
+        this.cfg.createFirstAndFollowSets();
+
         System.out.println("===FIRST===");
         System.out.println(this.cfg.getFirst());
+
+        System.out.println("===FOLLOW===");
+        System.out.println(this.cfg.getFollow());
     }
 }
