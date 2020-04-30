@@ -226,7 +226,7 @@ public class RegularExpression {
                 }
             }
             else {
-                toReturn.append(Character.toString(chars[i]));
+                toReturn.append(chars[i]);
             }
         }
 
