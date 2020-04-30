@@ -39,14 +39,15 @@ public class CFGRulesFile {
     }
 
     private List<String> parseAllRules(String cfg) {
-
+        // append '\0' at the end of cfg to be able to parse last rule
+        String cfg1 = cfg + "\0";
         StringBuilder buffer = new StringBuilder();
         List<String> rules = new ArrayList<>();
 
-        for (char curr : cfg.toCharArray()) {
+        for (char curr : cfg1.toCharArray()) {
 
             // read all characters between '#' as new rules
-            if (curr == '#') {
+            if (curr == '#' || curr == '\0') {
                 String currCFG = buffer.toString();
                 // this would be true when we reach the first '#' in the string
                 if (!currCFG.isEmpty()) {
