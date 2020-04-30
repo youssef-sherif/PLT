@@ -33,15 +33,14 @@ public class LexicalRulesFile {
                 line = reader.readLine();
             }
             reader.close();
-
+            this.parse();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.tokenize();
     }
 
 
-    private void tokenize() {
+    private void parse() {
         for (String s : this.rules) {
 
             // handle Punctuation
@@ -56,6 +55,7 @@ public class LexicalRulesFile {
                     }
                 }
             }
+
             // handle Keywords
             else if (s.startsWith("{")) {
                 String keyWords = s.substring(1, s.length()-1);
@@ -69,12 +69,12 @@ public class LexicalRulesFile {
                 // handle colon tokens
                 if (colonTokens[0].split(" ").length == 1) {
                     String ruleName = colonTokens[0];
-                    regularExpressions.put(ruleName.trim(), colonTokens[1]);
+                    this.regularExpressions.put(ruleName.trim(), colonTokens[1]);
                 }
                 // handle equal tokens
                 else if (equalTokens[0].split(" ").length == 1) {
                     String ruleName = equalTokens[0];
-                    regularDefinitions.put(ruleName.trim(), equalTokens[1]);
+                    this.regularDefinitions.put(ruleName.trim(), equalTokens[1]);
                 }
             }
         }

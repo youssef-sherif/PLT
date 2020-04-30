@@ -28,15 +28,9 @@ public class RegularExpression {
          simple pre-processing
          - append | to beginning (this does not change the meaning of the RegEx but it makes it work for RegExes
          containing 1 component)
-         - replace all '\' (backslash) with ' \' (space backslash) to be able to combineNFAsConcatenate them together
          */
 
-        String regEx = " | " + regExString + " | ";
-        if (regEx.contains("\\")) {
-            regEx = regEx.replaceAll("\\\\", " \\\\");
-        }
-
-        return regEx;
+        return String.format(" | %s | ", regExString);
     }
 
     public NFA toNFA() {
