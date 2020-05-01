@@ -15,7 +15,7 @@ public class LexicalAnalyzer {
         this.programFile = programFile;
     }
 
-    public List<String> getTokens() throws Exception {
+    public List<String> tokenize() throws Exception {
 
         List<NFA> nfaList = new ArrayList<>();
 
@@ -43,6 +43,6 @@ public class LexicalAnalyzer {
 
         dfa.printTable();
 
-        return dfa.getTokens(programFile.getProgram());
+        return dfa.tokenize(programFile.getProgram());
     }
 }
