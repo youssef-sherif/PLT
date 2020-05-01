@@ -174,7 +174,7 @@ public class DFA {
     public void printTable() {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         System.out.println("Table size:" + DFATransitions.size());
-        System.out.println("lexicalanalyzer.DFA Transition table:");
+        System.out.println("DFA Transition table:");
         System.out.print("           ");
         for(Character col : DFATransitions.columnKeySet()){
             System.out.print(col + "|     ");
@@ -196,7 +196,7 @@ public class DFA {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
-    public String getTokenType(String input) throws Exception {
+    public String findTokenType(String input) throws Exception {
         ListIterator<Character> iterator = input.chars()
                 // Convert IntStream to Stream<Character>
                 .mapToObj(e -> (char)e)
@@ -241,7 +241,7 @@ public class DFA {
         throw new Exception();
     }
 
-    public List<String> getTokens(String input) throws Exception {
+    public List<String> tokenize(String input) throws Exception {
 
         String input1 = input + " ";
         List<String> toReturn = new ArrayList<>();
@@ -263,7 +263,7 @@ public class DFA {
                     if (keyWords.contains(word)) {
                         toReturn.add(word);
                     } else {
-                        toReturn.add(getTokenType(word));
+                        toReturn.add(findTokenType(word));
                     }
                 }
                 stringBuilder = new StringBuilder();
