@@ -1,7 +1,6 @@
 import lexicalanalyzer.LexicalRulesFile;
 import parseranalyzer.CFGRulesFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -19,9 +18,7 @@ public class Main {
                     programFile
             );
 
-            List<String> tokens = new ArrayList<>();
-            // comment to test parser analyzer without having to build DFA and tokens
-//            List<String> tokens = lexicalAnalyzer.getTokens();
+            List<String> tokens = lexicalAnalyzer.tokenize();
 
             System.out.println(tokens);
 
@@ -30,7 +27,7 @@ public class Main {
                     cfgRulesFile
             );
 
-            parserAnalyzer.parse(programFile.getProgram());
+            parserAnalyzer.parse();
 
         } catch (Exception e) {
             e.printStackTrace();

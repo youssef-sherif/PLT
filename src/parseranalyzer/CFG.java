@@ -8,6 +8,8 @@ import java.util.*;
 public class CFG {
 
     private static final String EPSILON = "Ɛ";
+    private static final String DOLLAR_SIGN = "$";
+
     private final List<CFGEntry> productions;
 
     private Map<String, Set<String>> first;
@@ -15,8 +17,10 @@ public class CFG {
     private Table<String, String, List<String>> parsingTable;
 
     public CFG(Map<String, String> productions) {
+        // convert Map<String, String> productions to List<CFGEntry>
+        // for each raw productionRule convert it to List of Lists
+        // and create a CFGEntry with key and rule
         this.productions = new ArrayList<>();
-
         for (Map.Entry<String, String> entry : productions.entrySet()) {
             this.productions.add(
                     new CFGEntry(
@@ -27,7 +31,51 @@ public class CFG {
         }
     }
 
-    public void createLL1Table(Map<String, Set<String >> first,
+    public boolean parse(List<String> tokens) {
+
+        tokens.add(DOLLAR_SIGN);
+
+        Stack<String> stack = new Stack<>();
+        stack.push(DOLLAR_SIGN);
+        // push start symbol to stack
+        stack.push(this.productions.get(0).getKey());
+
+        int i = 0;
+        while (!stack.empty()) {
+            String top = stack.peek();
+            String curr = tokens.get(i);
+
+            System.out.println(tokens.get(i));
+            System.out.println(top + ", " + curr);
+
+            if (top.equals(curr)) {
+                stack.pop();
+                i++;
+            }
+            else {
+                if (!this.parsingTable.contains(top, curr)) {
+                    // reject
+                    return false;
+                }
+                List<String> value = this.parsingTable.get(top, curr);
+                System.out.println(value);
+                if (!value.get(0).equals(EPSILON)) {
+                    Collections.reverse(value);
+                    stack.pop();
+                    for (String s : value) {
+                        stack.push(s);
+                    }
+                } else {
+                    stack.pop();
+                }
+            }
+        }
+
+        // accept
+        return true;
+    }
+
+    public void createLL1Table(Map<String, Set<String>> first,
                                Map<String, Set<String>> follow) {
 
          this.parsingTable = HashBasedTable.create();
@@ -51,6 +99,7 @@ public class CFG {
     }
 
     public void createFirstAndFollowSets() {
+
         this.first = new LinkedHashMap<>();
         this.follow = new LinkedHashMap<>();
 
@@ -60,7 +109,7 @@ public class CFG {
         }
 
         // add '$' sign to first set in follow
-        this.follow.get(this.productions.get(0).getKey()).add("$");
+        this.follow.get(this.productions.get(0).getKey()).add(DOLLAR_SIGN);
 
         for (CFGEntry cfgEntry : this.productions) {
             this.first.put(cfgEntry.getKey(), first(cfgEntry.getRule()));
@@ -89,6 +138,21 @@ public class CFG {
         }
 
         return toReturn;
+    }
+
+    private String removeQuotesFromTerminal(String element) {
+        if (!isNonTerminal(element)) {
+            return element.substring(1, element.length() - 1);
+        }
+        return element;
+    }
+
+    private Set<String> removeQuotesFromSetOfTerminals(Set<String> terminals) {
+        Set<String> cleanedTerminals = new HashSet<>();
+        for (String s : terminals) {
+            cleanedTerminals.add(removeQuotesFromTerminal(s));
+        }
+        return cleanedTerminals;
     }
 
     private List<List<String>> getRuleByKey(String key) {
@@ -128,7 +192,9 @@ public class CFG {
             }
             // if first is terminal add it to return Set.
             else {
-                toReturn.add(first);
+                toReturn.add(
+                        removeQuotesFromTerminal(first)
+                );
             }
         }
         return toReturn;
@@ -146,7 +212,9 @@ public class CFG {
                         if (!key.equals(nonTerminal)) {
                             if (follow.containsKey(key)) {
                                 Set<String> temp = follow.get(key);
-                                follow.get(nonTerminal).addAll(temp);
+                                follow.get(nonTerminal).addAll(
+                                        removeQuotesFromSetOfTerminals(temp)
+                                );
                             }
                         }
                     } else  {
@@ -154,14 +222,18 @@ public class CFG {
                         // do that by taking sublist of firstOccurrenceOfNonTerminal+1 till the end of  the production
                         // use Collections.singletonList as first function takes List<List<String>>
                         Set<String> firstOfNext = first(
-                                Collections.singletonList(value.subList(firstOccurrenceOfNonTerminal+1, value.size()))
+                                Collections.singletonList(
+                                        value.subList(firstOccurrenceOfNonTerminal+1, value.size())
+                                )
                         );
 
                         if (firstOfNext.contains(EPSILON)) {
                             if (!key.equals(nonTerminal)) {
                                 if (follow.containsKey(key)) {
                                     Set<String> temp = follow.get(key);
-                                    follow.get(nonTerminal).addAll(temp);
+                                    follow.get(nonTerminal).addAll(
+                                            removeQuotesFromSetOfTerminals(temp)
+                                    );
                                 }
                             }
                             follow.get(nonTerminal).addAll(firstOfNext);
