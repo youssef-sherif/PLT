@@ -32,46 +32,7 @@ public class CFG {
     }
 
     public boolean parse(List<String> tokens) {
-
-        tokens.add(DOLLAR_SIGN);
-
-        Stack<String> stack = new Stack<>();
-        stack.push(DOLLAR_SIGN);
-        // push start symbol to stack
-        stack.push(this.productions.get(0).getKey());
-
-        int i = 0;
-        while (!stack.empty()) {
-            String top = stack.peek();
-            String curr = tokens.get(i);
-
-            System.out.println(tokens.get(i));
-            System.out.println(top + ", " + curr);
-
-            if (top.equals(curr)) {
-                stack.pop();
-                i++;
-            }
-            else {
-                if (!this.parsingTable.contains(top, curr)) {
-                    // reject
-                    return false;
-                }
-                List<String> value = this.parsingTable.get(top, curr);
-                System.out.println(value);
-                if (!value.get(0).equals(EPSILON)) {
-                    Collections.reverse(value);
-                    stack.pop();
-                    for (String s : value) {
-                        stack.push(s);
-                    }
-                } else {
-                    stack.pop();
-                }
-            }
-        }
-
-        // accept
+        // TODO
         return true;
     }
 
@@ -103,17 +64,9 @@ public class CFG {
         this.first = new LinkedHashMap<>();
         this.follow = new LinkedHashMap<>();
 
-        // first we need to initialize follow sets
-        for (CFGEntry cfgEntry : this.productions) {
-            this.follow.put(cfgEntry.getKey(), new HashSet<>());
-        }
-
-        // add '$' sign to first set in follow
-        this.follow.get(this.productions.get(0).getKey()).add(DOLLAR_SIGN);
-
         for (CFGEntry cfgEntry : this.productions) {
             this.first.put(cfgEntry.getKey(), first(cfgEntry.getRule()));
-            follow(cfgEntry.getKey(), this.follow);
+            this.follow.put(cfgEntry.getKey(), follow(cfgEntry.getKey()));
         }
     }
 
@@ -200,24 +153,39 @@ public class CFG {
         return toReturn;
     }
 
-    private void follow(String nonTerminal,
-                        Map<String, Set<String>> follow) {
+    private Set<String> follow(String nonTerminal) {
+        Set<String> toReturn = new HashSet<>();
+        // Case 4
+        // If key is of first production append '$' sign to follow set
+        if (nonTerminal.equals(this.productions.get(0).getKey())) {
+            toReturn.add(DOLLAR_SIGN);
+        }
         for (CFGEntry cfgEntry : this.productions) {
-            String key = cfgEntry.getKey();
+            // Example : A -> whatever
+            String keyA = cfgEntry.getKey();
             for (List<String> value : cfgEntry.getRule()) {
                 int firstOccurrenceOfNonTerminal = value.indexOf(nonTerminal);
                 // if rule contains nonTerminal
                 if (firstOccurrenceOfNonTerminal != -1) {
+                    // Case 1
+                    // nonTerminal is at the end
+                    // Examples : Follow(Y) Y -> F Y
+                    //            Follow(X) X -> T X
                     if (firstOccurrenceOfNonTerminal == value.size() - 1) {
-                        if (!key.equals(nonTerminal)) {
-                            if (follow.containsKey(key)) {
-                                Set<String> temp = follow.get(key);
-                                follow.get(nonTerminal).addAll(
+                        if (!keyA.equals(nonTerminal)) {
+                            if (this.follow.containsKey(keyA)) {
+                                Set<String> temp = this.follow.get(keyA);
+                                toReturn.addAll(
                                         removeQuotesFromSetOfTerminals(temp)
                                 );
                             }
                         }
-                    } else  {
+                    }
+                    // Cases 2 and 3
+                    // nonTerminal is between 2 other variables
+                    // Examples :  Follow(E) E -> '(' E ')'
+                    //             Follow(T) T -> '+' T X
+                    else if (value.size() > 2) {
                         // Get the first set from the production that follows firstOccurrenceOfNonTerminal
                         // do that by taking sublist of firstOccurrenceOfNonTerminal+1 till the end of  the production
                         // use Collections.singletonList as first function takes List<List<String>>
@@ -226,25 +194,38 @@ public class CFG {
                                         value.subList(firstOccurrenceOfNonTerminal+1, value.size())
                                 )
                         );
+                        toReturn.addAll(firstOfNext);
 
+                        // Case 2 :
+                        // if rule contains epsilon we add the follow of LHS nonTerminal
+                        // and remove 'Ɛ'
                         if (firstOfNext.contains(EPSILON)) {
-                            if (!key.equals(nonTerminal)) {
-                                if (follow.containsKey(key)) {
-                                    Set<String> temp = follow.get(key);
-                                    follow.get(nonTerminal).addAll(
-                                            removeQuotesFromSetOfTerminals(temp)
+                            if (!keyA.equals(nonTerminal)) {
+                                if (this.follow.containsKey(keyA)) {
+                                    Set<String> followA = this.follow.get(keyA);
+                                    toReturn.addAll(
+                                            removeQuotesFromSetOfTerminals(followA)
                                     );
                                 }
                             }
-                            follow.get(nonTerminal).addAll(firstOfNext);
-                            follow.get(nonTerminal).remove(EPSILON);
-                        } else {
-                            follow.get(nonTerminal).addAll(firstOfNext);
+                            toReturn.remove(EPSILON);
+                        }
+                        // Case 3 :
+                        // if rule does contains epsilon we add the follow of RHS nonTerminal
+                        else {
+                            String keyB = productions.get(firstOccurrenceOfNonTerminal).getKey();
+                            if (this.follow.containsKey(keyB)) {
+                                Set<String> followB = this.follow.get(keyB);
+                                toReturn.addAll(
+                                        removeQuotesFromSetOfTerminals(followB)
+                                );
+                            }
                         }
                     }
                 }
             }
         }
+        return toReturn;
     }
 
     public Map<String, Set<String>> getFirst() {
@@ -256,7 +237,7 @@ public class CFG {
     }
 
     public List<CFGEntry> getProductions() {
-        return productions;
+        return this.productions;
     }
 
     public Table<String, String, List<String>> getLL1ParsingTable() {
@@ -265,6 +246,9 @@ public class CFG {
 
     @Override
     public String toString() {
-        return productions.toString();
+        return  "===PRODUCTIONS===\n" + productions.toString() + "\n" +
+                "===FIRST===\n" + first + "\n" +
+                "===FOLLOW===\n" + follow + "\n" +
+                "===PARSING TABLE===\n" + parsingTable;
     }
 }

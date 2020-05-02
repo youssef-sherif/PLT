@@ -19,26 +19,12 @@ public class ParserAnalyzer {
     }
 
     public void parse() {
-        System.out.println("===CFG PRODUCTIONS===");
-        List<CFGEntry> productions = this.cfg.getProductions();
-        System.out.println(productions);
-
         this.cfg.createFirstAndFollowSets();
         Map<String, Set<String>> first = this.cfg.getFirst();
         Map<String, Set<String>> follow = this.cfg.getFollow();
 
-        System.out.println("===FIRST===");
-        System.out.println(first);
-
-        System.out.println("===FOLLOW===");
-        System.out.println(follow);
-
         this.cfg.createLL1Table(first, follow);
-        Table<String, String, List<String>> ll1 = this.cfg.getLL1ParsingTable();
 
-        System.out.println("===PARSING TABLE===");
-        System.out.println(ll1);
-
-        System.out.println(cfg.parse(this.tokens));
+        System.out.println(cfg.toString());
     }
 }
