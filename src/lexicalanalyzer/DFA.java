@@ -15,25 +15,22 @@ public class DFA {
     private final Set<String> keyWords;
     private final List<DFAState> DFAStates;
     private final Table<Integer, Character, Integer> DFATransitions;
-    private final NFA nfa;
 
-    public DFA(NFA nfa,
+    public DFA(Set<Character> alphabet,
                Set<String> keyWords,
                Set<String> punctuation) {
-        this.alphabet = nfa.getAlphabet();
+        this.alphabet = alphabet;
         this.DFAStates = new ArrayList<>();
         this.DFATransitions = HashBasedTable.create();
-        this.nfa = nfa;
-        this.nfaToDfa();
         this.keyWords = keyWords;
         this.punctuation = punctuation;
     }
 
-    private List<NFAState> epsilonClosure(NFAState startState) {
+    public List<NFAState> epsilonClosure(NFAState startState) {
         return this.epsilonClosure(startState.next);
     }
 
-    private List<NFAState> epsilonClosure(List<NFAState> states) {
+    public List<NFAState> epsilonClosure(List<NFAState> states) {
 
         List<NFAState> closure = new ArrayList<>();
 
@@ -74,7 +71,7 @@ public class DFA {
         return closure;
     }
 
-    private List<NFAState> move(DFAState state, Character input) {
+    public List<NFAState> move(DFAState state, Character input) {
         List<NFAState> next = new ArrayList<>();
 
         for (NFAState nfaInDfa : state.getCollectionStates()) {
@@ -90,7 +87,15 @@ public class DFA {
         return next;
     }
 
-    private boolean containsState(DFAState next) {
+    public void addState(DFAState state) {
+        this.DFAStates.add(state);
+    }
+
+    public void addTransition(Integer id, char inputSymbol, Integer id1) {
+        this.DFATransitions.put(id, inputSymbol, id1);
+    }
+
+    public boolean containsState(DFAState next) {
         for (DFAState state : this.DFAStates) {
             if (state.getID().intValue() == next.getID().intValue()) {
                 return true;
@@ -99,7 +104,7 @@ public class DFA {
         return false;
     }
 
-    private boolean containsUnMarkedState() {
+    public boolean containsUnMarkedState() {
         for (DFAState state : this.DFAStates) {
             if (state.isNotMarked()) {
                 return true;
@@ -108,7 +113,7 @@ public class DFA {
         return false;
     }
 
-    private DFAState getUnmarkedState() {
+    public DFAState getUnmarkedState() {
         int i = 0;
         for (DFAState state : this.DFAStates) {
             if (state.isNotMarked()) {
@@ -120,7 +125,7 @@ public class DFA {
         return this.DFAStates.get(i);
     }
 
-    private DFAState getStateByID(Integer rowState) {
+    public DFAState getStateByID(Integer rowState) {
         int i = 0;
         for (DFAState state : this.DFAStates) {
             if (state.getID().intValue() == rowState.intValue()) {
@@ -131,7 +136,7 @@ public class DFA {
         return this.DFAStates.get(i);
     }
 
-    private DFAState getStartState() {
+    public DFAState getStartState() {
         int i = 0;
         for (DFAState state : this.DFAStates) {
             if (state.isStartState()) {
@@ -142,34 +147,10 @@ public class DFA {
         return this.DFAStates.get(i);
     }
 
-    private void nfaToDfa() {
-
-        DFAState firstState = new DFAState(
-                this.epsilonClosure(this.nfa.getStartState())
-        );
-        firstState.setStartState(true);
-
-        this.DFAStates.add(firstState);
-
-        while (this.containsUnMarkedState()) {
-
-            DFAState T = this.getUnmarkedState();
-            T.mark();
-
-            for (char inputSymbol : this.alphabet) {
-                List<NFAState> next = this.move(T, inputSymbol);
-                DFAState U = new DFAState(
-                        this.epsilonClosure(next)
-                );
-                if (!this.containsState(U)) {
-                    this.DFAStates.add(U);
-                }
-                // ignore dead states
-                if (T.getID() == -1) continue;
-                this.DFATransitions.put(T.getID(), inputSymbol, U.getID());
-            }
-        }
+    public Set<Character> getAlphabet() {
+        return this.alphabet;
     }
+
 
     public void printTable() {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");

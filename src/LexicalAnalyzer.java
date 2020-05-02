@@ -35,12 +35,11 @@ public class LexicalAnalyzer {
 
         NFA.combineNFAsOr(nfaList);
 
-        DFA dfa = new DFA(
+        DFA dfa = DFAFactory.createDFAFromNFA(
                 NFA.getInstance(),
                 lexicalRulesFile.getKeyWords(),
                 lexicalRulesFile.getPunctuation()
         );
-
         dfa.printTable();
 
         return dfa.tokenize(programFile.getProgram());
