@@ -7,10 +7,11 @@ import java.util.*;
 
 public class CFG {
 
-    private static final String EPSILON = "Ɛ";
-    private static final String DOLLAR_SIGN = "$";
+    public static final String EPSILON = "Ɛ";
+    public static final String DOLLAR_SIGN = "$";
 
     private final List<CFGEntry> productions;
+    private final LL1 parser;
 
     private Map<String, Set<String>> first;
     private Map<String, Set<String>> follow;
@@ -29,6 +30,7 @@ public class CFG {
                     )
             );
         }
+        this.parser = new LL1(this);
     }
 
     public boolean parse(List<String> tokens) {
@@ -65,8 +67,8 @@ public class CFG {
         this.follow = new LinkedHashMap<>();
 
         for (CFGEntry cfgEntry : this.productions) {
-            this.first.put(cfgEntry.getKey(), first(cfgEntry.getRule()));
-            this.follow.put(cfgEntry.getKey(), follow(cfgEntry.getKey()));
+            this.first.put(cfgEntry.getKey(), parser.first(cfgEntry.getRule()));
+            this.follow.put(cfgEntry.getKey(), parser.follow(cfgEntry.getKey(), this.follow));
         }
     }
 
@@ -93,14 +95,14 @@ public class CFG {
         return toReturn;
     }
 
-    private String removeQuotesFromTerminal(String element) {
+    public String removeQuotesFromTerminal(String element) {
         if (!isNonTerminal(element)) {
             return element.substring(1, element.length() - 1);
         }
         return element;
     }
 
-    private Set<String> removeQuotesFromSetOfTerminals(Set<String> terminals) {
+    public Set<String> removeQuotesFromSetOfTerminals(Set<String> terminals) {
         Set<String> cleanedTerminals = new HashSet<>();
         for (String s : terminals) {
             cleanedTerminals.add(removeQuotesFromTerminal(s));
@@ -108,7 +110,7 @@ public class CFG {
         return cleanedTerminals;
     }
 
-    private List<List<String>> getRuleByKey(String key) {
+    public List<List<String>> getRuleByKey(String key) {
         List<List<String>> found = null;
         for (CFGEntry cfgEntry : this.productions) {
             if (cfgEntry.getKey().equals(key)) {
@@ -118,12 +120,12 @@ public class CFG {
         return found;
     }
 
-    private boolean isNonTerminal(String str) {
+    public boolean isNonTerminal(String str) {
         return !str.startsWith("'")
                 || !str.endsWith("'");
     }
 
-    private boolean containsKey(String key) {
+    public boolean containsKey(String key) {
         for (CFGEntry cfgEntry : this.productions) {
             if (cfgEntry.getKey().equals(key)) {
                 return true;
@@ -132,100 +134,8 @@ public class CFG {
         return false;
     }
 
-    private Set<String> first(List<List<String>> rule) {
-        Set<String> toReturn = new HashSet<>();
-        // loop on orEd productions to get all firsts not just first first.
-        for (List<String> orEd : rule) {
-            String first = orEd.get(0);
-            // if first is non terminal use first as key and recur on its productions.
-            if (isNonTerminal(first)
-                    && containsKey(first)) {
-                toReturn.addAll(first(getRuleByKey(first)));
-                return toReturn;
-            }
-            // if first is terminal add it to return Set.
-            else {
-                toReturn.add(
-                        removeQuotesFromTerminal(first)
-                );
-            }
-        }
-        return toReturn;
-    }
-
-    private Set<String> follow(String nonTerminal) {
-        Set<String> toReturn = new HashSet<>();
-        // Case 4
-        // If key is of first production append '$' sign to follow set
-        if (nonTerminal.equals(this.productions.get(0).getKey())) {
-            toReturn.add(DOLLAR_SIGN);
-        }
-        for (CFGEntry cfgEntry : this.productions) {
-            // Example : A -> whatever
-            String keyA = cfgEntry.getKey();
-            for (List<String> orEd : cfgEntry.getRule()) {
-                int firstOccurrenceOfNonTerminal = orEd.indexOf(nonTerminal);
-                // if rule contains nonTerminal
-                if (firstOccurrenceOfNonTerminal != -1) {
-                    // Case 1
-                    // nonTerminal is at the end
-                    // Examples : Follow(Y) Y -> F Y
-                    //            Follow(X) X -> T X
-                    if (firstOccurrenceOfNonTerminal == orEd.size() - 1) {
-                        if (!keyA.equals(nonTerminal)) {
-                            if (this.follow.containsKey(keyA)) {
-                                Set<String> temp = this.follow.get(keyA);
-                                toReturn.addAll(
-                                        removeQuotesFromSetOfTerminals(temp)
-                                );
-                            }
-                        }
-                    }
-                    // Cases 2 and 3
-                    // nonTerminal is between 2 other variables
-                    // Examples : Case 2:  Follow(E) E -> '(' E ')'
-                    //            Case 3:  Follow(T) T -> '+' T R where First(R) contains 'Ɛ'
-                    else if (orEd.size() > 2) {
-                        // Get the first set from the production that follows firstOccurrenceOfNonTerminal
-                        // do that by taking sublist of firstOccurrenceOfNonTerminal+1 till the end of  the production
-                        // use Collections.singletonList as first function takes List<List<String>>
-                        Set<String> firstOfNext = first(
-                                Collections.singletonList(
-                                        orEd.subList(firstOccurrenceOfNonTerminal+1, orEd.size())
-                                )
-                        );
-                        toReturn.addAll(firstOfNext);
-
-                        // Case 2 :
-                        // if rule contains epsilon we add the follow of LHS nonTerminal
-                        // and remove 'Ɛ'
-                        if (firstOfNext.contains(EPSILON)) {
-                            if (!keyA.equals(nonTerminal)) {
-                                if (this.follow.containsKey(keyA)) {
-                                    Set<String> followA = this.follow.get(keyA);
-                                    toReturn.addAll(
-                                            removeQuotesFromSetOfTerminals(followA)
-                                    );
-                                }
-                            }
-                            toReturn.remove(EPSILON);
-                        }
-                        // Case 3 :
-                        // if rule does contains epsilon we add the follow of RHS nonTerminal
-                        else {
-                            String keyB = productions.get(firstOccurrenceOfNonTerminal).getKey();
-                            if (this.follow.containsKey(keyB)) {
-                                Set<String> followB = this.follow.get(keyB);
-                                toReturn.addAll(
-                                        removeQuotesFromSetOfTerminals(followB)
-                                );
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return toReturn;
+    public List<CFGEntry> getProductions() {
+        return this.productions;
     }
 
     public Map<String, Set<String>> getFirst() {
@@ -247,4 +157,5 @@ public class CFG {
                 "===FOLLOW===\n" + follow + "\n" +
                 "===PARSING TABLE===\n" + parsingTable;
     }
+
 }
