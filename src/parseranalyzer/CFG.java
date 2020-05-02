@@ -163,15 +163,15 @@ public class CFG {
         for (CFGEntry cfgEntry : this.productions) {
             // Example : A -> whatever
             String keyA = cfgEntry.getKey();
-            for (List<String> value : cfgEntry.getRule()) {
-                int firstOccurrenceOfNonTerminal = value.indexOf(nonTerminal);
+            for (List<String> orEd : cfgEntry.getRule()) {
+                int firstOccurrenceOfNonTerminal = orEd.indexOf(nonTerminal);
                 // if rule contains nonTerminal
                 if (firstOccurrenceOfNonTerminal != -1) {
                     // Case 1
                     // nonTerminal is at the end
                     // Examples : Follow(Y) Y -> F Y
                     //            Follow(X) X -> T X
-                    if (firstOccurrenceOfNonTerminal == value.size() - 1) {
+                    if (firstOccurrenceOfNonTerminal == orEd.size() - 1) {
                         if (!keyA.equals(nonTerminal)) {
                             if (this.follow.containsKey(keyA)) {
                                 Set<String> temp = this.follow.get(keyA);
@@ -183,15 +183,15 @@ public class CFG {
                     }
                     // Cases 2 and 3
                     // nonTerminal is between 2 other variables
-                    // Examples :  Follow(E) E -> '(' E ')'
-                    //             Follow(T) T -> '+' T X
-                    else if (value.size() > 2) {
+                    // Examples : Case 2:  Follow(E) E -> '(' E ')'
+                    //            Case 3:  Follow(T) T -> '+' T R where First(R) contains 'Ɛ'
+                    else if (orEd.size() > 2) {
                         // Get the first set from the production that follows firstOccurrenceOfNonTerminal
                         // do that by taking sublist of firstOccurrenceOfNonTerminal+1 till the end of  the production
                         // use Collections.singletonList as first function takes List<List<String>>
                         Set<String> firstOfNext = first(
                                 Collections.singletonList(
-                                        value.subList(firstOccurrenceOfNonTerminal+1, value.size())
+                                        orEd.subList(firstOccurrenceOfNonTerminal+1, orEd.size())
                                 )
                         );
                         toReturn.addAll(firstOfNext);
@@ -234,10 +234,6 @@ public class CFG {
 
     public Map<String, Set<String>> getFollow() {
         return this.follow;
-    }
-
-    public List<CFGEntry> getProductions() {
-        return this.productions;
     }
 
     public Table<String, String, List<String>> getLL1ParsingTable() {
