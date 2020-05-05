@@ -1,5 +1,9 @@
 package parseranalyzer;
 
+import static parseranalyzer.Constants.*;
+
+import com.google.common.collect.Table;
+
 import java.util.*;
 
 public class LL1 {
@@ -10,22 +14,61 @@ public class LL1 {
         this.cfg = cfg;
     }
 
+    public boolean parse(List<String> tokens,
+                         Table<String, String, List<String>> parsingTable,
+                         List<CFGEntry> productions,
+                         Set<String> terminals) throws Exception {
+        Stack<String> stack = new Stack<>();
+        // push start rule to stack
+        stack.push("$");
+        stack.push(productions.get(0).getKey());
+        int i = 0;
+        while (!stack.empty()) {
+            String top = stack.peek();
+            String curr = tokens.get(i);
+
+            if (top.equals("$") && curr.equals("$")) {
+                return true;
+            }
+            else if (terminals.contains(top)
+                    && terminals.contains(curr)
+                    && top.equals(curr)) {
+                stack.pop();
+                i++;
+            }
+            else if (!terminals.contains(top)) {
+                if (!parsingTable.contains(top, curr)) {
+                    // reject
+                    return false;
+                } else {
+                    List<String> rule = parsingTable.get(top, curr);
+                    stack.pop();
+                    for (int j = rule.size() - 1; j >= 0; j--) {
+                        stack.push(rule.get(j));
+                    }
+                    System.out.println(rule);
+                }
+            } else {
+                throw new Exception("parse error");
+            }
+        }
+        return true;
+    }
+
     public Set<String> first(List<List<String>> rule) {
         Set<String> toReturn = new HashSet<>();
         // loop on orEd productions to get all firsts not just first first.
         for (List<String> orEd : rule) {
             String first = orEd.get(0);
             // if first is non terminal use first as key and recur on its productions.
-            if (cfg.isNonTerminal(first)
+            if (!cfg.getTerminals().contains(first)
                     && cfg.containsKey(first)) {
                 toReturn.addAll(first(cfg.getRuleByKey(first)));
                 return toReturn;
             }
             // if first is terminal add it to return Set.
             else {
-                toReturn.add(
-                        cfg.removeQuotesFromTerminal(first)
-                );
+                toReturn.add(first);
             }
         }
         return toReturn;
@@ -37,7 +80,7 @@ public class LL1 {
         // Case 4
         // If key is of first production append '$' sign to follow set
         if (nonTerminal.equals(cfg.getProductions().get(0).getKey())) {
-            toReturn.add(CFG.DOLLAR_SIGN);
+            toReturn.add(DOLLAR_SIGN);
         }
         for (CFGEntry cfgEntry : cfg.getProductions()) {
             // Example : A -> whatever
@@ -54,9 +97,7 @@ public class LL1 {
                         if (!keyA.equals(nonTerminal)) {
                             if (follow.containsKey(keyA)) {
                                 Set<String> temp = follow.get(keyA);
-                                toReturn.addAll(
-                                        cfg.removeQuotesFromSetOfTerminals(temp)
-                                );
+                                toReturn.addAll(temp);
                             }
                         }
                     }
@@ -78,16 +119,14 @@ public class LL1 {
                         // Case 2 :
                         // if rule contains epsilon we add the follow of LHS nonTerminal
                         // and remove 'Ɛ'
-                        if (firstOfNext.contains(CFG.EPSILON)) {
+                        if (firstOfNext.contains(EPSILON)) {
                             if (!keyA.equals(nonTerminal)) {
                                 if (follow.containsKey(keyA)) {
                                     Set<String> followA = follow.get(keyA);
-                                    toReturn.addAll(
-                                            cfg.removeQuotesFromSetOfTerminals(followA)
-                                    );
+                                    toReturn.addAll(followA);
                                 }
                             }
-                            toReturn.remove(CFG.EPSILON);
+                            toReturn.remove(EPSILON);
                         }
                         // Case 3 :
                         // if rule does contains epsilon we add the follow of RHS nonTerminal
@@ -95,9 +134,7 @@ public class LL1 {
                             String keyB = cfg.getProductions().get(firstOccurrenceOfNonTerminal).getKey();
                             if (follow.containsKey(keyB)) {
                                 Set<String> followB = follow.get(keyB);
-                                toReturn.addAll(
-                                        cfg.removeQuotesFromSetOfTerminals(followB)
-                                );
+                                toReturn.addAll(followB);
                             }
                         }
                     }
@@ -106,5 +143,4 @@ public class LL1 {
         }
         return toReturn;
     }
-
 }

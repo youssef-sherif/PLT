@@ -10,7 +10,6 @@ public class Main {
 
         try{
             LexicalRulesFile rulesFile = new LexicalRulesFile("lexical_analyzer_test_cases/lexical_rules_0.txt");
-//            CFGRulesFile cfgRulesFile = new CFGRulesFile("parser_analyzer_test_cases/cfg.txt");
             CFGRulesFile cfgRulesFile = new CFGRulesFile("parser_analyzer_test_cases/cfg_0.txt");
             ProgramFile programFile = new ProgramFile("test_programs/program_0.txt");
 
