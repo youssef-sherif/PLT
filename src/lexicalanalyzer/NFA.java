@@ -93,26 +93,26 @@ public class NFA {
         return nfa;
     }
 
-    public NFA asterisk(NFA currNfa)  {
+    public static NFA asterisk(NFA currNfa, NFA newNFA)  {
         NFAState startState = new NFAState(false, ++currNfa.numStates);
         NFAState finalState = new NFAState(true, ++currNfa.numStates);
 
         startState.edges.add(EPSILON);
-        startState.next.add(this.startState);
+        startState.next.add(newNFA.startState);
 
         startState.edges.add(EPSILON);
         startState.next.add(finalState);
 
-        this.finalState.edges.add(EPSILON);
-        this.finalState.next.add(this.startState);
+        newNFA.finalState.edges.add(EPSILON);
+        newNFA.finalState.next.add(newNFA.startState);
 
-        this.finalState.edges.add(EPSILON);
-        this.finalState.next.add(finalState);
+        newNFA.finalState.edges.add(EPSILON);
+        newNFA.finalState.next.add(finalState);
 
-        this.startState = startState;
-        this.finalState = finalState;
+        newNFA.startState = startState;
+        newNFA.finalState = finalState;
 
-        return this;
+        return newNFA;
     }
 
     public NFAState getFinalState() {

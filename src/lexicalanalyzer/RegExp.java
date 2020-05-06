@@ -62,11 +62,11 @@ public class RegExp {
                     // Recursively convert group Part to NFA
                     NFA groupNfa = toNFA(key, preProcess(part1.getExpression()));
                     if (part1.isAsterisk()) {
-                        concatenatedNFAs.add(groupNfa.asterisk(nfa));
+                        concatenatedNFAs.add(NFA.asterisk(nfa, groupNfa));
                     } else if (part1.isPlus()) {
                         NFA groupNfa2 = toNFA(key, preProcess(part1.getExpression()));
                         concatenatedNFAs.add(groupNfa);
-                        concatenatedNFAs.add(groupNfa2.asterisk(nfa));
+                        concatenatedNFAs.add(NFA.asterisk(nfa, groupNfa2));
                     } else {
                         concatenatedNFAs.add(groupNfa);
                     }
@@ -135,12 +135,12 @@ public class RegExp {
                     // if part is a definitions recursively convert it to NFA
                     if (andEdPart.isDefinition()) {
                         NFA edgeNfa = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
-                        andEdNFAs.add(edgeNfa.asterisk(nfa));
+                        andEdNFAs.add(NFA.asterisk(nfa, edgeNfa));
                     } else {
                         for (char nfaChar : andEdPart.getExpression().toCharArray()) {
                             // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
                             NFA edgeNfa = NFA.edge(nfa, nfaChar);
-                            andEdNFAs.add(edgeNfa.asterisk(nfa));
+                            andEdNFAs.add(NFA.asterisk(nfa, edgeNfa));
                             andEdNFAs.add(NFA.edge(nfa, EPSILON));
                         }
                     }
@@ -157,14 +157,14 @@ public class RegExp {
                         NFA edgeNfa = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                         NFA edgeNfa2 = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                         andEdNFAs.add(edgeNfa);
-                        andEdNFAs.add(edgeNfa2.asterisk(nfa));
+                        andEdNFAs.add(NFA.asterisk(nfa, edgeNfa2));
                     } else {
                         for (char nfaChar : andEdPart.getExpression().toCharArray()) {
                             // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
                             NFA edgeNfa = NFA.edge(nfa, nfaChar);
                             NFA edgeNfa2 = NFA.edge(nfa, nfaChar);
                             andEdNFAs.add(edgeNfa);
-                            andEdNFAs.add(edgeNfa2.asterisk(nfa));
+                            andEdNFAs.add(NFA.asterisk(nfa, edgeNfa2));
                             andEdNFAs.add(NFA.edge(nfa, EPSILON));
                         }
                     }
