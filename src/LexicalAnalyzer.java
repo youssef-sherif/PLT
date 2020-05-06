@@ -7,15 +7,12 @@ import java.util.Map;
 public class LexicalAnalyzer {
 
     private final LexicalRulesFile lexicalRulesFile;
-    private final ProgramFile programFile;
 
-    LexicalAnalyzer(LexicalRulesFile rulesFile,
-                    ProgramFile programFile) {
+    LexicalAnalyzer(LexicalRulesFile rulesFile) {
         this.lexicalRulesFile = rulesFile;
-        this.programFile = programFile;
     }
 
-    public List<String> tokenize() throws Exception {
+    public List<String> tokenize(String program) throws Exception {
 
         List<NFA> nfaList = new ArrayList<>();
 
@@ -23,13 +20,13 @@ public class LexicalAnalyzer {
 
         for (Map.Entry<String, String> entry : lexicalRulesFile.getRegularExpressions().entrySet()) {
 
-            RegularExpression regularExpression = new RegularExpression(
+            RegExp regExp = new RegExp(
                     entry.getKey(),
                     entry.getValue(),
                     lexicalRulesFile.getRegularDefinitions()
             );
 
-            NFA currentNfa = regularExpression.toNFA();
+            NFA currentNfa = regExp.toNFA();
             nfaList.add(currentNfa);
         }
 
@@ -42,6 +39,6 @@ public class LexicalAnalyzer {
         );
         dfa.printTable();
 
-        return dfa.tokenize(programFile.getProgram());
+        return dfa.tokenize(program);
     }
 }

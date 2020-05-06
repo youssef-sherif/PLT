@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RegularExpression {
+public class RegExp {
 
     private final PartFactory partFactory;
     private final Map<String, String> regularDefinitions;
@@ -14,9 +14,9 @@ public class RegularExpression {
     private final String key;
 
 
-    public RegularExpression(String key,
-                             String regEx,
-                             Map<String, String> regularDefinitions) {
+    public RegExp(String key,
+                  String regEx,
+                  Map<String, String> regularDefinitions) {
         this.regEx = regEx;
         this.key = key;
         this.partFactory = new PartFactory(regularDefinitions.keySet());
@@ -37,10 +37,10 @@ public class RegularExpression {
         System.out.println("===" + key + "===");
         String regEx = preProcess(this.regEx);
         visualize(regEx);
-        return toNFA(regEx);
+        return toNFA(key, regEx);
     }
 
-    public NFA toNFA(String regEx) {
+    public NFA toNFA(String key, String regEx) {
 
         List<List<Part>> oRedPartsList = findGroupedParts(
                                             findORedParts(regEx)
@@ -55,18 +55,18 @@ public class RegularExpression {
             for (Part part1: parts) {
                 if (part1.isGroup()) {
                     // Recursively convert group Part to NFA
-                    NFA groupNfa = toNFA(preProcess(part1.getExpression()));
+                    NFA groupNfa = toNFA(key, preProcess(part1.getExpression()));
                     if (part1.isAsterisk()) {
                         concatenatedNFAs.add(groupNfa.asterisk());
                     } else if (part1.isPlus()) {
-                        NFA groupNfa2 = toNFA(preProcess(part1.getExpression()));
+                        NFA groupNfa2 = toNFA(key, preProcess(part1.getExpression()));
                         concatenatedNFAs.add(groupNfa);
                         concatenatedNFAs.add(groupNfa2.asterisk());
                     } else {
                         concatenatedNFAs.add(groupNfa);
                     }
                 } else {
-                    concatenatedNFAs.addAll(getConcatenatedNFAsList(part1.getExpression()));
+                    concatenatedNFAs.addAll(getConcatenatedNFAsList(key, part1.getExpression()));
                 }
             }
 
@@ -79,12 +79,12 @@ public class RegularExpression {
              nfa = NFA.combineNFAsOr(edgesList);
         }
 
-        NFA.getInstance().getFinalState().setRuleName(this.key);
+        NFA.getInstance().getFinalState().setRuleName(key);
 
         return nfa;
     }
 
-    private List<NFA> getConcatenatedNFAsList(String expression) {
+    private List<NFA> getConcatenatedNFAsList(String key, String expression) {
 
         String expression1 = expression + " ";
         // TODO: handle special characters like '\L'
@@ -129,7 +129,7 @@ public class RegularExpression {
 
                     // if part is a definitions recursively convert it to NFA
                     if (andEdPart.isDefinition()) {
-                        NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
+                        NFA edgeNfa = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                         andEdNFAs.add(edgeNfa.asterisk());
                     } else {
                         for (char nfaChar : andEdPart.getExpression().toCharArray()) {
@@ -149,8 +149,8 @@ public class RegularExpression {
 
                     // if part is a definitions recursively convert it to lexicalanalyzer.NFA
                     if (andEdPart.isDefinition()) {
-                        NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
-                        NFA edgeNfa2 = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
+                        NFA edgeNfa = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
+                        NFA edgeNfa2 = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                         andEdNFAs.add(edgeNfa);
                         andEdNFAs.add(edgeNfa2.asterisk());
                     } else {
@@ -173,7 +173,7 @@ public class RegularExpression {
 
                     if (andEdPart.isDefinition()) {
                         // if part is a definitions recursively convert it to NFA
-                        NFA edgeNfa = toNFA(replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
+                        NFA edgeNfa = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                         andEdNFAs.add(edgeNfa);
                     } else {
                         for (char nfaChar : andEdPart.getExpression().toCharArray()) {
