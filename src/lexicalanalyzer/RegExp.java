@@ -53,7 +53,7 @@ public class RegExp {
 
         List<NFA> edgesList = new ArrayList<>();
 
-        NFA nfa = null;
+        NFA nfa = NFA.getInstance();
         
         for ( List<Part> parts: oRedPartsList) {
             List<NFA> concatenatedNFAs = new ArrayList<>();
@@ -62,34 +62,34 @@ public class RegExp {
                     // Recursively convert group Part to NFA
                     NFA groupNfa = toNFA(key, preProcess(part1.getExpression()));
                     if (part1.isAsterisk()) {
-                        concatenatedNFAs.add(groupNfa.asterisk());
+                        concatenatedNFAs.add(groupNfa.asterisk(nfa));
                     } else if (part1.isPlus()) {
                         NFA groupNfa2 = toNFA(key, preProcess(part1.getExpression()));
                         concatenatedNFAs.add(groupNfa);
-                        concatenatedNFAs.add(groupNfa2.asterisk());
+                        concatenatedNFAs.add(groupNfa2.asterisk(nfa));
                     } else {
                         concatenatedNFAs.add(groupNfa);
                     }
                 } else {
-                    concatenatedNFAs.addAll(getConcatenatedNFAsList(key, part1.getExpression()));
+                    concatenatedNFAs.addAll(getConcatenatedNFAsList(nfa, key, part1.getExpression()));
                 }
             }
 
             if (!concatenatedNFAs.isEmpty()) {
-                edgesList.add(NFA.combineNFAsConcatenate(concatenatedNFAs));
+                edgesList.add(NFA.combineNFAsConcatenate(nfa, concatenatedNFAs));
             }
         }
 
         if (!edgesList.isEmpty()) {
-             nfa = NFA.combineNFAsOr(edgesList);
+             nfa = NFA.combineNFAsOr(nfa, edgesList);
         }
 
-        NFA.getInstance().getFinalState().setRuleName(key);
+        nfa.getFinalState().setRuleName(key);
 
         return nfa;
     }
 
-    private List<NFA> getConcatenatedNFAsList(String key, String expression) {
+    private List<NFA> getConcatenatedNFAsList(NFA nfa, String key, String expression) {
 
         String expression1 = expression + " ";
         // TODO: handle special characters like '\L'
@@ -135,17 +135,17 @@ public class RegExp {
                     // if part is a definitions recursively convert it to NFA
                     if (andEdPart.isDefinition()) {
                         NFA edgeNfa = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
-                        andEdNFAs.add(edgeNfa.asterisk());
+                        andEdNFAs.add(edgeNfa.asterisk(nfa));
                     } else {
                         for (char nfaChar : andEdPart.getExpression().toCharArray()) {
                             // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
-                            NFA edgeNfa = NFA.edge(nfaChar);
-                            andEdNFAs.add(edgeNfa.asterisk());
-                            andEdNFAs.add(NFA.edge(EPSILON));
+                            NFA edgeNfa = NFA.edge(nfa, nfaChar);
+                            andEdNFAs.add(edgeNfa.asterisk(nfa));
+                            andEdNFAs.add(NFA.edge(nfa, EPSILON));
                         }
                     }
 
-                    andEdNFAs.add(NFA.edge(EPSILON));
+                    andEdNFAs.add(NFA.edge(nfa, EPSILON));
 
                     buffer = new StringBuilder();
                 } else if (currRegEx == PLUS) {
@@ -157,19 +157,19 @@ public class RegExp {
                         NFA edgeNfa = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                         NFA edgeNfa2 = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                         andEdNFAs.add(edgeNfa);
-                        andEdNFAs.add(edgeNfa2.asterisk());
+                        andEdNFAs.add(edgeNfa2.asterisk(nfa));
                     } else {
                         for (char nfaChar : andEdPart.getExpression().toCharArray()) {
                             // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
-                            NFA edgeNfa = NFA.edge(nfaChar);
-                            NFA edgeNfa2 = NFA.edge(nfaChar);
+                            NFA edgeNfa = NFA.edge(nfa, nfaChar);
+                            NFA edgeNfa2 = NFA.edge(nfa, nfaChar);
                             andEdNFAs.add(edgeNfa);
-                            andEdNFAs.add(edgeNfa2.asterisk());
-                            andEdNFAs.add(NFA.edge(EPSILON));
+                            andEdNFAs.add(edgeNfa2.asterisk(nfa));
+                            andEdNFAs.add(NFA.edge(nfa, EPSILON));
                         }
                     }
 
-                    andEdNFAs.add(NFA.edge(EPSILON));
+                    andEdNFAs.add(NFA.edge(nfa, EPSILON));
 
                     buffer = new StringBuilder();
                 } else {
@@ -183,13 +183,13 @@ public class RegExp {
                     } else {
                         for (char nfaChar : andEdPart.getExpression().toCharArray()) {
                             // We reached the smallest part and it is definitely of length 1. Add it to NFA Edge
-                            NFA edgeNfa = NFA.edge(nfaChar);
+                            NFA edgeNfa = NFA.edge(nfa, nfaChar);
                             andEdNFAs.add(edgeNfa);
-                            andEdNFAs.add(NFA.edge(EPSILON));
+                            andEdNFAs.add(NFA.edge(nfa, EPSILON));
                         }
                     }
 
-                    andEdNFAs.add(NFA.edge(EPSILON));
+                    andEdNFAs.add(NFA.edge(nfa, EPSILON));
 
                     buffer = new StringBuilder();
                 }
