@@ -1,5 +1,6 @@
 import parseranalyzer.CFG;
 import parseranalyzer.CFGRulesFile;
+import parseranalyzer.LeftRecCFG;
 
 import java.util.List;
 
@@ -12,7 +13,10 @@ public class ParserAnalyzer {
                           CFGRulesFile cfgRulesFile) {
         this.tokens = tokens;
         this.tokens.add("$");
-        this.cfg = new CFG(cfgRulesFile.getCFGRules());
+//        this.cfg = new CFG(cfgRulesFile.getCFGRules());
+        this.cfg = new CFG(
+                new LeftRecCFG(cfgRulesFile.getCFGRules())
+        );
     }
 
     public void parse() throws Exception {

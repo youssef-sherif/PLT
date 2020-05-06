@@ -20,89 +20,23 @@ public class CFG {
         // convert Map<String, String> productions to List<CFGEntry>
         // for each raw productionRule convert it to List of Lists
         // and create a CFGEntry with key and rule
-        List<CFGEntry> temp = new ArrayList<>();
+        this.productions = new ArrayList<>();
         for (Map.Entry<String, String> entry : productions.entrySet()) {
-            temp.add(
+            this.productions.add(
                     new CFGEntry(
                             entry.getKey(),
-                            this.convertRuleToList(entry.getValue())
+                            CFGUtil.convertRuleToList(entry.getValue())
                     )
             );
         }
-        this.terminals = findTerminalsAndRemoveQuotations(temp);
-        this.productions = removeLeftRecursion(temp);
+        this.terminals = CFGUtil.findTerminalsAndRemoveQuotations(this.productions);
         this.parser = new LL1(this);
     }
 
-    private List<CFGEntry> removeLeftRecursion(List<CFGEntry> productions) {
-        List<CFGEntry> toReturn = new ArrayList<>();
-        for (CFGEntry entry : productions) {
-            boolean add = true;
-            for (List<String> l : entry.getRule()) {
-                // left recursion found
-                if (entry.getKey().equals(l.get(0))) {
-                    CFGEntry newProduction = recreateProduction(entry);
-                    CFGEntry newProductionDash = createProductionDash(entry, l);
-
-                    toReturn.remove(entry);
-                    toReturn.add(newProduction);
-                    toReturn.add(newProductionDash);
-                    add = false;
-                }
-            }
-            if (add) {
-                toReturn.add(entry);
-            }
-        }
-
-        return toReturn;
-    }
-
-    private CFGEntry recreateProduction(CFGEntry entry) {
-        String productionKey = entry.getKey();
-        List<List<String>> productionRule = new ArrayList<>();
-        for (List<String> l : entry.getRule()) {
-            if (!l.get(0).equals(productionKey)) {
-                List<String> l1 = new ArrayList<>(l);
-                productionRule.add(l1);
-            }
-        }
-        for (List<String> l : productionRule) {
-            l.add(entry.getKey() + "_dash");
-        }
-        return new CFGEntry(productionKey, productionRule);
-    }
-
-    private CFGEntry createProductionDash(CFGEntry entry, List<String> context) {
-        String dashRuleKey = entry.getKey() + "_dash";
-        List<List<String>> dashRuleProduction = new ArrayList<>();
-
-        String s = context.remove(0);
-        context.add(s+"_dash");
-        dashRuleProduction.add(context);
-        dashRuleProduction.add(Collections.singletonList(EPSILON));
-
-        return new CFGEntry(dashRuleKey, dashRuleProduction);
-    }
-
-    private Set<String> findTerminalsAndRemoveQuotations(List<CFGEntry> productions) {
-        Set<String> terminals = new HashSet<>();
-        for (CFGEntry entry : productions) {
-            int i = 0;
-            for (List<String> l : entry.getRule()) {
-                int j = 0;
-                for (String s : l) {
-                    if (isTerminal(s)) {
-                        String cleanedTerminal = removeQuotesFromTerminal(s);
-                        terminals.add(cleanedTerminal);
-                        entry.getRule().get(i).set(j, cleanedTerminal);
-                    }
-                    j++;
-                }
-                i++;
-            }
-        }
-        return terminals;
+    public CFG(LeftRecCFG leftRecCFG) {
+        this.productions = leftRecCFG.removeLeftRecursion();
+        this.terminals = CFGUtil.findTerminalsAndRemoveQuotations(this.productions);
+        this.parser = new LL1(this);
     }
 
     public boolean parse(List<String> tokens) throws Exception {
@@ -148,44 +82,6 @@ public class CFG {
         }
     }
 
-    /*  Example:
-     *      convert TERM | SIGN TERM | SIMPLE_EXPRESSION 'addop' TERM
-    *       to [[TERM], [SIGN, TERM], [SIMPLE_EXPRESSION, 'addop', TERM]]
-     */
-    private List<List<String>> convertRuleToList(String rule) {
-        List<List<String>> toReturn = new ArrayList<>();
-        String[] orEd = rule.split("\\|");
-
-        for (String s : orEd) {
-            List<String> temp = new ArrayList<>();
-            String[] andEd = s.split(" ");
-            for (String s1 : andEd) {
-                if(!s1.isEmpty()) {
-                    temp.add(s1.trim());
-                }
-            }
-
-            toReturn.add(temp);
-        }
-
-        return toReturn;
-    }
-
-    public String removeQuotesFromTerminal(String element) {
-        if (isTerminal(element)) {
-            return element.substring(1, element.length() - 1);
-        }
-        return element;
-    }
-
-    public Set<String> removeQuotesFromSetOfTerminals(Set<String> terminals) {
-        Set<String> cleanedTerminals = new HashSet<>();
-        for (String s : terminals) {
-            cleanedTerminals.add(removeQuotesFromTerminal(s));
-        }
-        return cleanedTerminals;
-    }
-
     public List<List<String>> getRuleByKey(String key) {
         List<List<String>> found = null;
         for (CFGEntry cfgEntry : this.productions) {
@@ -194,11 +90,6 @@ public class CFG {
             }
         }
         return found;
-    }
-
-    public boolean isTerminal(String str) {
-        return str.startsWith("'")
-                && str.endsWith("'");
     }
 
     public boolean containsKey(String key) {
