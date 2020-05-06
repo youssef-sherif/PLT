@@ -9,9 +9,9 @@ public class ParserAnalyzer {
     private final CFG cfg;
 
     public ParserAnalyzer(CFGRulesFile cfgRulesFile) {
-//        this.cfg = new CFG(cfgRulesFile.getCFGRules());
+//        this.cfg = new CFG(cfgRulesFile);
         this.cfg = new CFG(
-                new LeftRecCFG(cfgRulesFile.getCFGRules())
+                new LeftRecCFG(cfgRulesFile)
         );
     }
 

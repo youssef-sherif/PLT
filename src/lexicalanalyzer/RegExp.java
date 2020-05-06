@@ -10,17 +10,22 @@ public class RegExp {
 
     private final PartFactory partFactory;
     private final Map<String, String> regularDefinitions;
-    private final String regEx;
-    private final String key;
 
+    private String regEx;
+    private String key;
+
+    public RegExp(LexicalRulesFile lexicalRulesFile) {
+        this.regularDefinitions = lexicalRulesFile.getRegularDefinitions();
+        this.partFactory = new PartFactory(this.regularDefinitions.keySet());
+    }
 
     public RegExp(String key,
                   String regEx,
-                  Map<String, String> regularDefinitions) {
+                  LexicalRulesFile lexicalRulesFile) {
         this.regEx = regEx;
         this.key = key;
-        this.partFactory = new PartFactory(regularDefinitions.keySet());
-        this.regularDefinitions = regularDefinitions;
+        this.regularDefinitions = lexicalRulesFile.getRegularDefinitions();
+        this.partFactory = new PartFactory(this.regularDefinitions.keySet());
     }
 
     public String preProcess(String regExString) {

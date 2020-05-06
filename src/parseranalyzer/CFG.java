@@ -16,12 +16,12 @@ public class CFG {
     private Map<String, Set<String>> follow;
     private Table<String, String, List<String>> parsingTable;
 
-    public CFG(Map<String, String> productions) {
+    public CFG(CFGRulesFile cfgRulesFile) {
         // convert Map<String, String> productions to List<CFGEntry>
         // for each raw productionRule convert it to List of Lists
         // and create a CFGEntry with key and rule
         this.productions = new ArrayList<>();
-        for (Map.Entry<String, String> entry : productions.entrySet()) {
+        for (Map.Entry<String, String> entry : cfgRulesFile.getCFGRules().entrySet()) {
             this.productions.add(
                     new CFGEntry(
                             entry.getKey(),

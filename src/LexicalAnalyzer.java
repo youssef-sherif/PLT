@@ -17,16 +17,13 @@ public class LexicalAnalyzer {
         List<NFA> nfaList = new ArrayList<>();
 
         System.out.println(lexicalRulesFile.toString());
-
+        RegExp regExp = new RegExp(lexicalRulesFile);
         for (Map.Entry<String, String> entry : lexicalRulesFile.getRegularExpressions().entrySet()) {
 
-            RegExp regExp = new RegExp(
+            NFA currentNfa = regExp.toNFA(
                     entry.getKey(),
-                    entry.getValue(),
-                    lexicalRulesFile.getRegularDefinitions()
+                    regExp.preProcess(entry.getValue())
             );
-
-            NFA currentNfa = regExp.toNFA();
             nfaList.add(currentNfa);
         }
 

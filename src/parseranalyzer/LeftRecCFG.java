@@ -11,12 +11,12 @@ public class LeftRecCFG {
 
     private final List<CFGEntry> productions;
 
-    public LeftRecCFG(Map<String, String> productions) {
+    public LeftRecCFG(CFGRulesFile cfgRulesFile) {
         // convert Map<String, String> productions to List<CFGEntry>
         // for each raw productionRule convert it to List of Lists
         // and create a CFGEntry with key and rule
         this.productions = new ArrayList<>();
-        for (Map.Entry<String, String> entry : productions.entrySet()) {
+        for (Map.Entry<String, String> entry : cfgRulesFile.getCFGRules().entrySet()) {
             this.productions.add(
                     new CFGEntry(
                             entry.getKey(),
