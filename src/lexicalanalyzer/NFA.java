@@ -94,8 +94,8 @@ public class NFA {
     }
 
     public NFA asterisk(NFA currNfa)  {
-        NFAState startState = new NFAState(false, currNfa.numStates);
-        NFAState finalState = new NFAState(true, currNfa.numStates);
+        NFAState startState = new NFAState(false, ++currNfa.numStates);
+        NFAState finalState = new NFAState(true, ++currNfa.numStates);
 
         startState.edges.add(EPSILON);
         startState.next.add(this.startState);
@@ -139,7 +139,7 @@ public class NFA {
 
 
         stack.push(this.startState.next);
-        c.add(nfa.startState.next);
+        c.add(this.startState.next);
 
 
         result.append(this.startState.getStateNo()).append("\n");
