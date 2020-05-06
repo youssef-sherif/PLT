@@ -27,13 +27,13 @@ public class NFA {
         return nfa;
     }
 
-    public static NFA edge(NFA currNfa, Character attr) {
+    public NFA edge(Character attr) {
         if (!attr.equals(EPSILON)) {
-            currNfa.alphabet.add(attr);
+            this.alphabet.add(attr);
         }
         NFA temp = new NFA();
-        temp.startState = new NFAState(false, ++currNfa.numStates);
-        temp.finalState = new NFAState(true, ++currNfa.numStates);
+        temp.startState = new NFAState(false, ++this.numStates);
+        temp.finalState = new NFAState(true, ++this.numStates);
 
         temp.startState.edges.add(attr);
         temp.startState.next.add(temp.finalState);
@@ -41,24 +41,24 @@ public class NFA {
         return temp;
     }
 
-    public static NFA combineNFAsOr(NFA currNfa, List<NFA> nfaList) {
+    public NFA or(List<NFA> nfaList) {
 
         int size = nfaList.size();
         NFA nfa = new NFA();
-        NFAState start = new NFAState(false,  ++currNfa.numStates);
-        NFAState fin = new NFAState(false, ++currNfa.numStates);
+        NFAState start = new NFAState(false,  ++this.numStates);
+        NFAState fin = new NFAState(false, ++this.numStates);
 
         for (int i = 0; i < size; i++) {
             start.edges.add(EPSILON);
 
-            NFA epsilonEdge = NFA.edge(currNfa, EPSILON);
-            NFA epsilonEdge2 = NFA.edge(currNfa, EPSILON);
+            NFA epsilonEdge = this.edge(EPSILON);
+            NFA epsilonEdge2 = this.edge(EPSILON);
             List<NFA> oRedEdge = new ArrayList<>();
             oRedEdge.add(epsilonEdge);
             oRedEdge.add(nfaList.get(i));
             oRedEdge.add(epsilonEdge2);
 
-            start.next.add(NFA.combineNFAsConcatenate(currNfa, oRedEdge).startState);
+            start.next.add(this.concatenate(oRedEdge).startState);
             nfaList.get(i).finalState.edges.add(EPSILON);
             nfaList.get(i).finalState.next.add(fin);
         }
@@ -66,13 +66,13 @@ public class NFA {
         nfa.startState = start;
         nfa.finalState = fin;
 
-        currNfa.startState = nfa.startState;
-        currNfa.finalState = nfa.finalState;
+        this.startState = nfa.startState;
+        this.finalState = nfa.finalState;
 
         return nfa;
     }
 
-    public static NFA combineNFAsConcatenate(NFA currNfa, List<NFA> nfaList) {
+    public NFA concatenate(List<NFA> nfaList) {
 
         int size = nfaList.size();
         NFA nfa = new NFA();
@@ -87,15 +87,15 @@ public class NFA {
         nfa.startState = start;
         nfa.finalState = nfaList.get(size-1).finalState;
 
-        currNfa.startState = nfa.startState;
-        currNfa.finalState = nfa.finalState;
+        this.startState = nfa.startState;
+        this.finalState = nfa.finalState;
 
         return nfa;
     }
 
-    public static NFA asterisk(NFA currNfa, NFA newNFA)  {
-        NFAState startState = new NFAState(false, ++currNfa.numStates);
-        NFAState finalState = new NFAState(true, ++currNfa.numStates);
+    public NFA asterisk(NFA newNFA)  {
+        NFAState startState = new NFAState(false, ++this.numStates);
+        NFAState finalState = new NFAState(true, ++this.numStates);
 
         startState.edges.add(EPSILON);
         startState.next.add(newNFA.startState);

@@ -27,7 +27,7 @@ public class LexicalAnalyzer {
             nfaList.add(currentNfa);
         }
 
-        NFA.combineNFAsOr(NFA.getInstance(), nfaList);
+        NFA.getInstance().or(nfaList);
 
         DFA dfa = DFAFactory.createDFAFromNFA(
                 NFA.getInstance(),
