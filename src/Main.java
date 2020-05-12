@@ -14,13 +14,14 @@ public class Main {
             ProgramFile programFile = new ProgramFile("test_programs/program_0.txt");
 
             LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(lexicalRulesFile);
-            ParserAnalyzer parserAnalyzer = new ParserAnalyzer(cfgRulesFile);
-
-//            List<String> tokens = new ArrayList<>();
             List<String> tokens = lexicalAnalyzer.tokenize(programFile.getProgram());
-            System.out.println("===TOKENS===");
+            System.out.println("===LEXICAL ANALYZER OUTPUT===");
             System.out.println(tokens);
-            parserAnalyzer.parse(tokens);
+
+            ParserAnalyzer parserAnalyzer = new ParserAnalyzer(cfgRulesFile);
+            List<List<String>> parserOutput = parserAnalyzer.parse(tokens);
+            System.out.println("===PARSER GENERATOR OUTPUT===");
+            System.out.println(parserOutput);
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,5 +1,6 @@
 import parseranalyzer.CFG;
 import parseranalyzer.CFGRulesFile;
+import parseranalyzer.LeftFacCFG;
 import parseranalyzer.LeftRecCFG;
 
 import java.util.List;
@@ -8,19 +9,20 @@ public class ParserAnalyzer {
 
     private final CFG cfg;
 
-    public ParserAnalyzer(CFGRulesFile cfgRulesFile) {
-//        this.cfg = new CFG(cfgRulesFile);
+    public ParserAnalyzer(CFGRulesFile cfgRulesFile) throws Exception {
         this.cfg = new CFG(
-                new LeftRecCFG(cfgRulesFile)
+                new LeftFacCFG(
+                    new LeftRecCFG(cfgRulesFile)
+                )
         );
     }
 
-    public void parse(List<String> tokens) throws Exception {
+    public List<List<String>> parse(List<String> tokens) throws Exception {
         tokens.add("$");
         this.cfg.createFirstAndFollowSets();
         this.cfg.createLL1Table(this.cfg.getFirst(), this.cfg.getFollow());
 
         System.out.println(cfg.toString());
-        System.out.println(cfg.parse(tokens));
+        return cfg.parse(tokens);
     }
 }

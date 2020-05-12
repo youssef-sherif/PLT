@@ -14,10 +14,11 @@ public class LL1 {
         this.cfg = cfg;
     }
 
-    public boolean parse(List<String> tokens,
+    public List<List<String>> parse(List<String> tokens,
                          Table<String, String, List<String>> parsingTable,
                          List<CFGEntry> productions,
                          Set<String> terminals) throws Exception {
+        List<List<String>> toReturn = new ArrayList<>();
         Stack<String> stack = new Stack<>();
         // push start rule to stack
         stack.push("$");
@@ -28,7 +29,7 @@ public class LL1 {
             String curr = tokens.get(i);
 
             if (top.equals("$") && curr.equals("$")) {
-                return true;
+                return toReturn;
             }
             else if (terminals.contains(top)
                     && terminals.contains(curr)
@@ -39,20 +40,20 @@ public class LL1 {
             else if (!terminals.contains(top)) {
                 if (!parsingTable.contains(top, curr)) {
                     // reject
-                    return false;
+                    throw new Exception("Parsing Error");
                 } else {
                     List<String> rule = parsingTable.get(top, curr);
                     stack.pop();
                     for (int j = rule.size() - 1; j >= 0; j--) {
                         stack.push(rule.get(j));
                     }
-                    System.out.println(rule);
+                    toReturn.add(rule);
                 }
             } else {
-                throw new Exception("parse error");
+                throw new Exception("Parsing Error");
             }
         }
-        return true;
+        return toReturn;
     }
 
     public Set<String> first(List<List<String>> rule) {
