@@ -16,6 +16,12 @@ public class CFG {
     private Map<String, Set<String>> follow;
     private Table<String, String, List<String>> parsingTable;
 
+    public CFG(CFGDecorator cfgDecorator) {
+        this.productions = cfgDecorator.solve();
+        this.terminals = CFGUtil.findTerminalsAndRemoveQuotations(this.productions);
+        this.parser = new LL1(this);
+    }
+
     public CFG(CFGRulesFile cfgRulesFile) {
         // convert Map<String, String> productions to List<CFGEntry>
         // for each raw productionRule convert it to List of Lists
@@ -33,13 +39,7 @@ public class CFG {
         this.parser = new LL1(this);
     }
 
-    public CFG(LeftRecCFG leftRecCFG) {
-        this.productions = leftRecCFG.removeLeftRecursion();
-        this.terminals = CFGUtil.findTerminalsAndRemoveQuotations(this.productions);
-        this.parser = new LL1(this);
-    }
-
-    public boolean parse(List<String> tokens) throws Exception {
+    public List<List<String>> parse(List<String> tokens) throws Exception {
         return this.parser.parse(
                 tokens,
                 parsingTable,

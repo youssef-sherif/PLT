@@ -7,9 +7,13 @@ import java.util.*;
 *       Use new CFG(new LeftRecCFG(productions))
 *       to check for and remove left recursion
  */
-public class LeftRecCFG {
+public class LeftRecCFG implements CFGDecorator {
 
     private final List<CFGEntry> productions;
+
+    public LeftRecCFG(LeftFacCFG leftFacCFG) {
+        this.productions = leftFacCFG.solve();
+    }
 
     public LeftRecCFG(CFGRulesFile cfgRulesFile) {
         // convert Map<String, String> productions to List<CFGEntry>
@@ -26,15 +30,16 @@ public class LeftRecCFG {
         }
     }
 
-    public List<CFGEntry> removeLeftRecursion() {
+    @Override
+    public List<CFGEntry> solve() {
         List<CFGEntry> toReturn = new ArrayList<>();
         for (CFGEntry entry : this.productions) {
             boolean add = true;
             for (List<String> l : entry.getRule()) {
                 // left recursion found
                 if (entry.getKey().equals(l.get(0))) {
-                    CFGEntry newProduction = recreateProduction(entry);
-                    CFGEntry newProductionDash = createProductionDash(entry, l);
+                    CFGEntry newProduction = this.recreateEntry(entry);
+                    CFGEntry newProductionDash = this.createDashEntry(entry, l);
 
                     toReturn.remove(entry);
                     toReturn.add(newProduction);
@@ -50,7 +55,7 @@ public class LeftRecCFG {
         return toReturn;
     }
 
-    private CFGEntry recreateProduction(CFGEntry entry) {
+    private CFGEntry recreateEntry(CFGEntry entry) {
         String productionKey = entry.getKey();
         List<List<String>> productionRule = new ArrayList<>();
         for (List<String> l : entry.getRule()) {
@@ -65,7 +70,7 @@ public class LeftRecCFG {
         return new CFGEntry(productionKey, productionRule);
     }
 
-    private CFGEntry createProductionDash(CFGEntry entry, List<String> context) {
+    private CFGEntry createDashEntry(CFGEntry entry, List<String> context) {
         String dashRuleKey = entry.getKey() + "_dash";
         List<List<String>> dashRuleProduction = new ArrayList<>();
 

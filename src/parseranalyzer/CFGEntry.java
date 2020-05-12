@@ -22,7 +22,6 @@ public class CFGEntry {
 
     @Override
     public String toString() {
-        return  "===key===" + key + "\n" +
-                "===rule===" + rule + "\n";
+        return  key + " = "  + rule + "\n";
     }
 }
