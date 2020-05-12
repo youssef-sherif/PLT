@@ -1,7 +1,7 @@
-import parseranalyzer.CFG;
-import parseranalyzer.CFGRulesFile;
-import parseranalyzer.LeftFacCFG;
-import parseranalyzer.LeftRecCFG;
+import parsergenerator.CFG;
+import parsergenerator.CFGRulesFile;
+import parsergenerator.LeftFacCFG;
+import parsergenerator.LeftRecCFG;
 
 import java.util.List;
 

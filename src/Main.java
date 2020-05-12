@@ -1,7 +1,6 @@
 import lexicalanalyzer.LexicalRulesFile;
-import parseranalyzer.CFGRulesFile;
+import parsergenerator.CFGRulesFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Main {

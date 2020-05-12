@@ -1,4 +1,4 @@
-package parseranalyzer;
+package parsergenerator;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -1,6 +1,6 @@
-package parseranalyzer;
+package parsergenerator;
 
-import static parseranalyzer.Constants.*;
+import static parsergenerator.Constants.*;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;

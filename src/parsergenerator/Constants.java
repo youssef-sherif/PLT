@@ -1,4 +1,4 @@
-package parseranalyzer;
+package parsergenerator;
 
 public class Constants {
     public static final String EPSILON = "Ɛ";
