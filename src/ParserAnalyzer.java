@@ -9,7 +9,7 @@ public class ParserAnalyzer {
 
     private final CFG cfg;
 
-    public ParserAnalyzer(CFGRulesFile cfgRulesFile) throws Exception {
+    public ParserAnalyzer(CFGRulesFile cfgRulesFile) {
         this.cfg = new CFG(
                 new LeftFacCFG(
                     new LeftRecCFG(cfgRulesFile)
