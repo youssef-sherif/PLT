@@ -11,8 +11,8 @@ public class LeftRecCFG implements CFGDecorator {
 
     private final List<CFGEntry> productions;
 
-    public LeftRecCFG(LeftFacCFG leftFacCFG) {
-        this.productions = leftFacCFG.solve();
+    public LeftRecCFG(CFGDecorator cfgDecorator) {
+        this.productions = cfgDecorator.solve();
     }
 
     public LeftRecCFG(CFGRulesFile cfgRulesFile) {
