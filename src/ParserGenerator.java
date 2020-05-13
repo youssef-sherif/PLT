@@ -5,11 +5,11 @@ import parsergenerator.LeftRecCFG;
 
 import java.util.List;
 
-public class ParserAnalyzer {
+public class ParserGenerator {
 
     private final CFG cfg;
 
-    public ParserAnalyzer(CFGRulesFile cfgRulesFile) {
+    public ParserGenerator(CFGRulesFile cfgRulesFile) {
         this.cfg = new CFG(
                 new LeftFacCFG(
                     new LeftRecCFG(cfgRulesFile)

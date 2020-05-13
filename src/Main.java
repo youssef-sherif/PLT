@@ -17,8 +17,8 @@ public class Main {
             System.out.println("===LEXICAL ANALYZER OUTPUT===");
             System.out.println(tokens);
 
-            ParserAnalyzer parserAnalyzer = new ParserAnalyzer(cfgRulesFile);
-            List<List<String>> parserOutput = parserAnalyzer.parse(tokens);
+            ParserGenerator parserGenerator = new ParserGenerator(cfgRulesFile);
+            List<List<String>> parserOutput = parserGenerator.parse(tokens);
             System.out.println("===PARSER GENERATOR OUTPUT===");
             System.out.println(parserOutput);
 
