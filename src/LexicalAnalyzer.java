@@ -13,24 +13,10 @@ public class LexicalAnalyzer {
     }
 
     public List<String> tokenize(String program) throws Exception {
-
-        List<NFA> nfaList = new ArrayList<>();
-
-        System.out.println(lexicalRulesFile.toString());
         RegExp regExp = new RegExp(lexicalRulesFile);
-        for (Map.Entry<String, String> entry : lexicalRulesFile.getRegularExpressions().entrySet()) {
-
-            NFA currentNfa = regExp.toNFA(
-                    entry.getKey(),
-                    regExp.preProcess(entry.getValue())
-            );
-            nfaList.add(currentNfa);
-        }
-
-        NFA.getInstance().or(nfaList);
-
+        NFA nfa = regExp.toNFA();
         DFA dfa = DFAFactory.createDFAFromNFA(
-                NFA.getInstance(),
+                nfa,
                 lexicalRulesFile.getKeyWords(),
                 lexicalRulesFile.getPunctuation()
         );

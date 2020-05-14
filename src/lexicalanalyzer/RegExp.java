@@ -9,23 +9,28 @@ import java.util.stream.Collectors;
 public class RegExp {
 
     private final PartFactory partFactory;
+    private final Map<String, String> regularExpressions;
     private final Map<String, String> regularDefinitions;
 
-    private String regEx;
-    private String key;
-
     public RegExp(LexicalRulesFile lexicalRulesFile) {
+        this.regularExpressions = lexicalRulesFile.getRegularExpressions();
         this.regularDefinitions = lexicalRulesFile.getRegularDefinitions();
         this.partFactory = new PartFactory(this.regularDefinitions.keySet());
     }
 
-    public RegExp(String key,
-                  String regEx,
-                  LexicalRulesFile lexicalRulesFile) {
-        this.regEx = regEx;
-        this.key = key;
-        this.regularDefinitions = lexicalRulesFile.getRegularDefinitions();
-        this.partFactory = new PartFactory(this.regularDefinitions.keySet());
+    public NFA toNFA() {
+        List<NFA> nfaList = new ArrayList<>();
+        for (Map.Entry<String, String> entry : this.regularExpressions.entrySet()) {
+            NFA currentNfa = this.toNFA(
+                    entry.getKey(),
+                    this.preProcess(entry.getValue())
+            );
+            nfaList.add(currentNfa);
+        }
+        NFA nfa = NFA.getInstance().or(nfaList);
+        nfa.getFinalState().setRuleName("nfa");
+
+        return NFA.getInstance();
     }
 
     public String preProcess(String regExString) {
@@ -36,13 +41,6 @@ public class RegExp {
          */
 
         return String.format(" | %s | ", regExString);
-    }
-
-    public NFA toNFA() {
-        System.out.println("===" + key + "===");
-        String regEx = preProcess(this.regEx);
-        visualize(regEx);
-        return toNFA(key, regEx);
     }
 
     public NFA toNFA(String key, String regEx) {

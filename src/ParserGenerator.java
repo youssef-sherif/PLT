@@ -21,8 +21,8 @@ public class ParserGenerator {
         tokens.add("$");
         this.cfg.createFirstAndFollowSets();
         this.cfg.createLL1Table(this.cfg.getFirst(), this.cfg.getFollow());
-
         System.out.println(cfg.toString());
+
         return cfg.parse(tokens);
     }
 }
