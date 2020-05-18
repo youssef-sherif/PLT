@@ -36,7 +36,7 @@ public class LeftFacCFG implements CFGDecorator {
         for (CFGEntry entry : this.productions) {
             if (shouldSolve(entry)) {
                 CFGEntry entry1 = this.recreateEntry(entry);
-                CFGEntry entry2 = this.createDashEntry(entry, entry.getRule());
+                CFGEntry entry2 = this.createDashEntry(entry);
                 toReturn.add(entry1);
                 toReturn.add(entry2);
             } else {
@@ -74,11 +74,11 @@ public class LeftFacCFG implements CFGDecorator {
         return new CFGEntry(entry.getKey(), productionRule);
     }
 
-    private CFGEntry createDashEntry(CFGEntry entry, List<List<String>> context) {
+    private CFGEntry createDashEntry(CFGEntry entry) {
         String dashRuleKey = entry.getKey() + "_dash";
         List<List<String>> dashRuleProduction = new ArrayList<>();
 
-        for (List<String> l : context) {
+        for (List<String> l : entry.getRule()) {
             if (l.size() == 1) {
                 dashRuleProduction.add(Collections.singletonList(Constants.EPSILON));
             } else {
