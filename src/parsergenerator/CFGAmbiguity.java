@@ -2,6 +2,6 @@ package parsergenerator;
 
 import java.util.List;
 
-public interface CFGDecorator {
+public interface CFGAmbiguity {
     List<CFGEntry> solve();
 }

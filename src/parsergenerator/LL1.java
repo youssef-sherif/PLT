@@ -24,36 +24,40 @@ public class LL1 {
         stack.push("$");
         stack.push(productions.get(0).getKey());
         int i = 0;
+        String top = "";
+        String curr = "";
         while (!stack.empty()) {
-            String top = stack.peek();
-            String curr = tokens.get(i);
+            top = stack.peek();
+            curr = tokens.get(i);
+            System.out.println( curr + " -> " + top + " ");
 
             if (top.equals("$") && curr.equals("$")) {
+                System.out.println("here");
                 return toReturn;
             }
             else if (terminals.contains(top)
-                    && terminals.contains(curr)
-                    && top.equals(curr)) {
-                stack.pop();
-                i++;
-            }
-            else if (!terminals.contains(top)) {
-                if (!parsingTable.contains(top, curr)) {
-                    // reject
-                    throw new Exception("Parsing Error");
-                } else {
-                    List<String> rule = parsingTable.get(top, curr);
+                        && terminals.contains(curr)
+                        && top.equals(curr)) {
                     stack.pop();
+                    i++;
+            }
+            else {
+                List<String> rule = parsingTable.get(top, curr);
+                if (rule == null) {
+                    stack.pop();
+                    i++;
+                }
+                else if (top.equals(EPSILON)) {
+                    stack.pop();
+                } else if (!terminals.contains(top)) {
                     for (int j = rule.size() - 1; j >= 0; j--) {
                         stack.push(rule.get(j));
                     }
                     toReturn.add(rule);
                 }
-            } else {
-                throw new Exception("Parsing Error");
             }
         }
-        return toReturn;
+        throw new Exception("Parse Error");
     }
 
     public Set<String> first(List<List<String>> rule) {

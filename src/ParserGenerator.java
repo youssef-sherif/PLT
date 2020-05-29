@@ -1,7 +1,7 @@
 import parsergenerator.CFG;
 import parsergenerator.CFGRulesFile;
-import parsergenerator.LeftFacCFG;
-import parsergenerator.LeftRecCFG;
+import parsergenerator.LeftFactoring;
+import parsergenerator.LeftRecursion;
 
 import java.util.List;
 
@@ -11,8 +11,9 @@ public class ParserGenerator {
 
     public ParserGenerator(CFGRulesFile cfgRulesFile) {
         this.cfg = new CFG(
-                new LeftFacCFG(
-                    new LeftRecCFG(cfgRulesFile)
+//                cfgRulesFile
+                new LeftFactoring(
+                    new LeftRecursion(cfgRulesFile)
                 )
         );
     }

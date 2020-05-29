@@ -4,18 +4,18 @@ import java.util.*;
 
 /*
  *   Decorator class for CFG:
- *       Use new CFG(new LeftFacCFG(productions))
+ *       Use new CFG(new LeftFactoring(productions))
  *       to perform left factoring
  */
-public class LeftFacCFG implements CFGDecorator {
+public class LeftFactoring implements CFGAmbiguity {
 
     private final List<CFGEntry> productions;
 
-    public LeftFacCFG(CFGDecorator cfgDecorator) {
-        this.productions = cfgDecorator.solve();
+    public LeftFactoring(CFGAmbiguity ambiguity) {
+        this.productions = ambiguity.solve();
     }
 
-    public LeftFacCFG(CFGRulesFile cfgRulesFile) {
+    public LeftFactoring(CFGRulesFile cfgRulesFile) {
         // convert Map<String, String> productions to List<CFGEntry>
         // for each raw productionRule convert it to List of Lists
         // and create a CFGEntry with key and rule

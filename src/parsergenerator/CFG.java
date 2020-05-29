@@ -16,8 +16,8 @@ public class CFG {
     private Map<String, Set<String>> follow;
     private Table<String, String, List<String>> parsingTable;
 
-    public CFG(CFGDecorator cfgDecorator) {
-        this.productions = cfgDecorator.solve();
+    public CFG(CFGAmbiguity ambiguity) {
+        this.productions = ambiguity.solve();
         this.terminals = CFGUtil.findTerminalsAndRemoveQuotations(this.productions);
         this.parser = new LL1(this);
     }

@@ -4,18 +4,18 @@ import java.util.*;
 
 /*
 *   Decorator class for CFG:
-*       Use new CFG(new LeftRecCFG(productions))
+*       Use new CFG(new LeftRecursion(productions))
 *       to check for and remove left recursion
  */
-public class LeftRecCFG implements CFGDecorator {
+public class LeftRecursion implements CFGAmbiguity {
 
     private final List<CFGEntry> productions;
 
-    public LeftRecCFG(CFGDecorator cfgDecorator) {
-        this.productions = cfgDecorator.solve();
+    public LeftRecursion(CFGAmbiguity ambiguity) {
+        this.productions = ambiguity.solve();
     }
 
-    public LeftRecCFG(CFGRulesFile cfgRulesFile) {
+    public LeftRecursion(CFGRulesFile cfgRulesFile) {
         // convert Map<String, String> productions to List<CFGEntry>
         // for each raw productionRule convert it to List of Lists
         // and create a CFGEntry with key and rule
