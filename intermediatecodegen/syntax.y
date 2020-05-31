@@ -10,7 +10,7 @@
 
 %union {              /* define stack type */
   double dval;
-  int ival
+  int ival;
   char cval;
   float fval;  
 }
@@ -69,35 +69,35 @@
 
 METHOD_BODY: STATEMENT_LIST ;
 STATEMENT_LIST: 
-            STATEMENT {$$} 
-          | STATEMENT_LIST STATEMENT {$$}
+            STATEMENT {$$.code = $1.code;} 
+          | STATEMENT_LIST STATEMENT {$$.next = $2.next;}
           ;
 STATEMENT: 
-            DECLARATION {$$}
-          | IF_STATEMENT {$$}
-          | WHILE_STATEMENT {$$}
-          | ASSIGNMENT {$$}
+            DECLARATION {$$;}
+          | IF_STATEMENT {$$;}
+          | WHILE_STATEMENT {$$;}
+          | ASSIGNMENT {$$;}
           ;
-DECLARATION: PRIMITIVE_TYPE IDENTIFIER SEMI {$$};
+DECLARATION: PRIMITIVE_TYPE IDENTIFIER SEMI {$$;};
 PRIMITIVE_TYPE: 
-            INT {$$}
-          | FLOAT {$$}
+            INT {$$;}
+          | FLOAT {$$;}
           ;
-IF_STATEMENT: IF LPAREN EXPRESSION RPAREN LBRACE STATEMENT RBRACE ELSE LBRACE STATEMENT RBRACE {$$} ;
-WHILE_STATEMENT: WHILE LPAREN EXPRESSION RPAREN LBRACE STATEMENT RBRACE {$$} ;
-ASSIGNMENT: IDENTIFIER ASSIGN EXPRESSION SEMI {$$} ;
+IF_STATEMENT: IF LPAREN EXPRESSION RPAREN LBRACE STATEMENT RBRACE ELSE LBRACE STATEMENT RBRACE {$$;} ;
+WHILE_STATEMENT: WHILE LPAREN EXPRESSION RPAREN LBRACE STATEMENT RBRACE {$$;} ;
+ASSIGNMENT: IDENTIFIER ASSIGN EXPRESSION SEMI {$$;} ;
 EXPRESSION: 
-            NUMBER {$$}
-          | EXPRESSION INFIX_OPERATOR EXPRESSION {$$}
-          | IDENTIFIER {$$}
-          | LPAREN EXPRESSION RPAREN {$$}
+            NUMBER {$$;}
+          | EXPRESSION INFIX_OPERATOR EXPRESSION {$$;}
+          | IDENTIFIER {$$;}
+          | LPAREN EXPRESSION RPAREN {$$;}
           ;
 INFIX_OPERATOR: 
-            INCR {$$}
-          | MULOP {$$}
-          | RELOP {$$}
-          | OROP {$$}
-          | ANDOP {$$}
+            INCR {$$;}
+          | MULOP {$$;}
+          | RELOP {$$;}
+          | OROP {$$;}
+          | ANDOP {$$;}
           ;        
 
 %%
@@ -108,8 +108,8 @@ void yyerror ()
   exit(1);
 }
 
-int main (int argc, char *argv[]){
-
+int main (int argc, char *argv[])
+{
     // parsing
     int flag;
     yyin = fopen("code.txt", "r");
