@@ -1,9 +1,18 @@
+%language "c++"
+
 %{
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
+    #include <vector>
+    #include <map>
+
+    vector<string> codeList;
+    map<string, pair<int,type_enum> > symbTab;
+
     extern FILE *yyin;
     extern int lineno;
+
     extern int yylex();
     void yyerror();
 %}
@@ -51,7 +60,8 @@
 %token NUMBER
 
 
-%type <s_type>    PRIMITIVE_TYPE
+%type <s_type>    METHOD_BODY
+%type <_type>    PRIMITIVE_TYPE
 %type <decl_type> DECLARATION
 %type <expr_type> EXPRESSION
 %type <asgn_type> ASSIGNMENT
@@ -67,10 +77,24 @@
 
 /* expression priorities and rules */
 
-METHOD_BODY: STATEMENT_LIST ;
+METHOD_BODY: STATEMENT_LIST 
+            {
+              $$.code = $1.code;              
+            };
 STATEMENT_LIST: 
-            STATEMENT {$$.code = $1.code;} 
-          | STATEMENT_LIST STATEMENT {$$.next = $2.next;}
+            STATEMENT 
+            {
+                $$.code = $1.code;
+                $$.next = $1.next;
+            } 
+          | STATEMENT_LIST STATEMENT 
+          {
+            $$.next = $2.next;
+            $$.code = new vector<string *>();
+            add_to_list($$.code, {$1.code});
+            perform_label_adding($$.code, &$1.next);
+            add_to_list($$.code,{$2.code});
+          }
           ;
 STATEMENT: 
             DECLARATION {$$;}

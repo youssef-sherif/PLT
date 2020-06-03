@@ -1,3 +1,4 @@
-lex.yy.c
-syntax.tab.c
-syntax.tab.h
+*.yy.cc
+*.tab.cc
+*.tab.hh
+stack.hh

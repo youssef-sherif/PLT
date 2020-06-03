@@ -1,4 +1,4 @@
-%option noyywrap
+%option noyywrap c++
 
 %{
     #include <stdio.h>
