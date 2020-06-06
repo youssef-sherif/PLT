@@ -30,11 +30,11 @@
 %token <fval>   FLOAT
 %token <dval>   DOUBLE
 %token <idval>  IDENTIFIER
-%token <aopval> OROP
-%token <aopval> ANDOP
-%token <aopval> RELOP
-%token <aopval> ADDOP
-%token <aopval> MULOP
+%token <infixval> OROP
+%token <infixval> ANDOP
+%token <infixval> RELOP
+%token <infixval> ADDOP
+%token <infixval> MULOP
 
 %token IF
 %token ELSE
@@ -61,7 +61,7 @@
 
 
 %type <s_type>    METHOD_BODY
-%type <_type>    PRIMITIVE_TYPE
+%type <p_type>    PRIMITIVE_TYPE
 %type <decl_type> DECLARATION
 %type <expr_type> EXPRESSION
 %type <asgn_type> ASSIGNMENT
@@ -69,7 +69,7 @@
 %type <stmt_type> STATEMENT_LIST
 %type <stmt_type> IF_STATEMENT
 %type <stmt_type> WHILE_STATEMENT
-%type <aop_type>  INFIX_OPERATOR
+%type <infix_type>  INFIX_OPERATOR
 
 %start METHOD_BODY
 
