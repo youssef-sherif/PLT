@@ -90,10 +90,6 @@ STATEMENT_LIST:
           | STATEMENT_LIST STATEMENT 
           {
             $$.next = $2.next;
-            $$.code = new vector<string *>();
-            add_to_list($$.code, {$1.code});
-            perform_label_adding($$.code, &$1.next);
-            add_to_list($$.code,{$2.code});
           }
           ;
 STATEMENT: 

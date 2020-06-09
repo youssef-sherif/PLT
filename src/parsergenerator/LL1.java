@@ -29,7 +29,7 @@ public class LL1 {
         while (!stack.empty()) {
             top = stack.peek();
             curr = tokens.get(i);
-            System.out.println( curr + " -> " + top + " ");
+//            System.out.println( curr + " -> " + top + " ");
 
             if (top.equals("$") && curr.equals("$")) {
                 System.out.println("here");
