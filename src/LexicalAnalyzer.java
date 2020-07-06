@@ -12,7 +12,7 @@ public class LexicalAnalyzer {
 
     public List<String> tokenize(String program) throws Exception {
         RegExp regExp = new RegExp(lexicalRulesFile);
-        NFA nfa = regExp.toNFA();
+        NFA nfa = regExp.toNFAAll();
         DFA dfa = DFAFactory.createDFAFromNFA(
                 nfa,
                 lexicalRulesFile.getKeyWords(),

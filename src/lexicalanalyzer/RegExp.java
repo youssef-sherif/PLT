@@ -1,6 +1,7 @@
 package lexicalanalyzer;
 
 import static lexicalanalyzer.Constants.*;
+import static lexicalanalyzer.RegExpHelper.*;
 
 import java.util.*;
 import java.util.List;
@@ -18,10 +19,10 @@ public class RegExp {
         this.partFactory = new PartFactory(this.regularDefinitions.keySet());
     }
 
-    public NFA toNFA() {
+    public NFA toNFAAll() {
         List<NFA> nfaList = new ArrayList<>();
         for (Map.Entry<String, String> entry : this.regularExpressions.entrySet()) {
-            NFA currentNfa = this.toNFA(
+            NFA currentNfa = this.toNFAByKey(
                     entry.getKey(),
                     this.preProcess(entry.getValue())
             );
@@ -43,10 +44,11 @@ public class RegExp {
         return String.format(" | %s | ", regExString);
     }
 
-    public NFA toNFA(String key, String regEx) {
+    public NFA toNFAByKey(String key, String regEx) {
 
         List<List<Part>> oRedPartsList = findGroupedParts(
-                                            findORedParts(regEx)
+                                            findORedParts(regEx, partFactory),
+                                            partFactory
                                          );
 
         List<NFA> edgesList = new ArrayList<>();
@@ -58,11 +60,11 @@ public class RegExp {
             for (Part part1: parts) {
                 if (part1.isGroup()) {
                     // Recursively convert group Part to NFA
-                    NFA groupNfa = toNFA(key, preProcess(part1.getExpression()));
+                    NFA groupNfa = toNFAByKey(key, preProcess(part1.getExpression()));
                     if (part1.isAsterisk()) {
                         concatenatedNFAs.add(nfa.asterisk(groupNfa));
                     } else if (part1.isPlus()) {
-                        NFA groupNfa2 = toNFA(key, preProcess(part1.getExpression()));
+                        NFA groupNfa2 = toNFAByKey(key, preProcess(part1.getExpression()));
                         concatenatedNFAs.add(groupNfa);
                         concatenatedNFAs.add(nfa.asterisk(groupNfa2));
                     } else {
@@ -132,7 +134,7 @@ public class RegExp {
 
                     // if part is a definitions recursively convert it to NFA
                     if (andEdPart.isDefinition()) {
-                        NFA edgeNfa = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
+                        NFA edgeNfa = toNFAByKey(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                         andEdNFAs.add(nfa.asterisk(edgeNfa));
                     } else {
                         for (char nfaChar : andEdPart.getExpression().toCharArray()) {
@@ -152,8 +154,8 @@ public class RegExp {
 
                     // if part is a definitions recursively convert it to lexicalanalyzer.NFA
                     if (andEdPart.isDefinition()) {
-                        NFA edgeNfa = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
-                        NFA edgeNfa2 = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
+                        NFA edgeNfa = toNFAByKey(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
+                        NFA edgeNfa2 = toNFAByKey(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                         andEdNFAs.add(edgeNfa);
                         andEdNFAs.add(nfa.asterisk(edgeNfa2));
                     } else {
@@ -176,7 +178,7 @@ public class RegExp {
 
                     if (andEdPart.isDefinition()) {
                         // if part is a definitions recursively convert it to NFA
-                        NFA edgeNfa = toNFA(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
+                        NFA edgeNfa = toNFAByKey(key, replaceRange(this.regularDefinitions.get(andEdPart.getExpression())));
                         andEdNFAs.add(edgeNfa);
                     } else {
                         for (char nfaChar : andEdPart.getExpression().toCharArray()) {
@@ -195,187 +197,5 @@ public class RegExp {
         }
 
         return andEdNFAs;
-    }
-
-    private String replaceRange(String string) {
-
-        char[] chars = (string + " | ").toCharArray();
-        StringBuilder toReturn = new StringBuilder();
-
-        for (int i = 0; i < chars.length; i++) {
-            if (chars[i] == '-') {
-                int j = i-1;
-                int k = i+1;
-                while (chars[j] == ' ') {
-                    j--;
-                }
-                while (chars[k] == ' ') {
-                    k++;
-                }
-
-                // note that we loop over chars[j] + 1 to chars[k] - 1
-                // because chars[j] and chars[k] are already added
-                // For Example: 0 - 4 would be turned into 0 + 1 | 2 | 3 | + 4
-                int l;
-                toReturn.append(" | ");
-                for (l = chars[j]+1; l < chars[k]; l++) {
-                    toReturn.append(Character.toString(l)).append(" | ");
-                }
-            }
-            else {
-                toReturn.append(chars[i]);
-            }
-        }
-
-        return toReturn.toString();
-    }
-
-
-    private List<Part> findORedParts(String regExString) {
-        List<Character> regExStream = regExString.chars()
-                // Convert IntStream to Stream<Character>
-                .mapToObj(e -> (char)e)
-                // Collect the elements as a List Of Characters
-                .collect(Collectors.toList());
-
-        ListIterator<Character> iterator = regExStream.listIterator();
-        StringBuilder buffer = new StringBuilder();
-        List<Part> toReturn = new ArrayList<>();
-
-        boolean ignoring = false;
-        while (iterator.hasNext()) {
-            char curr = iterator.next();
-
-            buffer.append(curr);
-
-            // we ignore any '|' symbol that is within parenthesis.
-            // this function gets called again when we want to get ORed parts inside parenthesis.
-            if (curr == '(') ignoring = true;
-            if (curr == ')') ignoring = false;
-            if ((curr == '|' || !iterator.hasNext())
-                    && !ignoring) {
-                buffer.deleteCharAt(buffer.length()-1);
-                Part part = partFactory.createNoOpPart(buffer.toString());
-                toReturn.add(part);
-                buffer = new StringBuilder();
-            }
-        }
-
-        return toReturn;
-    }
-
-    private List<List<Part>> findGroupedParts(List<Part> parts) {
-
-        List<List<Part>> toReturn = new ArrayList<>();
-
-        for (Part part : parts) {
-            String regExString1 = part.getExpression() + " ";
-            List<Character> regExStream = regExString1.chars()
-                    // Convert IntStream to Stream<Character>
-                    .mapToObj(e -> (char) e)
-                    // Collect the elements as a List Of Characters
-                    .collect(Collectors.toList());
-
-            ListIterator<Character> iterator = regExStream.listIterator();
-            List<Part> temp = new ArrayList<>();
-
-            StringBuilder buffer = new StringBuilder();
-            int parenthesesCounter = 0;
-
-            while (iterator.hasNext()) {
-                char currRegEx = iterator.next();
-
-                // if '(' found extract all the pattern inside '(' and ')' into a buffer
-                if (currRegEx == '(' && iterator.hasNext()) {
-                    // buffer that we append to all regEx within '(' and ')'
-                    StringBuilder bracketBuffer = new StringBuilder();
-                    char parenthesisPostfix = ' ';
-
-                    // Combine all characters before '('
-                    temp.add(
-                            partFactory.createNoOpPart(buffer.toString())
-                    );
-                    buffer = new StringBuilder();
-
-                    // skip '('
-                    currRegEx = iterator.next();
-
-                    parenthesesCounter++;
-                    while (true) {
-                        if (currRegEx == '(') {
-                            parenthesesCounter++;
-                        } else if (regExStream.get(iterator.previousIndex() - 1) == ')') {
-                            parenthesesCounter--;
-                        }
-                        if (parenthesesCounter == 0) {
-                            break;
-                        }
-                        bracketBuffer.append(currRegEx);
-                        if (iterator.hasNext()) currRegEx = iterator.next();
-                        else break;
-                    }
-                    // remove ')'
-                    bracketBuffer.deleteCharAt(bracketBuffer.length() - 1);
-
-                    List<Part> bracketParts = new ArrayList<>();
-
-                    // check parenthesis post fix for '*' or '+'
-                    while (iterator.hasNext()) {
-                        if (currRegEx == '*' || currRegEx == '+') {
-                            parenthesisPostfix = currRegEx;
-                            break;
-                        } else if (currRegEx != ' ') {
-                            parenthesisPostfix = iterator.previous();
-                            break;
-                        }
-                        currRegEx = iterator.next();
-                    }
-                    bracketParts.add(
-                            partFactory.createGroupPart(bracketBuffer.toString(), parenthesisPostfix)
-                    );
-                    temp.addAll(bracketParts);
-                }
-                // Combine all characters after brackets
-                else {
-                    buffer = new StringBuilder();
-                    while (iterator.hasNext() && regExStream.get(iterator.nextIndex()) != '(') {
-                        buffer.append(currRegEx);
-                        currRegEx = iterator.next();
-                        if (currRegEx == '(') {
-                            buffer.append(currRegEx);
-                            Part part1 = partFactory.createNoOpPart(buffer.toString());
-                            temp.add(part1);
-                            break;
-                        } else if (!iterator.hasNext()) {
-                            buffer.append(currRegEx);
-                            Part part1 = partFactory.createNoOpPart(buffer.toString());
-                            temp.add(part1);
-                            break;
-                        }
-                    }
-                }
-            }
-            toReturn.add(temp);
-        }
-
-        return toReturn;
-    }
-
-    // Top level visualization
-    // This visualization does not include definitions
-    // Expressions ending '+' and '*' are displayed as NOOP
-    //      since they are not handled yet
-    private void visualize(String regEx) {
-        List<List<Part>> partsOfParts = findGroupedParts(
-                findORedParts(regEx)
-        );
-
-        for ( List<Part> parts: partsOfParts) {
-            // exp with different number will be ORed together
-            // this is used for debugging only
-            for (Part part1: parts) {
-                System.out.println(part1);
-            }
-        }
     }
 }

@@ -34,7 +34,7 @@ public class LeftRecursion implements CFGAmbiguity {
     public List<CFGEntry> solve() {
         List<CFGEntry> toReturn = new ArrayList<>();
         for (CFGEntry entry : this.productions) {
-            boolean add = true;
+            boolean flushToReturnList = true;
             for (List<String> l : entry.getRule()) {
                 // left recursion found
                 if (entry.getKey().equals(l.get(0))) {
@@ -44,10 +44,10 @@ public class LeftRecursion implements CFGAmbiguity {
                     toReturn.remove(entry);
                     toReturn.add(newProduction);
                     toReturn.add(newProductionDash);
-                    add = false;
+                    flushToReturnList = false;
                 }
             }
-            if (add) {
+            if (flushToReturnList) {
                 toReturn.add(entry);
             }
         }
